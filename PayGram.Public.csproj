@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\OPGbot\Utilities\Utilities.csproj" />
     <ProjectReference Include="..\CurrenciesLib\CurrenciesLib.csproj" />
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
