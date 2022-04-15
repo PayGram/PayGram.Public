@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace PayGram.Types
+﻿namespace PayGram.Types
 {
-	public class RequestPayInvoice : PaygramRequest
-	{
-		public Guid InvoiceCode { get; set; }
-	}
+    public class RequestPayInvoice : PaygramRequest
+    {
+        public Guid InvoiceCode { get; set; }
+    }
 }
