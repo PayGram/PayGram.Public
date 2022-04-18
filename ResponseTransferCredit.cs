@@ -10,6 +10,12 @@ namespace PayGram.Types
         {
         }
 
+        public ResponseTransferCredit(string err)
+                        : base(err)
+        {
+            Type = PaygramResponseTypes.ResponseTransferCredit;
+        }
+
         public decimal FromCredit { get; set; }
         public decimal ToCredit { get; set; }
         public Guid VoucherCode { get; set; }

@@ -5,11 +5,11 @@
         /// <summary>
         /// The currency of the amount that should be sent
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public string? CurrencyCode { get; set; }
         /// <summary>
         /// The username of the user at the client side that is receiving the money or null to create an open Invoice
         /// </summary>
-        public string ToUserCliId { get; set; }
+        public string? ToUserCliId { get; set; }
         /// <summary>
         /// The amount to send
         /// </summary>
@@ -17,7 +17,7 @@
         /// <summary>
         /// The data to send back to the user when the credit is transferred.
         /// </summary>
-        public string CallbackData { get; set; }
+        public string? CallbackData { get; set; }
 
         public RequestTransferCredit()
         {
