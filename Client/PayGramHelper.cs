@@ -49,7 +49,7 @@ namespace PayGram.Public.Client
         /// <param name="label">What the user will see</param>
         /// <param name="query">The parameters that follow the start. Should not include start=. If it is not a base64 string, it will be converted to base64</param>
         /// <returns>The text containing the url</returns>
-        public static string PayGramHyperLink(string label = "PayGram", string query = null)
+        public static string PayGramHyperLink(string? label = "PayGram", string? query = null)
         {
             if (label == null) label = "";
             if (query == null) query = "";
