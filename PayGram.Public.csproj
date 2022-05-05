@@ -1,23 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.14" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="log4net" Version="2.0.14" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="CurrenciesLib">
-      <HintPath>..\CurrenciesLib\bin\Debug\netstandard2.0\CurrenciesLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Utilities">
-      <HintPath>..\Utilities\bin\Debug\net6.0\Utilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
+	<ItemGroup>
+		<Reference Include="CurrenciesLib">
+			<HintPath>..\CurrenciesLib\bin\Debug\netstandard2.0\CurrenciesLib.dll</HintPath>
+		</Reference>
+		<Reference Include="Utilities">
+			<HintPath>..\Utilities\bin\Debug\net6.0\Utilities.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<PropertyGroup>
+		<RepositoryUrl>https://github.com/PayGram/PayGram.Public</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>1.0.2</Version>
+	</PropertyGroup>
 </Project>

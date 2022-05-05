@@ -37,7 +37,7 @@ namespace PayGram.Public.Client
         public const string PAY_PARAM = "p";
         public const string INVOICE_PARAM = "i";
 #if RELEASE
-		public const string PAYGRAM_BOTUSERNAME = "opgmbot";
+        public const string PAYGRAM_BOTUSERNAME = "opgmbot";
 
 #else
         public const string PAYGRAM_BOTUSERNAME = "OfficialPayGram_Bot";
@@ -92,7 +92,7 @@ namespace PayGram.Public.Client
         {
             if (amount <= 0) return null;
 
-            var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString(CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+            var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
 
             return PayGramHyperLink(label, query);
         }
@@ -108,7 +108,7 @@ namespace PayGram.Public.Client
         {
             if (amount <= 0) return null;
 
-            var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString(CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+            var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
             return PayGramOnlyLink(query);
         }
     }
