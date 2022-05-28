@@ -167,6 +167,7 @@ namespace PayGram.Public.Client
                         {
                             if (res.IsSuccessStatusCode == false)
                             {
+                                log.Error($"httpError:{res.StatusCode}, url:{url}");
                                 return null;
                             }
 
