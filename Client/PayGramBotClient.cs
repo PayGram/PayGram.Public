@@ -24,11 +24,12 @@ namespace PayGram.Public.Client
         /// <param name="toTid">The id of the person to send the funds to</param>
         /// <param name="amount">The amount to send</param>
         /// <param name="curSym">The currency symbol, any of the <see cref="CurrenciesLib.Currencies"/> .ToString()</param>
+        /// <param name="unique">The unique code for this request</param>
         /// <returns>True if it succeded, false otherwise</returns>
-        public async Task<bool> TransferMoneyAsync(long toTid, double amount, string curSym = PayGramHelper.PAYGRAM_SYMBOL)
+        public async Task<bool> TransferMoneyAsync(long toTid, double amount, string curSym = PayGramHelper.PAYGRAM_SYMBOL, string? unique = null)
         {
             if (amount <= 0) return false;
-            string response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"cursym={curSym}&amt={amount.ToString(CultureInfo.InvariantCulture)}&to={toTid}", null);
+            string response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"cursym={curSym}&amt={amount.ToString(CultureInfo.InvariantCulture)}&to={toTid}&unique={unique}", null);
             log.Debug($"transferring {amount} to tid {toTid}, response: {response}");
             if (response == null)
             {
