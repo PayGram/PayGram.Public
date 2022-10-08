@@ -5,7 +5,7 @@
         /// <summary>
         /// The currency of the amount that should be sent
         /// </summary>
-        public string? CurrencyCode { get; set; }
+        public string CurrencyCode { get; set; }
         /// <summary>
         /// The username of the user at the client side that is receiving the money or null to create an open Invoice
         /// </summary>

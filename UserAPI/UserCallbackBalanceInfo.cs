@@ -3,7 +3,7 @@
     public class UserCallbackBalanceInfo : UserCallBackTransaction
     {
         /// <summary>
-        /// The PG$ balance after the transaction
+        /// The balance after the transaction
         /// </summary>
         public decimal Balance { get; set; }
 

@@ -10,9 +10,9 @@ namespace PayGram.Types
         /// </summary>
         public int Provider { get; set; }
         /// <summary>
-        /// The amount, expressed in PG$, that should be received
+        /// The amount, expressed in CurrencyCode, that should be received
         /// </summary>
-        public decimal PGAmount { get; set; }
+        public decimal Amount { get; set; }
         /// <summary>
         /// The currency that will be used to pay for the topup
         /// For fiat currencies it is the symbol such EUR, USD and so on

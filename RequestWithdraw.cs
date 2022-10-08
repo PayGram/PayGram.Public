@@ -9,7 +9,7 @@ namespace PayGram.Types
         /// </summary>
         public int Provider { get; set; }
         /// <summary>
-        /// The currency that will be used to pay for the topup
+        /// The currency that will be used to pay for the withdraw
         /// For fiat currencies it is the symbol such EUR, USD and so on
         /// For crypto currencies it is the symbol eventually followed by underscore and the network such as USDT_ERC20
         /// </summary>
@@ -30,7 +30,6 @@ namespace PayGram.Types
         public RequestWithdraw()
         {
         }
-
         public override string ToString()
         {
             return $"{Provider}:{CurrencyCode}:{Amount}:{CallbackData}:{WithdrawMethod}";

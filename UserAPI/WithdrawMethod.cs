@@ -11,7 +11,7 @@ namespace PayGram.Public.UserAPI
         /// <summary>
         ///  Optional. The Full name of the bank account holder. 
         /// </summary>
-        public string BeneficiaryAccountFullname { get; set; }
+        public string? BeneficiaryAccountFullname { get; set; }
         /// <summary>
         /// The currency that the user wants to receive. It is the string representing one of the <see cref="Currencies"/>.
         /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
@@ -21,35 +21,35 @@ namespace PayGram.Public.UserAPI
         /// <summary>
         /// Optional. The cryptocurrency address where the funds should be transferred to 
         /// </summary>
-        public string CryptoAddress { get; set; }
+        public string? CryptoAddress { get; set; }
         /// <summary>
         /// Optional. If the transfer is made to a bank account which has the IBAN number, this field is mandatory.
         /// </summary>
-        public string BankIban { get; set; }
+        public string? BankIban { get; set; }
         /// <summary>
         /// Optional. If the transfer is made to a bank account which has the Bic or the SWIFT code, this field is mandatory.
         /// </summary>
-        public string BicSwift { get; set; }
+        public string? BicSwift { get; set; }
         /// <summary>
         /// Optional. If the transfer is made to a bank account which doesn't have the IBAN number, this field is mandatory.
         /// </summary>
-        public string BankAccount { get; set; }
+        public string? BankAccount { get; set; }
         /// <summary>
         /// Optional. If the transfer is made to a bank account which has the Routing Code (USA banks), this field is mandatory.
         /// </summary>
-        public string BankRoutingNumber { get; set; }
+        public string? BankRoutingNumber { get; set; }
         /// <summary>
         /// Optional. If the transfer is made to a bank account which has the Sort Code (UK banks), this field is mandatory.
         /// </summary>
-        public string BankSortCode { get; set; }
+        public string? BankSortCode { get; set; }
         /// <summary>
         /// Optional, but adviced when the transfer is made to a bank account.
         /// </summary>
-        public GeoAddress BankAddress { get; set; }
+        public GeoAddress? BankAddress { get; set; }
         /// <summary>
         /// Optional, but adviced when the transfer is made to a bank account.
         /// </summary>
-        public GeoAddress BeneficiaryAddress { get; set; }
+        public GeoAddress? BeneficiaryAddress { get; set; }
 
         public bool IsValidCrypto
         {

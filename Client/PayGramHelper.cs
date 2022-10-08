@@ -14,8 +14,6 @@ namespace PayGram.Public.Client
         public const string EXCHANGE_RATES_METHOD = "GetExchangeRates";
         public const string CONVERT_METHOD = "Convert";
 
-        public const string PAYGRAM_SYMBOL = "PGD";
-
         public const string INVOICEID_TOKEN_NAME = "invguid";
         public const string TO_TOKEN_NAME = "to";
         public const string CURRENCY_SYMBOL_TOKEN_NAME = "cursym";
