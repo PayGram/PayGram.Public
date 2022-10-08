@@ -55,7 +55,7 @@ namespace PayGram.Public.UserAPI
         {
             get
             {
-                var c = Crypto.GetBySymbol(CurrencyCode);
+                var c = Crypto.GetBySymbol(CurrencyCode); //Crypto is right, because it's a subset of Currencies
                 return c != null && c.CurrencyId != Currencies.UNKNOWN && c.CurrencyType == CurrencyTypes.Crypto && string.IsNullOrWhiteSpace(CryptoAddress) == false;
             }
         }

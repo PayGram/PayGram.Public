@@ -9,7 +9,7 @@ namespace PayGram.Types
         public DateTime LastEventUtc { get; set; }
         public DateTime CreatedUtc { get; set; }
         public decimal PGAmountExclFee { get; set; }
-        public decimal ExpectedPGFee { get; set; }
+        //public decimal ExpectedPGFee { get; set; }
         /// <summary>
         /// The data that will be sent back when the invoice is completed
         /// </summary>
@@ -50,7 +50,5 @@ namespace PayGram.Types
         {
 
         }
-
-
     }
 }

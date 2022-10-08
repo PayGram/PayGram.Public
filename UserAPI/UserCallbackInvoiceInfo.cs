@@ -9,6 +9,6 @@
         /// with the user-clientid that paid the invoice. in all other cases, it will be blank.
         /// this property is also included if the payer belongs to another client
         /// </summary>
-        public string UserIdInClientFrom { get; set; }
+        public string? UserIdInClientFrom { get; set; }
     }
 }

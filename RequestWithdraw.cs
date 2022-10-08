@@ -1,4 +1,5 @@
-﻿using PayGram.Public.UserAPI;
+﻿using CurrenciesLib;
+using PayGram.Public.UserAPI;
 
 namespace PayGram.Types
 {
@@ -10,10 +11,8 @@ namespace PayGram.Types
         public int Provider { get; set; }
         /// <summary>
         /// The currency that will be used to pay for the withdraw
-        /// For fiat currencies it is the symbol such EUR, USD and so on
-        /// For crypto currencies it is the symbol eventually followed by underscore and the network such as USDT_ERC20
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
         /// <summary>
         /// The amount to withdraw from the currency-account
         /// </summary>

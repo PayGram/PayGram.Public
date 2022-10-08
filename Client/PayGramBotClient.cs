@@ -51,7 +51,7 @@ namespace PayGram.Public.Client
 		/// <summary>
 		/// Asks PayGram to generate a crypto currency address where to send funds. when funds arrive, it will be sent to paygram
 		/// </summary>
-		/// <param name="usdAmount">The amount to deposit, in usd</param>
+		/// <param name="amount">The amount to deposit, in usd</param>
 		/// <param name="amountCurrency">The crypto currency symbol and network, ie: BTC, USDT_ERC20, USDT_TRC20, LTC</param>
 		/// <param name="callbackData">The data to receive on a callback when the user has deposited</param>
 		/// <returns>ResponseTopUp or ResponseTopUpCryptapi</returns> 

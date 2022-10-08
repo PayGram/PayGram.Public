@@ -5,7 +5,7 @@ namespace PayGram.Types
     public class ResponseUserInfo : PaygramResponse
     {
         /// <summary>
-        /// The PG$ balance
+        /// The balance
         /// </summary>
         public decimal Balance { get; set; }
         /// <summary>
