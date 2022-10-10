@@ -1,4 +1,5 @@
-﻿using PayGram.Public;
+﻿using CurrenciesLib;
+using PayGram.Public;
 
 namespace PayGram.Types
 {
@@ -8,8 +9,14 @@ namespace PayGram.Types
         public InvoiceStatuses Status { get; set; }
         public DateTime LastEventUtc { get; set; }
         public DateTime CreatedUtc { get; set; }
-        public decimal PGAmountExclFee { get; set; }
-        //public decimal ExpectedPGFee { get; set; }
+        /// <summary>
+        /// The amount inclusive of the fees
+        /// </summary>
+        public decimal Amount { get; set; }
+        /// <summary>
+        /// The fees paid or expected to be paid for this invoice
+        /// </summary>
+        public decimal ExpectedFee { get; set; }
         /// <summary>
         /// The data that will be sent back when the invoice is completed
         /// </summary>
@@ -17,10 +24,8 @@ namespace PayGram.Types
         /// <summary>
         /// The currency code of the invoice 
         /// It is the string representing one of the <see cref="Currencies"/>.
-        /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
-        /// which is one of <see cref="CryptoCurrencies"/> for example USDT_ERC20
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
         /// <summary>
         /// The sender UserId at the client side. This info is not populated if the request is not made through 
         /// the client owning this user, or the user making the request corresponds to FromUser
@@ -50,5 +55,7 @@ namespace PayGram.Types
         {
 
         }
+
+
     }
 }

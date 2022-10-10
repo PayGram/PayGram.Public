@@ -1,4 +1,5 @@
-﻿using PayGram.Public;
+﻿using CurrenciesLib;
+using PayGram.Public;
 
 namespace PayGram.Types
 {
@@ -8,7 +9,7 @@ namespace PayGram.Types
         /// <summary>
         /// The currency for this invoice
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
         /// <summary>
         /// The amount of money, included the fees, that the user is asking to be paid
         /// </summary>

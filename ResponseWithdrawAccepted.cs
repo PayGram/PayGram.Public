@@ -13,7 +13,7 @@ namespace PayGram.Types
         /// <summary>
         /// The currency of the account from where the funds will be withdrawn from
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
         /// <summary>
         /// The fee for this transfer expressed in the CurrencyCode
         /// </summary>
@@ -32,7 +32,6 @@ namespace PayGram.Types
         /// It is the string representing one of the <see cref="Currencies"/>.
         /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
         /// which is one of <see cref="CryptoCurrencies"/> for example USDT_ERC20
-        /// </summary>
         /// </summary>
         public string CurrencyCodeTransfer { get; set; }
         /// <summary>
