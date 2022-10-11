@@ -21,7 +21,7 @@ namespace PayGram.Public.UserAPI
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             if (string.IsNullOrWhiteSpace(BuildingNumber) == false)
             {
                 sb.AppendLine("Building Number:");

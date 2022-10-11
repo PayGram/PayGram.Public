@@ -1,4 +1,6 @@
-﻿namespace PayGram.Public.UserAPI
+﻿using CurrenciesLib;
+
+namespace PayGram.Public.UserAPI
 {
     public class WithdrawAdminResponse
     {
@@ -30,11 +32,8 @@
         /// <summary>
         /// The currency code of AmountSent
         /// It is the string representing one of the <see cref="Currencies"/>.
-        /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
-        /// which is one of <see cref="CryptoCurrencies"/> for example USDT_ERC20
-        /// When an admin replies, if the status is complete, AmountSent=0 and CurrencyCode=null, the CurrencyCode will be taken from the originating invoice
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies Currency { get; set; }
         public WithdrawMethod UpdatedWithdrawMethod { get; set; }
     }
 }

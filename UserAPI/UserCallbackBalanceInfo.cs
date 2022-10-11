@@ -1,4 +1,6 @@
-﻿namespace PayGram.Public.UserAPI
+﻿using Newtonsoft.Json;
+
+namespace PayGram.Public.UserAPI
 {
     public class UserCallbackBalanceInfo : UserCallBackTransaction
     {
@@ -6,7 +8,7 @@
         /// The balance after the transaction
         /// </summary>
         public decimal Balance { get; set; }
-
+        [JsonIgnore]
         public decimal BalanceBeforeTransaction { get { return Balance - TransactionAmount; } }
     }
 }

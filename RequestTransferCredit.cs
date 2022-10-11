@@ -1,11 +1,13 @@
-﻿namespace PayGram.Types
+﻿using CurrenciesLib;
+
+namespace PayGram.Types
 {
     public class RequestTransferCredit : PaygramRequest
     {
         /// <summary>
         /// The currency of the amount that should be sent
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
         /// <summary>
         /// The username of the user at the client side that is receiving the money or null to create an open Invoice
         /// </summary>

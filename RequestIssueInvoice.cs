@@ -17,7 +17,7 @@ namespace PayGram.Types
         /// <summary>
         /// The data to send back to the user when this invoice is paid
         /// </summary>
-        public string CallbackData { get; set; }
+        public string? CallbackData { get; set; }
         /// <summary>
         /// The type of merchant who issued this invoice
         /// </summary>

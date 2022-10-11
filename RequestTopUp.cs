@@ -17,10 +17,9 @@ namespace PayGram.Types
         /// The currency that will be used to pay for the topup
         /// For fiat currencies it is the symbol such EUR, USD and so on
         /// It is the string representing one of the <see cref="Currencies"/>.
-        /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
-        /// which is one of <see cref="CryptoCurrencies"/> for example USDT_ERC20
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
+        public CryptoNetworks Network { get; set; }
         /// <summary>
         /// The data that will be sent back to the user/client when there are updates for the topup
         /// </summary>

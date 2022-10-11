@@ -13,11 +13,13 @@ namespace PayGram.Public.UserAPI
         /// </summary>
         public string? BeneficiaryAccountFullname { get; set; }
         /// <summary>
-        /// The currency that the user wants to receive. It is the string representing one of the <see cref="Currencies"/>.
-        /// If the CurrencyCode represents a crypto currency it might be followed by the <see cref="Crypto.CRYPTO_NETWORK_SEPARATOR"/> and the network name 
-        /// which is one of <see cref="CryptoCurrencies"/> for example USDT_ERC20
+        /// The currency that the user wants to use to pay and wants to receive. See <see cref="Currencies"/>.
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public Currencies CurrencyCode { get; set; }
+        /// <summary>
+        /// When the withdraw method is a crypto, this will be the netowrk
+        /// </summary>
+        public CryptoNetworks Network { get; set; }
         /// <summary>
         /// Optional. The cryptocurrency address where the funds should be transferred to 
         /// </summary>
@@ -85,18 +87,18 @@ namespace PayGram.Public.UserAPI
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             if (IsValidCrypto)
             {
-                sb.AppendLine($"Currency: {CurrencyCode}");
+                sb.AppendLine($"Currency: {CurrencyCode} {Network}");
                 sb.AppendLine("Address:");
                 sb.AppendLine(CryptoAddress);
             }
             else if (IsValidBankAccount)
             {
                 sb.AppendLine("Currency:");
-                sb.AppendLine(CurrencyCode);
+                sb.AppendLine(CurrencyCode.ToString());
                 sb.AppendLine("Beneficiary full name:");
                 sb.AppendLine(BeneficiaryAccountFullname);
                 if (string.IsNullOrWhiteSpace(BankIban) == false)

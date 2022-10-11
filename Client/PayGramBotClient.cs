@@ -9,7 +9,7 @@ namespace PayGram.Public.Client
 	public class PayGramBotClient
 	{
 		static private readonly ILog log = LogManager.GetLogger(typeof(PayGramBotClient));
-		static readonly HttpClient _httpClient = new HttpClient();
+		static readonly HttpClient _httpClient = new();
 
 		public Guid Token;
 
@@ -156,7 +156,7 @@ namespace PayGram.Public.Client
 
 			//log.Debug($"Requesting: {url}, {reqContent}");
 
-			using (HttpRequestMessage m = new HttpRequestMessage(HttpMethod.Post, url))
+			using (HttpRequestMessage m = new(HttpMethod.Post, url))
 			{
 				using (HttpContent cont = new StringContent(reqContent, Encoding.UTF8, "application/json"))
 				{

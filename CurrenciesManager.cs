@@ -8,8 +8,8 @@ namespace PayGram.Public
     {
         public bool IsRunning { get; private set; }
 
-        ulong updateRatesEveryMillis;
-        PayGramBotClient pClient;
+        readonly ulong updateRatesEveryMillis;
+        readonly PayGramBotClient pClient;
         public CurrenciesManager(PayGramBotClient pClient, ulong updateRatesEveryMillis = 0)
         {
             this.pClient = pClient;
@@ -28,7 +28,7 @@ namespace PayGram.Public
             ConversionProviderFactory.RegisterConversionProvider(new ToDefaultCurrencyConversionProvider(Currencies.USD));
         }
 
-        public void Start(CancellationToken token = default(CancellationToken))
+        public void Start(CancellationToken token = default)
         {
             if (IsRunning) return;
             IsRunning = true;

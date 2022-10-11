@@ -5,11 +5,11 @@ namespace PayGram.Public
     public class PaygramResponse : IPaygramResponse
     {
         [JsonIgnore]
-        public readonly static PaygramResponse ServerUpdating = new PaygramResponse("Error processing the request, the server is being updated.") { Success = false };
+        public readonly static PaygramResponse ServerUpdating = new("Error processing the request, the server is being updated.") { Success = false };
         [JsonIgnore]
-        public readonly static PaygramResponse ResponseError = new PaygramResponse("Error processing the request.") { Success = false };
+        public readonly static PaygramResponse ResponseError = new("Error processing the request.") { Success = false };
         [JsonIgnore]
-        public readonly static PaygramResponse ResponseOk = new PaygramResponse("Request processed succesfully.") { Success = true };
+        public readonly static PaygramResponse ResponseOk = new("Request processed succesfully.") { Success = true };
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Message { get; set; }
