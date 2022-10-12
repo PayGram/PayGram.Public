@@ -27,9 +27,10 @@ namespace PayGram.Public.Client
         public const string ACTION_TAG = "a";
         public const string CODE_TAG = "c";
         public const string TO_TAG = "t";
-        public const string AMOUNT_TAG = "amt";
+        public const string AMOUNT_TAG = "m";
         //public const string CALLBACK_TAG = "cb";
-        public const string CALLBACKDATA_TAG = "cd";
+        public const string CALLBACKDATA_TAG = "d";
+        public const string CURRENCY_TAG = "y";
 
         public const string VOUCHER_PARAM = "v";
         public const string PAY_PARAM = "p";
