@@ -12,6 +12,12 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="Utilities" Version="1.0.4" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Telegram.Messaging">
+	    <HintPath>..\Telegram.Messaging\bin\Debug\net6.0\Telegram.Messaging.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 	<PropertyGroup>
 		<RepositoryUrl>https://github.com/PayGram/PayGram.Public</RepositoryUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

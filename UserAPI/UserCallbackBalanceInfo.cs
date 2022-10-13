@@ -8,7 +8,5 @@ namespace PayGram.Public.UserAPI
         /// The balance after the transaction
         /// </summary>
         public decimal Balance { get; set; }
-        [JsonIgnore]
-        public decimal BalanceBeforeTransaction { get { return Balance - TransactionAmount; } }
     }
 }

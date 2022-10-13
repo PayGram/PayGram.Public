@@ -1,4 +1,6 @@
-﻿using log4net;
+﻿using CurrenciesLib;
+using CurrenciesLib.Cryptos;
+using log4net;
 using Newtonsoft.Json;
 using PayGram.Types;
 using System.Globalization;
@@ -26,10 +28,10 @@ namespace PayGram.Public.Client
 		/// <param name="curSym">The currency symbol, any of the <see cref="CurrenciesLib.Currencies"/> .ToString()</param>
 		/// <param name="unique">The unique code for this request</param>
 		/// <returns>True if it succeded, false otherwise</returns>
-		public async Task<bool> TransferMoneyAsync(long toTid, double amount, string curSym, string? unique = null)
+		public async Task<bool> TransferMoneyAsync(long toTid, double amount, string curSym, string unique)
 		{
 			if (amount <= 0) return false;
-			var response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"cursym={curSym}&amt={amount.ToString(CultureInfo.InvariantCulture)}&to={toTid}&unique={unique}", null);
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={curSym}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.TO_TOKEN_NAME}={toTid}&{PayGramHelper.UNIQUE_TOKEN_NAME}={unique}", null);
 			log.Debug($"transferring {amount} to tid {toTid}, response: {response}");
 			if (response == null)
 			{
@@ -52,13 +54,13 @@ namespace PayGram.Public.Client
 		/// Asks PayGram to generate a crypto currency address where to send funds. when funds arrive, it will be sent to paygram
 		/// </summary>
 		/// <param name="amount">The amount to deposit</param>
-		/// <param name="amountCurrency">The crypto currency symbol and network, ie: BTC, USDT_ERC20, USDT_TRC20, LTC</param>
+		/// <param name="amountCurrency">The crypto currency symbol </param>
 		/// <param name="callbackData">The data to receive on a callback when the user has deposited</param>
 		/// <returns>ResponseTopUp or ResponseTopUpCryptapi</returns> 
-		public async Task<ResponseTopUp> DepositCreditAsync(double amount, string amountCurrency, string payCurrency, string callbackData)
+		public async Task<ResponseTopUp> DepositCreditAsync(double amount, Currencies amountCurrency, CryptoNetworks network, string callbackData)
 		{
 			if (amount <= 0) return new ResponseTopUp() { Success = false, Message = "Amount cannot be negative" };
-			var response = await ExecuteMethodAsync(Token, PayGramHelper.DEPOSIT_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={amountCurrency}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.PAY_CURRENCY_SYMBOL_TOKEN_NAME}={payCurrency}&{PayGramHelper.CALLBACKDATA_TOKEN_NAME}={callbackData}", null);
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.DEPOSIT_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={amountCurrency}&{PayGramHelper.NETWORK_SYMBOL_TOKEN_NAME}={network}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.CALLBACKDATA_TOKEN_NAME}={callbackData}", null);
 			log.Debug($"DepositMoneyAsync {amount} {amountCurrency}, response: {response}");
 			if (string.IsNullOrWhiteSpace(response))
 			{
@@ -184,5 +186,6 @@ namespace PayGram.Public.Client
 				}
 			}
 		}
+
 	}
 }
