@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 	  <Reference Include="Telegram.Messaging">
-	    <HintPath>..\Telegram.Messaging\bin\Debug\net6.0\Telegram.Messaging.dll</HintPath>
+	    <HintPath>..\Telegram.Messaging\bin\$(Configuration)\net6.0\Telegram.Messaging.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<PropertyGroup>
