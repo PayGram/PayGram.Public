@@ -95,12 +95,15 @@ namespace PayGram.Public.UserAPI
                 sb.AppendLine("Address:");
                 sb.AppendLine(CryptoAddress);
             }
-            else if (IsValidBankAccount)
+            else //if (IsValidBankAccount)
             {
                 sb.AppendLine("Currency:");
                 sb.AppendLine(CurrencyCode.ToString());
-                sb.AppendLine("Beneficiary full name:");
-                sb.AppendLine(BeneficiaryAccountFullname);
+                if (string.IsNullOrWhiteSpace(BeneficiaryAccountFullname) == false)
+                {
+                    sb.AppendLine("Beneficiary full name:");
+                    sb.AppendLine(BeneficiaryAccountFullname);
+                }
                 if (string.IsNullOrWhiteSpace(BankIban) == false)
                 {
                     sb.AppendLine("IBAN:");
