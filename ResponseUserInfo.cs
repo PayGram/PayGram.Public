@@ -33,7 +33,10 @@ namespace PayGram.Types
 		/// The Callback Url to call when an update is made to this user
 		/// </summary>
 		public string CallbackUrl { get; set; }
-
+		/// <summary>
+		/// The SignSeed used to sign callbacks with the SHA256 alg
+		/// </summary>
+		public Guid SignSeed { get; set; }
 		public ResponseUserInfo()
 								: base((PaygramResponseTypes)Enum.Parse(typeof(PaygramResponseTypes), nameof(ResponseUserInfo)))
 		{

@@ -49,7 +49,7 @@ namespace PayGram.Types
 		/// Gets or sets whether the invoice was redeemed
 		/// </summary>
 		public bool IsRedeemed { get; set; }
-
+		public InvoiceBusinessTypes InvoiceType { get; set; }
 		public ResponseInvoiceInfo()
 				: base(PaygramResponseTypes.ResponseInvoiceInfo)
 		{
