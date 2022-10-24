@@ -14,5 +14,6 @@ namespace PayGram.Public
 		public Currencies ToCurrency { get; set; }
 		public decimal AmountToSwap { get; set; }
 		public string? CallbackData { get; set; }
+		public bool IsSimulation { get; set; }
 	}
 }

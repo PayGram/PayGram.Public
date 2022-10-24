@@ -5,22 +5,23 @@
         /// <summary>
         /// The type of the callback after a transaction happened
         /// </summary>
-        BalanceInfo,
+        BalanceInfo = 0,
         /// <summary>
         /// The type of the callback after a withdraw transaction happened
         /// </summary>
-        WithdrawInfo,
+        WithdrawInfo = 1,
         /// <summary>
-        /// The type of the callback after an invoice was either paid or redeemed
+        /// The type of the callback after an invoice was either paid to this user
         /// </summary>
-        InvoiceInfo,
+        InvoiceInfoCredited = 2,
+        InvoiceInfoDebited = 5,
         /// <summary>
         /// The type of the callback to represent a basic response
         /// </summary>
-        CallbackInfo,
+        CallbackInfo = 3,
         /// <summary>
         /// Received when the user sent an amount through the direct transfer
         /// </summary>
-        MoneySent
+        MoneySent = 4
     }
 }
