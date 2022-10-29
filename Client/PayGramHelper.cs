@@ -64,7 +64,7 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"<a href=\"https://t.me/{PAYGRAM_BOTUSERNAME}{query}\">{label}</a>";
+			return $"<a href=\"https://telegram.me/{PAYGRAM_BOTUSERNAME}{query}\">{label}</a>";
 		}
 		/// <summary>
 		/// Makes a link to the PayGram bot specifing the shown label and eventually the parameters that follow the start
@@ -81,7 +81,7 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"https://t.me/{PAYGRAM_BOTUSERNAME}{query}";
+			return $"https://telegram.me/{PAYGRAM_BOTUSERNAME}{query}";
 		}
 
 		/// <summary>
@@ -122,8 +122,8 @@ namespace PayGram.Public.Client
 		/// <returns></returns>
 		public static string MakeVoucherLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{PayGramHelper.ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{PayGramHelper.VOUCHER_PARAM}{TelegramCommand.PARAMS_AND_SEP}{PayGramHelper.CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
-			return $"https://t.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{VOUCHER_PARAM}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 		/// <summary>
 		/// Creates a link to pay an invoice
@@ -132,8 +132,8 @@ namespace PayGram.Public.Client
 		/// <returns></returns>
 		public static string MakeInvoiceLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{PayGramHelper.ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{PayGramHelper.INVOICE_PARAM}{TelegramCommand.PARAMS_AND_SEP}{PayGramHelper.CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
-			return $"https://t.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{INVOICE_PARAM}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 	}
 }
