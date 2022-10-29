@@ -7,15 +7,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CurrenciesLib" Version="1.0.2" />
 		<PackageReference Include="log4net" Version="2.0.14" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="Utilities" Version="1.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="CurrenciesLib">
+	    <HintPath>..\CurrenciesLib\bin\$(Configuration)\net6.0\CurrenciesLib.dll</HintPath>
+	  </Reference>
 	  <Reference Include="Telegram.Messaging">
 	    <HintPath>..\Telegram.Messaging\bin\$(Configuration)\net6.0\Telegram.Messaging.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Utilities">
+	    <HintPath>..\Utilities\bin\$(Configuration)\net6.0\Utilities.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<PropertyGroup>
