@@ -21,5 +21,6 @@
 		ResponseGetUpdates = 18,
 		ResponseConvert = 19,
 		ResponseSwap = 20,
+		ResponseStatement = 21,
 	}
 }
