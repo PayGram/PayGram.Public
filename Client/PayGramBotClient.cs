@@ -88,7 +88,7 @@ namespace PayGram.Public.Client
 		/// <returns>The converted amount or decimal.MinValue in case of error</returns>
 		public async Task<decimal> Convert(string srcCurr, string destCurr, decimal amount)
 		{
-			string response = await ExecuteMethodAsync(Token, PayGramHelper.CONVERT_METHOD, $"{PayGramHelper.AMOUNT_TAG}={amount}&{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={srcCurr}&{PayGramHelper.CURRENCY_SYMBOL_DEST_TOKEN_NAME}={destCurr}", null);
+			string response = await ExecuteMethodAsync(Token, PayGramHelper.CONVERT_METHOD, $"{PayGramHelper.TAG_AMOUNT}={amount}&{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={srcCurr}&{PayGramHelper.CURRENCY_SYMBOL_DEST_TOKEN_NAME}={destCurr}", null);
 			if (response == null)
 				return decimal.MinValue;
 			decimal result;

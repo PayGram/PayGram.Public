@@ -28,12 +28,12 @@ namespace PayGram.Public.Client
 		public const string CALLBACKDATA_TOKEN_NAME = "cd";
 		public const string UNIQUE_TOKEN_NAME = "unique";
 
-		public const string ACTION_TAG = "a";
-		public const string CODE_TAG = "c";
-		public const string TO_TAG = "t";
-		public const string AMOUNT_TAG = "m";
-		public const string CALLBACKDATA_TAG = "d";
-		public const string CURRENCY_TAG = "y";
+		public const string TAG_ACTION = "a";
+		public const string TAG_CODE = "c";
+		public const string TAG_TO = "t";
+		public const string TAG_AMOUNT = "m";
+		public const string TAG_CALLBACKDATA = "d";
+		public const string TAG_CURRENCY = "y";
 
 		public const string ACTION_MAKEVOUCHER = "v";
 		public const string ACTION_PAY = "p";
@@ -90,7 +90,7 @@ namespace PayGram.Public.Client
 		{
 			if (amount <= 0) return null;
 
-			var query = $"{ACTION_TAG}={ACTION_PAY}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+			var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{TAG_CALLBACKDATA}={callbackData}";
 
 			return PayGramHyperLink(label, query);
 		}
@@ -106,7 +106,7 @@ namespace PayGram.Public.Client
 		{
 			if (amount <= 0) return null;
 
-			var query = $"{ACTION_TAG}={ACTION_PAY}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+			var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{TAG_CALLBACKDATA}={callbackData}";
 			return PayGramOnlyLink(query);
 		}
 		/// <summary>
@@ -116,12 +116,12 @@ namespace PayGram.Public.Client
 		/// <returns></returns>
 		public static string MakeVoucherLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         public static string CancelWithdrawLink(Guid g, string botName)
         {
-            var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+            var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
             return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         /// <summary>
@@ -131,7 +131,7 @@ namespace PayGram.Public.Client
         /// <returns></returns>
         public static string MakeInvoiceLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 	}
