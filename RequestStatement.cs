@@ -6,7 +6,8 @@ namespace PayGram.Public
 	{
 		public DateTime FromUtc { get; set; }
 		public DateTime ToExcludingUtc { get; set; }
-		public int StartIdx { get; set; }
+		public long StartIdx { get; set; }
 		public int ResultsPerPage { get; set; }
+		public bool GoForward { get; set; }
 	}
 }
