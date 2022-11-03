@@ -21,7 +21,6 @@ namespace PayGram.Public.Client
 		public const string TO_TOKEN_NAME = "to";
 		public const string CURRENCY_SYMBOL_TOKEN_NAME = "cursym";
 		public const string NETWORK_SYMBOL_TOKEN_NAME = "network";
-		//public const string PAY_CURRENCY_SYMBOL_TOKEN_NAME = "paycursym";
 		public const string CURRENCY_SYMBOL_DEST_TOKEN_NAME = "cursymdest";
 		public const string AMT_TOKEN_NAME = "amt";
 		public const string METHOD_TOKEN_NAME = "method";
@@ -33,27 +32,22 @@ namespace PayGram.Public.Client
 		public const string CODE_TAG = "c";
 		public const string TO_TAG = "t";
 		public const string AMOUNT_TAG = "m";
-		//public const string CALLBACK_TAG = "cb";
 		public const string CALLBACKDATA_TAG = "d";
 		public const string CURRENCY_TAG = "y";
 
-		public const string VOUCHER_PARAM = "v";
-		public const string PAY_PARAM = "p";
-		public const string INVOICE_PARAM = "i";
-#if RELEASE
-        public const string PAYGRAM_BOTUSERNAME = "opgmbot";
+		public const string ACTION_MAKEVOUCHER = "v";
+		public const string ACTION_PAY = "p";
+        public const string ACTION_MAKEINVOICE = "i";
+        public const string ACTION_CANCELWITHDRAW = "w";
 
-#else
-		public const string PAYGRAM_BOTUSERNAME = "OfficialPayGram_Bot";
-#endif
 
-		/// <summary>
-		/// Makes a link to the PayGram bot specifing the shown label and eventually the parameters that follow the start
-		/// </summary>
-		/// <param name="label">What the user will see</param>
-		/// <param name="query">The parameters that follow the start. Should not include start=. If it is not a base64 string, it will be converted to base64</param>
-		/// <returns>The text containing the url</returns>
-		public static string PayGramHyperLink(string? label = "PayGram", string? query = null)
+        /// <summary>
+        /// Makes a link to the PayGram bot specifing the shown label and eventually the parameters that follow the start
+        /// </summary>
+        /// <param name="label">What the user will see</param>
+        /// <param name="query">The parameters that follow the start. Should not include start=. If it is not a base64 string, it will be converted to base64</param>
+        /// <returns>The text containing the url</returns>
+        public static string PayGramHyperLink(string botUsername, string? label = "PayGram", string? query = null)
 		{
 			if (label == null) label = "";
 			if (query == null) query = "";
@@ -64,14 +58,14 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"<a href=\"https://telegram.me/{PAYGRAM_BOTUSERNAME}{query}\">{label}</a>";
+			return $"<a href=\"https://telegram.me/{botUsername}{query}\">{label}</a>";
 		}
 		/// <summary>
 		/// Makes a link to the PayGram bot specifing the shown label and eventually the parameters that follow the start
 		/// </summary> 
 		/// <param name="query">The parameters that follow the start. Should not include start=. If it is not a base64 string, it will be converted to base64</param>
 		/// <returns>The text containing the url</returns>
-		public static string PayGramOnlyLink(string query = null)
+		public static string PayGramOnlyLink(string botUsername, string query = null)
 		{
 			if (query == null) query = "";
 			else
@@ -81,7 +75,7 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"https://telegram.me/{PAYGRAM_BOTUSERNAME}{query}";
+			return $"https://telegram.me/{botUsername}{query}";
 		}
 
 		/// <summary>
@@ -96,7 +90,7 @@ namespace PayGram.Public.Client
 		{
 			if (amount <= 0) return null;
 
-			var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+			var query = $"{ACTION_TAG}={ACTION_PAY}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
 
 			return PayGramHyperLink(label, query);
 		}
@@ -112,7 +106,7 @@ namespace PayGram.Public.Client
 		{
 			if (amount <= 0) return null;
 
-			var query = $"{ACTION_TAG}={PAY_PARAM}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
+			var query = $"{ACTION_TAG}={ACTION_PAY}&{TO_TAG}={toTid:X}&{AMOUNT_TAG}={amount.ToString("0.00", CultureInfo.InvariantCulture)}&{CALLBACKDATA_TAG}={callbackData}";
 			return PayGramOnlyLink(query);
 		}
 		/// <summary>
@@ -122,17 +116,22 @@ namespace PayGram.Public.Client
 		/// <returns></returns>
 		public static string MakeVoucherLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{VOUCHER_PARAM}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
-		}
-		/// <summary>
-		/// Creates a link to pay an invoice
-		/// </summary>
-		/// <param name="g"></param>
-		/// <returns></returns>
-		public static string MakeInvoiceLink(Guid g, string botName)
+        }
+        public static string CancelWithdrawLink(Guid g, string botName)
+        {
+            var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+            return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+        }
+        /// <summary>
+        /// Creates a link to pay an invoice
+        /// </summary>
+        /// <param name="g"></param>
+        /// <returns></returns>
+        public static string MakeInvoiceLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{INVOICE_PARAM}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.EscapeCommandValue($"{ACTION_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{CODE_TAG}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 	}
