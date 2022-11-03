@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
     public class PaygramRequest : IPaygramRequest
     {

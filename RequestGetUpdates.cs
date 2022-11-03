@@ -1,4 +1,4 @@
-﻿namespace PayGram.Types
+﻿namespace PayGram.Public
 {
 	/// <summary>
 	/// Gets the 20 most recent updates.

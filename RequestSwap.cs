@@ -1,5 +1,5 @@
 ﻿using CurrenciesLib;
-using PayGram.Types;
+using PayGram.Public;
 using System;
 using System.Collections.Generic;
 using System.Linq;

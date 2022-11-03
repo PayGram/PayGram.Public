@@ -1,7 +1,7 @@
 ﻿using CurrenciesLib;
 using CurrenciesLib.Cryptos;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
     public class RequestTopUp : PaygramRequest
     {

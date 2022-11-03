@@ -1,6 +1,6 @@
 ﻿using CurrenciesLib;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
     public class RequestTransferCredit : PaygramRequest
     {

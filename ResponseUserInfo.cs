@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using PayGram.Public;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
 	public class ResponseUserInfo : PaygramResponse
 	{

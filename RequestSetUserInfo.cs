@@ -1,7 +1,7 @@
 ﻿using PayGram.Public;
 using System.ComponentModel.DataAnnotations;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
 	public class RequestSetUserInfo : PaygramRequest
 	{

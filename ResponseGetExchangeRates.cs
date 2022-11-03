@@ -1,7 +1,7 @@
 ﻿using CurrenciesLib;
 using PayGram.Public;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
     public class ResponseGetExchangeRates : PaygramResponse
     {

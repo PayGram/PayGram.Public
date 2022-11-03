@@ -2,7 +2,7 @@
 using CurrenciesLib.Cryptos;
 using log4net;
 using Newtonsoft.Json;
-using PayGram.Types;
+using PayGram.Public;
 using System.Globalization;
 using System.Text;
 

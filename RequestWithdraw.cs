@@ -1,6 +1,6 @@
 ﻿using PayGram.Public.UserAPI;
 
-namespace PayGram.Types
+namespace PayGram.Public
 {
 	public class RequestWithdraw : PaygramRequest
 	{

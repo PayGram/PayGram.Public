@@ -1,5 +1,5 @@
 ﻿using PayGram.Public;
-namespace PayGram.Types
+namespace PayGram.Public
 {
     public class ResponseTopUpCryptapi : ResponseTopUp
     {

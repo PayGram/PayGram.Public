@@ -1,4 +1,4 @@
-﻿using PayGram.Types;
+﻿using PayGram.Public;
 
 namespace PayGram.Public
 {
