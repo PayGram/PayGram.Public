@@ -2,13 +2,13 @@
 using CurrenciesLib.Cryptos;
 using log4net;
 using Newtonsoft.Json;
-using PayGram.Public;
+using PayGram.Public.Responses;
 using System.Globalization;
 using System.Text;
 
 namespace PayGram.Public.Client
 {
-	public class PayGramBotClient
+    public class PayGramBotClient
 	{
 		static private readonly ILog log = LogManager.GetLogger(typeof(PayGramBotClient));
 		static readonly HttpClient _httpClient = new();
