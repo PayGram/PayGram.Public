@@ -6,7 +6,7 @@ namespace PayGram.Public.Client
 {
 	public class PayGramHelper
 	{
-		public const string PAYGRAM_BOT_API_URL = "https://api.paygr.am:8443/PayGramUsers/";
+		public const string PAYGRAM_BOT_API_URL = "https://api.paygr.am/PayGramUsers/";
 		public const string PAYGRAM_BOT_ENDPOINT = PAYGRAM_BOT_API_URL + "{0}/{1}/{2}";
 		public const string TRANSFER_METHOD = "TransferCredit";
 		public const string DEPOSIT_METHOD = "DepositCredit";
