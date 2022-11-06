@@ -13,9 +13,9 @@ namespace PayGram.Public.Client
 		static private readonly ILog log = LogManager.GetLogger(typeof(PayGramBotClient));
 		static readonly HttpClient _httpClient = new();
 
-		public Guid Token;
+		public string Token;
 
-		public PayGramBotClient(Guid token)
+		public PayGramBotClient(string token)
 		{
 			Token = token;
 		}
@@ -145,7 +145,7 @@ namespace PayGram.Public.Client
 		/// <param name="rq">the query string</param>
 		/// <param name="method">the body request if any</param>
 		/// <returns></returns>
-		async static Task<string?> ExecuteMethodAsync(Guid token, string method, string otherParams, PayGramClientRequest? request)
+		async static Task<string?> ExecuteMethodAsync(string token, string method, string otherParams, PayGramClientRequest? request)
 		{
 			if (otherParams == null)
 				otherParams = "";
