@@ -15,9 +15,10 @@ namespace PayGram.Public.Client
 		public const string EXCHANGE_RATES_METHOD = "GetExchangeRates";
 		public const string CONVERT_METHOD = "Convert";
 		public const string SWAP_METHOD = "Swap";
+		public const string ISSUEINVOICE_METHOD = "IssueInvoice";
 
-		// tokens are used in the PayGramUsersController as query string parameters
-		public const string INVOICEID_TOKEN_NAME = "invguid";
+        // tokens are used in the PayGramUsersController as query string parameters
+        public const string INVOICEID_TOKEN_NAME = "invguid";
 		public const string TO_TOKEN_NAME = "to";
 		public const string CURRENCY_SYMBOL_TOKEN_NAME = "cursym";
 		public const string NETWORK_SYMBOL_TOKEN_NAME = "network";
