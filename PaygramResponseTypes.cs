@@ -23,5 +23,6 @@
 		ResponseSwap = 20,
 		ResponseStatement = 21,
 		ResponseCreateRedEnvelope = 22,
+		ResponseRedeemRedEnvelope = 23,
 	}
 }
