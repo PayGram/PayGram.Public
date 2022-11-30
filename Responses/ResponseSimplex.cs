@@ -13,7 +13,6 @@ namespace PayGram.Public
         public string PaymentID { get; set; }
         public SimplexQuoteResponse SimplexQuoteResponse { get; set; }
         public SimplexPaymentResponse SimplexPaymentResponse { get; set; }
-        public string? Error { get; set; }
         public ResponseSimplex() : base(PaygramResponseTypes.ResponseSimplex)
         {
 
