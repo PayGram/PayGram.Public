@@ -10,5 +10,6 @@
         /// The client side user id of the receiver
         /// </summary>
         public string UserCliToId { get; set; }
+        public Guid VoucherCode { get; set; }   
     }
 }
