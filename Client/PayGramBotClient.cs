@@ -29,10 +29,10 @@ namespace PayGram.Public.Client
         /// <param name="curSym">The currency symbol, any of the <see cref="CurrenciesLib.Currencies"/> .ToString()</param>
         /// <param name="unique">The unique code for this request</param>
         /// <returns>True if it succeded, false otherwise</returns>
-        public async Task<bool> TransferMoneyAsync(long toTid, decimal amount, Currencies curSym, string unique)
+        public async Task<bool> TransferMoneyAsync(long toTid, decimal amount, Currencies curSym, string unique, string callbackData)
         {
             if (amount <= 0) return false;
-            var response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={curSym}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.TO_TOKEN_NAME}={toTid}&{PayGramHelper.UNIQUE_TOKEN_NAME}={unique}", null);
+            var response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={curSym}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.TO_TOKEN_NAME}={toTid}&{PayGramHelper.UNIQUE_TOKEN_NAME}={unique}&{PayGramHelper.CALLBACKDATA_TOKEN_NAME}={callbackData}", null);
             log.Debug($"transferring {amount} to tid {toTid}, response: {response}");
             if (response == null)
             {
