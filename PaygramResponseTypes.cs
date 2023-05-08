@@ -25,6 +25,7 @@
 		ResponseCreateRedEnvelope = 22,
 		ResponseSimplex = 23,
 		ResponseRedeemRedEnvelope = 24,
+		ResponseManageRedEnvelope = 25,
 	}
 
 }
