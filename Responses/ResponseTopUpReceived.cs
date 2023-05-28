@@ -9,14 +9,13 @@ namespace PayGram.Public.Responses
         /// </summary>
         public decimal Received { get; set; }
         /// <summary>
-        /// The amount of money credited
+        /// The amount of money credited after the fees
         /// </summary>
-        public decimal Credited { get; set; }
+        public decimal Credited => Received - Fees;
         /// <summary>
         /// The fees paid for this transaction
         /// </summary>
         public decimal Fees { get; set; }
-        public string CallbackData { get; set; }
         public Currencies CurrencyCode { get; set; }
         public decimal NewBalance { get; set; }
 
