@@ -6,6 +6,7 @@ namespace PayGram.Public.Client
 {
 	public class PayGramHelper
 	{
+		public const string TELEGRAM_ADDRESS = "https://telegram.me/";
 		public const string PAYGRAM_BOT_API_URL = "https://pubapi.paygr.am/PayGramUsers/";
 		public const string PAYGRAM_BOT_ENDPOINT = PAYGRAM_BOT_API_URL + "{0}/{1}/{2}";
 		public const string TRANSFER_METHOD = "TransferCredit";
@@ -59,7 +60,7 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"<a href=\"https://telegram.me/{botUsername}{query}\">{label}</a>";
+			return $"<a href=\"{TELEGRAM_ADDRESS}{botUsername}{query}\">{label}</a>";
 		}
 		/// <summary>
 		/// Makes a link to the PayGram bot specifing the shown label and eventually the parameters that follow the start
@@ -76,7 +77,7 @@ namespace PayGram.Public.Client
 					query = query.Base64Encode();
 				query = $"?start={query}";
 			}
-			return $"https://telegram.me/{botUsername}{query}";
+			return $"{TELEGRAM_ADDRESS}{botUsername}{query}";
 		}
 
 		/// <summary>
@@ -118,12 +119,12 @@ namespace PayGram.Public.Client
 		public static string MakeVoucherLink(Guid g, string botName)
 		{
 			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
-			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+			return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         public static string CancelWithdrawLink(Guid g, string botName)
         {
             var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
-            return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+            return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         /// <summary>
         /// Creates a link to pay an invoice
@@ -133,7 +134,7 @@ namespace PayGram.Public.Client
         public static string MakeInvoiceLink(Guid g, string botName)
 		{
 			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
-			return $"https://telegram.me/{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
+			return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 	}
 }

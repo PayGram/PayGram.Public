@@ -4,9 +4,15 @@
 	{
 		public Guid InvoiceCode { get; set; }
 		public decimal Fees { get; set; }
+		public string RedeemUrl { get; set; }
+
 		public ResponseCreateRedEnvelope() : base(PaygramResponseTypes.ResponseCreateRedEnvelope)
 		{
 
+		}
+		public ResponseCreateRedEnvelope(string error) : base(PaygramResponseTypes.ResponseCreateRedEnvelope)
+		{
+			Message = error;
 		}
 	}
 }
