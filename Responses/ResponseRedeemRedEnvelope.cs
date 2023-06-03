@@ -6,7 +6,9 @@
 		public int MaxRedeemers { get; set; }
 		public decimal RedeemedAmount { get; set; }
 		public decimal TotalAmount { get; set; }
-		public ResponseRedeemRedEnvelope()
+		public decimal MaxRedeemableAmount => TotalAmount - Fees;
+		public decimal AvailableRedeemableAmount => MaxRedeemableAmount - RedeemedAmount;
+        public ResponseRedeemRedEnvelope()
 		{
 			Type = PaygramResponseTypes.ResponseRedeemRedEnvelope;
 		}
