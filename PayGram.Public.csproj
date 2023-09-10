@@ -12,15 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="CurrenciesLib">
-	    <HintPath>..\CurrenciesLib\bin\$(Configuration)\net6.0\CurrenciesLib.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Telegram.Messaging">
-	    <HintPath>..\Telegram.Messaging\bin\$(Configuration)\net6.0\Telegram.Messaging.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Utilities">
-	    <HintPath>..\Utilities\bin\$(Configuration)\net6.0\Utilities.dll</HintPath>
-	  </Reference>
+	  <ProjectReference Include="..\Telegram.Messaging\Telegram.Messaging.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<RepositoryUrl>https://github.com/PayGram/PayGram.Public</RepositoryUrl>
