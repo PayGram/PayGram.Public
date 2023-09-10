@@ -1,4 +1,5 @@
 ﻿using CurrenciesLib;
+using PayGram.Public.UserAPI;
 
 namespace PayGram.Public.Responses
 {

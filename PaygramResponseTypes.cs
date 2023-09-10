@@ -27,6 +27,7 @@
 		ResponseRedeemRedEnvelope = 24,
 		ResponseManageRedEnvelope = 25,
 		ResponseRedEnvelopeInvoiceInfo = 26,
+		ResponseP2PGroupList = 27,
 	}
 
 }

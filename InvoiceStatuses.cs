@@ -1,6 +1,6 @@
 ﻿namespace PayGram.Public
 {
-    public enum InvoiceStatuses
+	public enum InvoiceStatuses
     {
         Requested = 1,
         Completed = 2,
@@ -9,5 +9,6 @@
         Error = 5,
         Denied = 7,
         AcceptedPendingTransfer = 8
-    }
+	}
+
 }

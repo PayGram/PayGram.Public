@@ -1,6 +1,6 @@
 ﻿using CurrenciesLib;
 
-namespace PayGram.Public.Responses
+namespace PayGram.Public.UserAPI
 {
     public class ResponseQuote
     {
