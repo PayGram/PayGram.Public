@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\CurrenciesLib\CurrenciesLib.csproj" />
 	  <ProjectReference Include="..\Telegram.Messaging\Telegram.Messaging.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
