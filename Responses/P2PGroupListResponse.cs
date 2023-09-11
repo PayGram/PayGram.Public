@@ -8,6 +8,6 @@ namespace PayGram.Public.Responses
 		public P2PGroupListResponse() : base(PaygramResponseTypes.ResponseP2PGroupList)
 		{
 		}
-		public List<P2PGroup> Groups { get; set; }
+		public List<P2PGroup> Groups { get; set; } = new List<P2PGroup>();
 	}
 }
