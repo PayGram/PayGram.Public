@@ -118,12 +118,12 @@ namespace PayGram.Public.Client
 		/// <returns></returns>
 		public static string MakeVoucherLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.MakeBase64($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEVOUCHER}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         public static string CancelWithdrawLink(Guid g, string botName)
         {
-            var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+            var cmd = TelegramCommand.MakeBase64($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_CANCELWITHDRAW}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
             return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
         }
         /// <summary>
@@ -133,7 +133,7 @@ namespace PayGram.Public.Client
         /// <returns></returns>
         public static string MakeInvoiceLink(Guid g, string botName)
 		{
-			var cmd = TelegramCommand.EscapeCommandValue($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
+			var cmd = TelegramCommand.MakeBase64($"{TAG_ACTION}{TelegramCommand.PARAMS_EQUAL_SEP}{ACTION_MAKEINVOICE}{TelegramCommand.PARAMS_AND_SEP}{TAG_CODE}{TelegramCommand.PARAMS_EQUAL_SEP}{g}");
 			return $"{TELEGRAM_ADDRESS}{botName}?{TelegramCommand.START}{TelegramCommand.PARAMS_EQUAL_SEP}{cmd}";
 		}
 	}
