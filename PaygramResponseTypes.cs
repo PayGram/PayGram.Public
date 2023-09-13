@@ -28,6 +28,9 @@
 		ResponseManageRedEnvelope = 25,
 		ResponseRedEnvelopeInvoiceInfo = 26,
 		ResponseP2PGroupList = 27,
+		ResponseSetP2PGroup = 28,
+		ResponseSetBusiness = 29,
+		ResponseGetBusiness = 30,
 	}
 
 }
