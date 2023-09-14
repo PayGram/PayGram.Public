@@ -6,7 +6,7 @@ namespace PayGram.Public.UserAPI
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
-		public string UserName { get; set; }
+		public string Link { get; set; }
 		public P2PGroupType P2PGroupType { get; set; } = P2PGroupType.None;
 		public bool Status { get; set; }
 		public string? Notes { get; set; }
