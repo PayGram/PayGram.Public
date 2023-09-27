@@ -8,7 +8,11 @@ namespace PayGram.Public.Client
 	public class PayGramHelper
 	{
 		public const string TELEGRAM_ADDRESS = "https://telegram.me/";
+#if RELEASE
 		public const string PAYGRAM_BOT_API_URL = "https://pubapi.paygr.am/PayGramUsers/";
+#else
+		public const string PAYGRAM_BOT_API_URL = "https://localhost:9443/PayGramUsers/";
+#endif
 		public const string PAYGRAM_BOT_ENDPOINT = PAYGRAM_BOT_API_URL + "{0}/{1}/{2}";
 		public const string TRANSFER_METHOD = "TransferCredit";
 		public const string DEPOSIT_METHOD = "DepositCredit";
@@ -81,43 +85,43 @@ namespace PayGram.Public.Client
 			return $"{TELEGRAM_ADDRESS}{botUsername}{query}";
 		}
 
-		/// <summary>
-		/// Creates a payment url
-		/// </summary>
-		/// <param name="amount">usd amount must be positive or null  will be returned</param>
-		/// <param name="toTid">The telegram id of the user that will receive the payment</param>
-		/// <param name="label">The text to display on the url</param>
-		/// <param name="callbackData">The data that you will receive when the users has completed the payment</param>
-		/// <returns>A payment url or null  if the value is &lt;=0</returns>
-		public static string? MakePaymentUrl(string botUsername, long toTid, decimal amount, Currencies curr, string label, string callbackData)
-		{
-			if (amount <= 0) return null;
+		///// <summary>
+		///// Creates a payment url
+		///// </summary>
+		///// <param name="amount">usd amount must be positive or null  will be returned</param>
+		///// <param name="toTid">The telegram id of the user that will receive the payment</param>
+		///// <param name="label">The text to display on the url</param>
+		///// <param name="callbackData">The data that you will receive when the users has completed the payment</param>
+		///// <returns>A payment url or null  if the value is &lt;=0</returns>
+		//public static string? MakePaymentUrl(string botUsername, long toTid, decimal amount, Currencies curr, string label, string callbackData)
+		//{
+		//	if (amount <= 0) return null;
 
-			if (curr == Currencies.USD) curr = Currencies.USDT;
-			else if (curr == Currencies.PHP) curr = Currencies.PHPT;
+		//	if (curr == Currencies.USD) curr = Currencies.USDT;
+		//	else if (curr == Currencies.PHP) curr = Currencies.PHPT;
 
-			var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00########", CultureInfo.InvariantCulture)}&{TAG_CURRENCY}={(int)curr}&{TAG_CALLBACKDATA}={callbackData}";
+		//	var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00########", CultureInfo.InvariantCulture)}&{TAG_CURRENCY}={(int)curr}&{TAG_CALLBACKDATA}={callbackData}";
 
-			return PayGramHyperLink(botUsername, label, query);
-		}
+		//	return PayGramHyperLink(botUsername, label, query);
+		//}
 
-		/// <summary>
-		/// Creates a payment url
-		/// </summary>
-		/// <param name="amount">usd amount must be positive or null  will be returned</param>
-		/// <param name="toTid">The telegram id of the user that will receive the payment</param>
-		/// <param name="callbackData">The data that you will receive when the users has completed the payment</param>
-		/// <returns>A payment url or null  if the value is &lt;=0</returns>
-		public static string? MakePaymentUrl(string botUsername, long toTid, decimal amount, Currencies curr, string callbackData)
-		{
-			if (amount <= 0) return null;
+		///// <summary>
+		///// Creates a payment url
+		///// </summary>
+		///// <param name="amount">usd amount must be positive or null  will be returned</param>
+		///// <param name="toTid">The telegram id of the user that will receive the payment</param>
+		///// <param name="callbackData">The data that you will receive when the users has completed the payment</param>
+		///// <returns>A payment url or null  if the value is &lt;=0</returns>
+		//public static string? MakePaymentUrl(string botUsername, long toTid, decimal amount, Currencies curr, string callbackData)
+		//{
+		//	if (amount <= 0) return null;
 
-			if (curr == Currencies.USD) curr = Currencies.USDT;
-			else if (curr == Currencies.PHP) curr = Currencies.PHPT;
+		//	if (curr == Currencies.USD) curr = Currencies.USDT;
+		//	else if (curr == Currencies.PHP) curr = Currencies.PHPT;
 
-			var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00######", CultureInfo.InvariantCulture)}&{TAG_CURRENCY}={(int)curr}&{TAG_CALLBACKDATA}={callbackData}";
-			return PayGramOnlyLink(botUsername, query);
-		}
+		//	var query = $"{TAG_ACTION}={ACTION_PAY}&{TAG_TO}={toTid:X}&{TAG_AMOUNT}={amount.ToString("0.00######", CultureInfo.InvariantCulture)}&{TAG_CURRENCY}={(int)curr}&{TAG_CALLBACKDATA}={callbackData}";
+		//	return PayGramOnlyLink(botUsername, query);
+		//}
 		/// <summary>
 		/// Creates a link to redeem an invoice
 		/// </summary>
