@@ -21,7 +21,7 @@ namespace PayGram.Public.Requests
         /// </summary>
         public string? CallbackData { get; set; }
 
-        public RequestTransferCredit()
+		public RequestTransferCredit()
         {
 
         }
