@@ -31,6 +31,12 @@
 		ResponseSetP2PGroup = 28,
 		ResponseSetBusiness = 29,
 		ResponseGetBusiness = 30,
+
+		ResponseOK = 200,
+		ResponseGenericError = 500,
+		ResponseServerUpdating = 550,
+		ResponseUniqueRequestViolation = 551,
+
 	}
 
 }
