@@ -25,7 +25,7 @@
         public Guid InvoiceCode { get; set; }
 
         public ResponseWithdrawAccepted()
-                                    : base((PaygramResponseTypes)Enum.Parse(typeof(PaygramResponseTypes), nameof(ResponseWithdrawAccepted)))
+                                    : base(PaygramResponseTypes.ResponseWithdrawAccepted)
         {
 
         }

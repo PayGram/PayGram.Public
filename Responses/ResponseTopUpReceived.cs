@@ -20,7 +20,7 @@ namespace PayGram.Public.Responses
         public decimal NewBalance { get; set; }
 
         public ResponseTopUpReceived()
-                            : base((PaygramResponseTypes)Enum.Parse(typeof(PaygramResponseTypes), nameof(ResponseTopUpReceived)))
+                            : base(PaygramResponseTypes.ResponseTopUpReceived)
         {
 
         }

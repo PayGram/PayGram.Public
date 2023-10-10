@@ -18,7 +18,7 @@ namespace PayGram.Public.Responses
         public decimal ChangeRateInclFees { get { return AmountToSendInChosenCurrency / CoinAmountWillReceive; } }
 
         public ResponseTopUp()
-                    : base((PaygramResponseTypes)Enum.Parse(typeof(PaygramResponseTypes), nameof(ResponseTopUp)))
+                    : base(PaygramResponseTypes.ResponseTopUp)
         {
 
         }

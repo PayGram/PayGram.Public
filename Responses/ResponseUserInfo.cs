@@ -37,7 +37,7 @@ namespace PayGram.Public.Responses
         /// </summary>
         public Guid SignSeed { get; set; }
         public ResponseUserInfo()
-                                : base((PaygramResponseTypes)Enum.Parse(typeof(PaygramResponseTypes), nameof(ResponseUserInfo)))
+                                : base(PaygramResponseTypes.ResponseUserInfo)
         {
 
         }
