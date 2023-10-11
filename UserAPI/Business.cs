@@ -9,5 +9,7 @@
 		public string? LocationUrl { get; set; }
 		public string? ImageUrl { get; set; }
 		public string? Description { get; set; }
-	}
+		public bool IsApproved { get; set; }
+        public bool Deleted { get; set; }
+    }
 }

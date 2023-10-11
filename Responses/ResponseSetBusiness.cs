@@ -6,5 +6,11 @@
 		{
 
 		}
+		public ResponseSetBusiness(ResponseCodes code) : base(code)
+		{
+
+		}
+
+		public long BusinessId { get; set; }
 	}
 }

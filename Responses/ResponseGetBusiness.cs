@@ -9,6 +9,6 @@ namespace PayGram.Public
 
 		}
 
-		public List<Business> Businesses { get; set; }
+		public List<Business> Businesses { get; set; } = new();
 	}
 }
