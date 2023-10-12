@@ -7,5 +7,6 @@ namespace PayGram.Public.Requests
 		public P2PGroupType P2PGroupType { get; set; }
 		public Currencies TraderCurrency { get; set; }
 		public Currencies NeededCurrency { get; set; }
+		public bool OwnOnly { get; set; }
 	}
 }

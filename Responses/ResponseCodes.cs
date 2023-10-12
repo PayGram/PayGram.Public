@@ -7,5 +7,6 @@
 		ResponseServerUpdating = 550,
 		ResponseUniqueRequestViolation = 551,
 		AuthError = 552,
+		NotFound = 553,
 	}
 }

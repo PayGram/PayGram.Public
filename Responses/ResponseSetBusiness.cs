@@ -6,7 +6,7 @@
 		{
 
 		}
-		public ResponseSetBusiness(ResponseCodes code) : base(code)
+		public ResponseSetBusiness(ResponseCodes code) : base(PaygramResponseTypes.ResponseSetBusiness, code)
 		{
 
 		}
