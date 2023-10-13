@@ -24,5 +24,7 @@ namespace PayGram.Public.UserAPI
 		/// The currency owned by the trader
 		/// </summary>
 		public Currencies TraderCurrency { get; set; }
+		public bool IsApproved { get; set; }
+		public object UpdatedUTC { get; set; }
 	}
 }

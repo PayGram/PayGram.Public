@@ -8,7 +8,10 @@ namespace PayGram.Public
 		{
 
 		}
+		public ResponseGetBusiness(ResponseCodes code) : base(PaygramResponseTypes.ResponseGetBusiness, code)
+		{
 
+		}
 		public List<Business> Businesses { get; set; } = new();
 	}
 }
