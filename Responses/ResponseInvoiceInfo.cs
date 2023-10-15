@@ -54,5 +54,9 @@ namespace PayGram.Public.Responses
 		{
 
 		}
+		public ResponseInvoiceInfo(PaygramResponseTypes type, ResponseCodes code) : base(type, code)
+		{
+
+		}
 	}
 }

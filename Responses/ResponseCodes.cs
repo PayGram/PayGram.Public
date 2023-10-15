@@ -8,5 +8,6 @@
 		ResponseUniqueRequestViolation = 551,
 		AuthError = 552,
 		NotFound = 553,
+		NotEnoughFunds = 554,
 	}
 }

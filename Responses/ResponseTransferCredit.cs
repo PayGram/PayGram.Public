@@ -11,6 +11,10 @@
 						: base(err, PaygramResponseTypes.ResponseTransferCredit)
 		{
 		}
+		public ResponseTransferCredit(string err, ResponseCodes responseCode)
+						: base(err, PaygramResponseTypes.ResponseTransferCredit, responseCode)
+		{
+		}
 		public ResponseTransferCredit(ResponseCodes responseCode) : base(PaygramResponseTypes.ResponseTransferCredit, responseCode)
 		{
 		}
