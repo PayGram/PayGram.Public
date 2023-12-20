@@ -5,6 +5,7 @@ namespace PayGram.Public.Responses
 	public class ResponseInvoiceInfo : PaygramResponse
 	{
 		public Guid InvoiceCode { get; set; }
+		public string? FriendlyVoucherCode { get; set; }
 		public InvoiceStatuses Status { get; set; }
 		public DateTime LastEventUtc { get; set; }
 		public DateTime CreatedUtc { get; set; }
@@ -55,6 +56,14 @@ namespace PayGram.Public.Responses
 
 		}
 		public ResponseInvoiceInfo(PaygramResponseTypes type, ResponseCodes code) : base(type, code)
+		{
+
+		}
+		public ResponseInvoiceInfo(ResponseCodes code) : base(PaygramResponseTypes.ResponseInvoiceInfo, code)
+		{
+
+		}
+		public ResponseInvoiceInfo(string msg, ResponseCodes code) : base(msg, PaygramResponseTypes.ResponseInvoiceInfo, code)
 		{
 
 		}
