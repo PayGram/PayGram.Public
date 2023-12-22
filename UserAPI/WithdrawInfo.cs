@@ -2,6 +2,7 @@
 {
     public class WithdrawInfo
     {
+        public long InternalId { get; set; }
         public WithdrawStatuses Status { get; set; }
         /// <summary>
         /// The amount to send in the requested currency
