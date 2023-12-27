@@ -1,4 +1,5 @@
-﻿namespace PayGram.Public.Responses
+﻿
+namespace PayGram.Public.Responses
 {
 	public class ResponseRedeemRedEnvelope : ResponseTopUpReceived
 	{
@@ -8,7 +9,10 @@
 		public decimal TotalAmount { get; set; }
 		public decimal MaxRedeemableAmount => TotalAmount - Fees;
 		public decimal AvailableRedeemableAmount => MaxRedeemableAmount - RedeemedAmount;
-        public ResponseRedeemRedEnvelope()
+
+		//public List<RedEnvRedeemer> Redeemers { get; set; }
+
+		public ResponseRedeemRedEnvelope()
 		{
 			Type = PaygramResponseTypes.ResponseRedeemRedEnvelope;
 		}

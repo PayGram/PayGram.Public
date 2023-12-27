@@ -12,7 +12,7 @@ namespace PayGram.Public.Responses
         public DateTime CreatedUtc { get; set; }
         public decimal Fees { get; set; }
         public StatementEntryType EntryType { get; set; }
-        public Guid? InvoiceCode { get; set; }
         public bool Recallable { get; set; }
+        public Invoice Invoice { get; set; }
     }
 }
