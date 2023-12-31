@@ -2,7 +2,8 @@
 {
     public class UserCallbackInvoiceInfo : UserCallbackBalanceInfo
     {
-        public Guid InvoiceCode { get; set; }
+		public string? FriendlyVoucherCode { get; set; }
+		public Guid InvoiceCode { get; set; }
         /// <summary>
         /// If the invoice is issued by a business merchant, when this notifification is sent to a merchant,
         /// this value will be populated

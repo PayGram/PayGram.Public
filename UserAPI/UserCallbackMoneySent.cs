@@ -11,6 +11,7 @@
         /// </summary>
         public string? UserCliToId { get; set; }
         public Guid VoucherCode { get; set; }
-        public string? RedeemUrl { get; set; }
+		public string? FriendlyVoucherCode { get; set; }
+		public string? RedeemUrl { get; set; }
     }
 }
