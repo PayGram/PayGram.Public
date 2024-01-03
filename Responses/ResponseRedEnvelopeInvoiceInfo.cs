@@ -7,7 +7,7 @@
 	/// <param name="Fees">The fees</param>
 	/// <param name="UserIdInClient"></param>
 	/// <param name="RedeemedAtUtc"></param>
-	public record RedEnvRedeemer(decimal Amount, decimal Fees, string UserIdInClient, DateTime RedeemedAtUtc);
+	public record InvoiceRedeemer(decimal Amount, decimal Fees, string UserIdInClient, DateTime RedeemedAtUtc);
 
 	public class ResponseRedEnvelopeInvoiceInfo : ResponseInvoiceInfo
 	{
@@ -18,7 +18,7 @@
 		public decimal RedeemedAmount { get; set; }
 		public int RedeemersCount { get; set; }
 		public int MaxRedeemers { get; set; }
-		public List<RedEnvRedeemer> Redeemers { get; set; }
+		public List<InvoiceRedeemer> Redeemers { get; set; }
 
 		public ResponseRedEnvelopeInvoiceInfo() : base()
 		{
