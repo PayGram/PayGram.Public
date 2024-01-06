@@ -1,4 +1,4 @@
 ﻿namespace PayGram.Public
 {
-    public interface IPaygramRequest { }
+	public interface IPaygramRequest { }
 }

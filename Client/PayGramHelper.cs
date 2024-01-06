@@ -1,6 +1,4 @@
-﻿using CurrenciesLib;
-using System.Globalization;
-using Telegram.Messaging.Types;
+﻿using Telegram.Messaging.Types;
 using Utilities.String.Extentions;
 
 namespace PayGram.Public.Client

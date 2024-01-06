@@ -1,6 +1,6 @@
 ﻿namespace PayGram.Public.Requests
 {
-    public class RequestCirculatingCoins : PaygramRequest
-    {
-    }
+	public class RequestCirculatingCoins : PaygramRequest
+	{
+	}
 }

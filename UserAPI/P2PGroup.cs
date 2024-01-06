@@ -17,7 +17,7 @@ namespace PayGram.Public.UserAPI
 		public string? Notes { get; set; }
 		[JsonIgnore]
 		public string? NotesHtmlEncoded => Notes.HtmlEncode();
-        public decimal FixedFee { get; set; }
+		public decimal FixedFee { get; set; }
 		public double PercFee { get; set; }
 		public double ChangeRate { get; set; }
 		public decimal MaxBuy { get; set; }

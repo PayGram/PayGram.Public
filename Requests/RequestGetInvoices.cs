@@ -2,8 +2,8 @@
 {
 	public class RequestGetInvoices : PaygramRequest
 	{
-        public string CallbackData { get; set; }
-        public RequestGetInvoices()
+		public string CallbackData { get; set; }
+		public RequestGetInvoices()
 		{
 
 		}

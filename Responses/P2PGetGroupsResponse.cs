@@ -1,5 +1,4 @@
-﻿using PayGram.Public;
-using PayGram.Public.UserAPI;
+﻿using PayGram.Public.UserAPI;
 
 namespace PayGram.Public.Responses
 {

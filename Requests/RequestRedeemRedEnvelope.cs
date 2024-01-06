@@ -2,7 +2,7 @@
 {
 	public class RequestRedeemRedEnvelope : PaygramRequest
 	{
-        public Guid	InvoiceId { get; set; }
+		public Guid InvoiceId { get; set; }
 
-    }
+	}
 }
