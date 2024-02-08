@@ -2,7 +2,7 @@
 {
 	public class ResponseTopUpCryptapi : ResponseTopUp
 	{
-		public string SendToAddress { get; set; }
+		public string? SendToAddress { get; set; }
 		public ResponseTopUpCryptapi() : base()
 		{
 			Type = PaygramResponseTypes.ResponseTopUpCryptapi;
