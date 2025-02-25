@@ -12,8 +12,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\CurrenciesLib\CurrenciesLib.csproj" />
-	  <ProjectReference Include="..\..\Telegram.Messaging\Telegram.Messaging.csproj" />
+	  <ProjectReference Include="..\CurrenciesLib\CurrenciesLib.csproj" />
+	  <ProjectReference Include="..\Telegram.Messaging\Telegram.Messaging.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<RepositoryUrl>https://github.com/PayGram/PayGram.Public</RepositoryUrl>
