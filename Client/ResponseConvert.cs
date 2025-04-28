@@ -4,11 +4,10 @@
 	{
 		public decimal Result { get; set; }
 
-		public ResponseConvert(decimal result) : base()
+		public ResponseConvert(decimal result) : base(PaygramResponseTypes.ResponseConvert)
 		{
 			Result = result;
 			Success = true;
-			Type = PaygramResponseTypes.ResponseConvert;
 		}
 	}
 }
