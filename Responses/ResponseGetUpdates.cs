@@ -11,5 +11,15 @@ namespace PayGram.Public.Responses
 		{
 			Updates = new List<UserCallbackInfo>();
 		}
+		public ResponseGetUpdates(string err)
+			: base(err, PaygramResponseTypes.ResponseGetExchangeRates, ResponseCodes.ResponseGenericError)
+		{
+			Updates = new List<UserCallbackInfo>();
+		}
+		public ResponseGetUpdates(ResponseCodes code)
+			: base(PaygramResponseTypes.ResponseGetExchangeRates, code)
+		{
+			Updates = new List<UserCallbackInfo>();
+		}
 	}
 }

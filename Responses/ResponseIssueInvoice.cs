@@ -9,5 +9,9 @@
 		public ResponseIssueInvoice(ResponseCodes code) : base(PaygramResponseTypes.ResponseIssueInvoice, code)
 		{
 		}
+		public ResponseIssueInvoice(string err) : base(PaygramResponseTypes.ResponseIssueInvoice, ResponseCodes.ResponseGenericError)
+		{
+			Message = err;
+		}
 	}
 }

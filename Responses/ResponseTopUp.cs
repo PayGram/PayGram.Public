@@ -22,5 +22,13 @@ namespace PayGram.Public.Responses
 		{
 
 		}
+		public ResponseTopUp(string err)
+					: base(err, PaygramResponseTypes.ResponseTopUp, ResponseCodes.ResponseGenericError)
+		{
+		}
+		public ResponseTopUp(ResponseCodes code)
+					: base(PaygramResponseTypes.ResponseTopUp, code)
+		{
+		}
 	}
 }

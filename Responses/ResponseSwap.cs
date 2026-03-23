@@ -10,5 +10,13 @@
 		{
 
 		}
+		public ResponseSwap(string err)
+					: base(err, PaygramResponseTypes.ResponseSwap, ResponseCodes.ResponseGenericError)
+		{
+		}
+		public ResponseSwap(ResponseCodes code)
+					: base(PaygramResponseTypes.ResponseSwap, code)
+		{
+		}
 	}
 }
