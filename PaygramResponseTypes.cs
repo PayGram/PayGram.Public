@@ -32,5 +32,6 @@
 		ResponseSetBusiness = 29,
 		ResponseGetBusiness = 30,
 		ResponseGetInvoices = 31,
+		ResponseSetRate = 32,
 	}
 }
