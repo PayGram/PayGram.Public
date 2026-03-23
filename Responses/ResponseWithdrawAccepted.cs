@@ -1,26 +1,33 @@
-﻿namespace PayGram.Public.Responses
+namespace PayGram.Public.Responses
 {
+	/// <summary>
+	/// Returned by <c>WithdrawAsync</c> / <c>WithdrawV2</c>.
+	/// Indicates that a cryptocurrency withdrawal has been accepted for processing.
+	/// The withdrawal still goes through an approval process before being executed on-chain.
+	/// </summary>
 	public class ResponseWithdrawAccepted : PaygramResponse
 	{
 		/// <summary>
-		/// The balance after witdrawing the funds of the selected currency-account
+		/// The user's balance in the withdrawal currency after the funds have been reserved for withdrawal.
 		/// </summary>
 		public decimal NewBalance { get; set; }
 		/// <summary>
-		/// The fee for this transfer expressed in the CurrencyCode
+		/// The fee for this withdrawal, expressed in the withdrawal currency.
+		/// Includes PayGram fees and estimated crypto transaction fees.
 		/// </summary>
 		public decimal ExpectedFee { get; set; }
 		/// <summary>
-		/// The amount that will be deducted from the source account expressed by the CurrencyCode
+		/// The total amount deducted from the user's account, expressed in the withdrawal currency.
+		/// This includes both the amount to be sent and the fees.
 		/// </summary>
 		public decimal WithdrawnAmount { get; set; }
 		/// <summary>
-		/// The amount that will be sent to the user expressed in his chosen currency, net of the PayGram and crypto transaction fees, but excluding 
-		/// additional interidiary bank or beneficiary bank fees. This will likely be the received amount.
+		/// The net amount the user will receive at the destination address (WithdrawnAmount - ExpectedFee).
+		/// Excludes any intermediary or beneficiary bank fees which may apply additionally.
 		/// </summary>
 		public decimal AmountWillReceive => WithdrawnAmount = ExpectedFee;
 		/// <summary>
-		/// The unique identifier for the invoice that identifies the withdraw operation
+		/// The GUID of the invoice tracking this withdrawal. Can be used with <c>InvoiceInfo</c> to check withdrawal status.
 		/// </summary>
 		public Guid InvoiceCode { get; set; }
 
