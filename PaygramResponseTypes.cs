@@ -33,5 +33,6 @@
 		ResponseGetBusiness = 30,
 		ResponseGetInvoices = 31,
 		ResponseSetRate = 32,
+		ResponseWhitelistAddresses = 33,
 	}
 }
