@@ -24,8 +24,7 @@ namespace PayGram.Public
 				this.updateRatesEveryMillis = ConversionProviderFactory.QuotesValidForMillis;
 				ConversionProviderFactory.QuotesValidForMillis *= 2; // we don't know how ofter paygram updates the rates, let's choose a large value
 			}
-			ConversionProviderFactory.RegisterConversionProvider(new ToDefaultCurrencyConversionProvider(Currencies.BTC));
-			ConversionProviderFactory.RegisterConversionProvider(new ToDefaultCurrencyConversionProvider(Currencies.USD));
+			// RateGraph handles multi-hop conversion via BFS — no need for ToDefaultCurrencyConversionProvider
 		}
 
 		public void Start(CancellationToken token = default)
