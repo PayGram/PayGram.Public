@@ -21,6 +21,14 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public decimal Price { get; set; }
 
+		/// <summary>
+		/// Spread applied when user buys the QuoteCurrency (e.g., 0.02 = 2%)
+		/// </summary>
+		public decimal SpreadBuy { get; set; }
+		/// <summary>
+		/// Spread applied when user sells the QuoteCurrency (e.g., 0.02 = 2%)
+		/// </summary>
+		public decimal SpreadSell { get; set; }
 		public override string ToString()
 		{
 			return $"{QuoteCurrency}:{Price}@{UpdatedUTC:dd/MM H:m:ss}";

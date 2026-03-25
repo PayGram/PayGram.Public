@@ -69,7 +69,9 @@ namespace PayGram.Public
 							BaseCurrency = bc,
 							QuoteCurrency = qc.QuoteCurrency,
 							Midpoint = qc.Price,
-							IsInferred = false
+							IsInferred = false,
+							SpreadBuy = qc.SpreadBuy,
+							SpreadSell = qc.SpreadSell
 						};
 						if (Currency.GetBySymbol(bc) == null || Currency.GetBySymbol(nq.QuoteCurrency) == null)
 						{

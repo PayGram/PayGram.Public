@@ -26,7 +26,7 @@ namespace PayGram.Public.Responses
 		/// <summary>
 		/// Adds an exchange-rate quote. Throws if the base→quote pair already exists.
 		/// </summary>
-		public void AddQuote(Currencies baseCurrency, Currencies quoteCurrency, DateTime updatedUtc, decimal price)
+		public void AddQuote(Currencies baseCurrency, Currencies quoteCurrency, DateTime updatedUtc, decimal price, decimal spreadBuy, decimal spreadSell)
 		{
 			var bc = Rates.ContainsKey(baseCurrency) ? Rates[baseCurrency] : null;
 			if (bc == null)
@@ -42,7 +42,9 @@ namespace PayGram.Public.Responses
 			{
 				Price = price,
 				UpdatedUTC = updatedUtc,
-				QuoteCurrency = quoteCurrency
+				QuoteCurrency = quoteCurrency,
+				SpreadBuy = spreadBuy,
+				SpreadSell = spreadSell
 			});
 		}
 	}
