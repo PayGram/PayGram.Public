@@ -18,5 +18,7 @@ namespace PayGram.Public.Requests
 		public string Unique { get; set; } = string.Empty;
 		/// <summary>Optional callback data returned in notifications related to this swap.</summary>
 		public string? Cd { get; set; }
+		/// <summary>True to see the preview of the conversion, false to execute it.</summary>
+		public bool Simulate { get; set; }
 	}
 }
