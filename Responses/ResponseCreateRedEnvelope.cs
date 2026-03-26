@@ -12,7 +12,7 @@
 		{
 
 		}
-		public ResponseCreateRedEnvelope(string error) : base(PaygramResponseTypes.ResponseCreateRedEnvelope)
+		public ResponseCreateRedEnvelope(string error) : base(PaygramResponseTypes.ResponseCreateRedEnvelope, ResponseCodes.ResponseGenericError)
 		{
 			Message = error;
 		}

@@ -18,7 +18,7 @@ namespace PayGram.Public
 
 		public PaygramResponseTypes Type { get; set; }
 		public ResponseCodes ResponseCode { get; set; }
-		public bool Success { get; set; }
+		public bool Success => (int)ResponseCode < 400;//{ get; set; }
 
 		/// <summary>
 		/// Success = false
@@ -65,7 +65,7 @@ namespace PayGram.Public
 			Message = message;
 			Type = type;
 			ResponseCode = responseCode;
-			Success = (int)responseCode < 400;
+			//Success = (int)responseCode < 400;
 		}
 		/// <summary>
 		/// Creates a new paygram response with the specified message and type

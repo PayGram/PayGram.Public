@@ -79,9 +79,13 @@ namespace PayGram.Public.Responses
 		/// <summary>
 		/// The type of invoice (InternalInvoice, WithdrawInvoice, TopUpInvoice, Swap, Voucher, PaymentRequest, RedEnvInvoice, etc.).
 		/// </summary>
-        public InvoiceTypes InvoiceType { get; set; }
-        public ResponseInvoiceInfo()
+		public InvoiceTypes InvoiceType { get; set; }
+		public ResponseInvoiceInfo()
 				: base(PaygramResponseTypes.ResponseInvoiceInfo)
+		{
+
+		}
+		public ResponseInvoiceInfo(PaygramResponseTypes type) : base(type)
 		{
 
 		}

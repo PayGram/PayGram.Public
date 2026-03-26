@@ -85,13 +85,13 @@ namespace PayGram.Public.Client
 		/// <returns>ResponseTopUp or ResponseTopUpCryptapi</returns> 
 		public async Task<ResponseTopUp> DepositCreditAsync(double amount, Currencies amountCurrency, CryptoNetworks network, string callbackData)
 		{
-			if (amount <= 0) return new ResponseTopUp() { Success = false, Message = "Amount cannot be negative" };
+			if (amount <= 0) return new ResponseTopUp() { ResponseCode = ResponseCodes.ResponseGenericError, Message = "Amount cannot be negative" };
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.DEPOSIT_METHOD, $"{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={amountCurrency}&{PayGramHelper.NETWORK_SYMBOL_TOKEN_NAME}={network}&{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.CALLBACKDATA_TOKEN_NAME}={callbackData}", null);
 			log.Debug($"DepositMoneyAsync {amount} {amountCurrency}, response: {response}");
 			if (string.IsNullOrWhiteSpace(response))
 			{
 				log.Error($"error DepositCreditAsync {amount} {amountCurrency}, PayGram bot returned null");
-				return new ResponseTopUp() { Success = false, Message = "Unexpected error" };
+				return new ResponseTopUp() { ResponseCode = ResponseCodes.ResponseGenericError, Message = "Unexpected error" };
 			}
 			try
 			{
@@ -101,7 +101,7 @@ namespace PayGram.Public.Client
 			catch (Exception e)
 			{
 				log.Error($"error DepositCreditAsync {amount} {amountCurrency}", e);
-				return new ResponseTopUp() { Success = false, Message = "Unexpected error" };
+				return new ResponseTopUp() { ResponseCode = ResponseCodes.ResponseGenericError, Message = "Unexpected error" };
 			}
 		}
 		/// <summary>
@@ -125,7 +125,7 @@ namespace PayGram.Public.Client
 		{
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.UPDATES_METHOD, null, null);
 			if (response == null)
-				return new ResponseGetUpdates() { Success = false };
+				return new ResponseGetUpdates() { ResponseCode = ResponseCodes.ResponseGenericError };
 
 			return JsonConvert.DeserializeObject<ResponseGetUpdates>(response);
 		}
@@ -133,7 +133,7 @@ namespace PayGram.Public.Client
 		{
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.EXCHANGE_RATES_METHOD, null, null);
 			if (response == null)
-				return new ResponseGetExchangeRates() { Success = false };
+				return new ResponseGetExchangeRates() { ResponseCode = ResponseCodes.ResponseGenericError };
 
 			return JsonConvert.DeserializeObject<ResponseGetExchangeRates>(response);
 		}
@@ -146,14 +146,14 @@ namespace PayGram.Public.Client
 		{
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.INVOICE_INFO_METHOD, $"{PayGramHelper.INVOICEID_TOKEN_NAME}={invoiceId}", null);
 			if (string.IsNullOrWhiteSpace(response))
-				return new ResponseInvoiceInfo() { Success = false };
+				return new ResponseInvoiceInfo() { ResponseCode = ResponseCodes.ResponseGenericError };
 
 			var resp = JsonConvert.DeserializeObject<ResponseInvoiceInfo>(response);
 
 			if (resp == null)
 			{
 				log.Warn($"{invoiceId} info returned null");
-				return new ResponseInvoiceInfo() { Success = false, Message = "Unexpected error" };
+				return new ResponseInvoiceInfo() { ResponseCode = ResponseCodes.ResponseGenericError, Message = "Unexpected error" };
 			}
 
 			if (resp.Type == PaygramResponseTypes.ResponseInvoiceWithdrawInfo)

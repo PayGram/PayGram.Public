@@ -11,10 +11,12 @@ namespace PayGram.Public.Client
 		/// </summary>
 		public decimal Result { get; set; }
 
-		public ResponseConvert(decimal result) : base(PaygramResponseTypes.ResponseConvert)
+		public ResponseConvert() : base(PaygramResponseTypes.ResponseConvert)
+		{
+		}
+		public ResponseConvert(decimal result) : base(PaygramResponseTypes.ResponseConvert, ResponseCodes.ResponseOK)
 		{
 			Result = result;
-			Success = true;
 		}
 		public ResponseConvert(string err)
 					: base(err, PaygramResponseTypes.ResponseConvert, ResponseCodes.ResponseGenericError)

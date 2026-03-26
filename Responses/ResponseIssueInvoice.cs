@@ -12,7 +12,7 @@ namespace PayGram.Public.Responses
 		/// For Telegram clients, this is a t.me deep link.
 		/// </summary>
 		public string? PayUrl { get; set; }
-		public ResponseIssueInvoice() : base(PaygramResponseTypes.ResponseIssueInvoice, ResponseCodes.ResponseOK)
+		public ResponseIssueInvoice() : base(PaygramResponseTypes.ResponseIssueInvoice)
 		{
 		}
 		public ResponseIssueInvoice(ResponseCodes code) : base(PaygramResponseTypes.ResponseIssueInvoice, code)

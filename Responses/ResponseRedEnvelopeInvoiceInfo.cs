@@ -37,9 +37,8 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public List<InvoiceRedeemer> Redeemers { get; set; }
 
-		public ResponseRedEnvelopeInvoiceInfo() : base()
+		public ResponseRedEnvelopeInvoiceInfo() : base(PaygramResponseTypes.ResponseRedEnvelopeInvoiceInfo)
 		{
-			Type = PaygramResponseTypes.ResponseRedEnvelopeInvoiceInfo;
 		}
 		public ResponseRedEnvelopeInvoiceInfo(ResponseCodes code) : base(PaygramResponseTypes.ResponseRedEnvelopeInvoiceInfo, code)
 		{
