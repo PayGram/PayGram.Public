@@ -31,7 +31,7 @@ namespace PayGram.Public.Responses
 		public decimal SpreadSell { get; set; }
 		public override string ToString()
 		{
-			return $"{QuoteCurrency}:{Price}@{UpdatedUTC:dd/MM H:m:ss}";
+			return $"{QuoteCurrency}:{Price:0.####}@{UpdatedUTC:dd/MM H:m:ss}";
 		}
 	}
 }
