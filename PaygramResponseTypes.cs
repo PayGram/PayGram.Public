@@ -23,7 +23,7 @@
 		ResponseSwap = 20,
 		ResponseStatement = 21,
 		ResponseCreateRedEnvelope = 22,
-		ResponseSimplex = 23,
+		//ResponseSimplex = 23,
 		ResponseRedeemRedEnvelope = 24,
 		ResponseManageRedEnvelope = 25,
 		ResponseRedEnvelopeInvoiceInfo = 26,

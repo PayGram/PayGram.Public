@@ -9,7 +9,7 @@
 		Swap = 5,
 		Voucher = 6,
 		PaymentRequest = 7,
-		Simplex = 8,
+		//Simplex = 8,
 		RedEnvInvoice = 9,
 	}
 }
