@@ -1,4 +1,4 @@
-﻿using CurrenciesLib;
+using CurrenciesLib;
 using CurrenciesLib.Cryptos;
 using log4net;
 using Newtonsoft.Json;
@@ -202,7 +202,7 @@ namespace PayGram.Public.Client
 					}
 					catch (Exception ex)
 					{
-						log.Debug($"Error sending the request to the server. {url} {reqContent}", ex);
+						log.Error($"Error sending the request to the server. {url} {reqContent}", ex);
 						return null;
 					}
 				}
