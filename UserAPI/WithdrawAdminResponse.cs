@@ -35,5 +35,14 @@ namespace PayGram.Public.UserAPI
 		/// </summary>
 		public Currencies Currency { get; set; }
 		public WithdrawMethod UpdatedWithdrawMethod { get; set; }
+		/// <summary>
+		/// The network fee charged by the crypto sender, when known. Used to record the
+		/// on-chain leg of the withdrawal; not shown to the user.
+		/// </summary>
+		public decimal? NetworkFee { get; set; }
+		/// <summary>
+		/// The currency of <see cref="NetworkFee"/> as reported by the sender.
+		/// </summary>
+		public string? NetworkFeeCurrency { get; set; }
 	}
 }

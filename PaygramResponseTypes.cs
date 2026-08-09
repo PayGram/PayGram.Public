@@ -37,5 +37,7 @@
 		ResponseReportInfo = 34,
 		ResponseCancelPendingCallbacks = 35,
 		ResponseBlockUser = 36,
+		ResponseFundFlow = 37,
+		ResponseTransactionDetail = 38,
 	}
 }
