@@ -36,5 +36,6 @@
 		ResponseWhitelistAddresses = 33,
 		ResponseReportInfo = 34,
 		ResponseCancelPendingCallbacks = 35,
+		ResponseBlockUser = 36,
 	}
 }
