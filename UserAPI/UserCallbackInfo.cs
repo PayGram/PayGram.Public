@@ -23,11 +23,13 @@ namespace PayGram.Public.UserAPI
 		public UserCallbackMoneySent MoneySentInfo { get; set; }
 		public UserCallbackWithdraw WithdrawInfo { get; set; }
 		public UserCallbackInvoiceInfo InvoiceInfo { get; set; }
+		public UserCallbackReportInfo ReportInfo { get; set; }
 		public string Hash { get; set; }
 		public UserCallbackTypes CallbackType => BalanceInfo != null ? UserCallbackTypes.BalanceInfo
 			: WithdrawInfo != null ? UserCallbackTypes.WithdrawInfo
 			: InvoiceInfo != null ? (InvoiceInfo.TransactionAmount > 0 ? UserCallbackTypes.InvoiceInfoCredited : UserCallbackTypes.InvoiceInfoDebited)
 			: MoneySentInfo != null ? UserCallbackTypes.MoneySent
+			: ReportInfo != null ? UserCallbackTypes.ReportReady
 			: UserCallbackTypes.CallbackInfo;
 
 

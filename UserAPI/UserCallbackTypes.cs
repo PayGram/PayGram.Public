@@ -22,6 +22,10 @@
 		/// <summary>
 		/// Received when the user sent an amount through the direct transfer
 		/// </summary>
-		MoneySent = 4
+		MoneySent = 4,
+		/// <summary>
+		/// Received when a booked statement-export report is ready to be downloaded (or failed)
+		/// </summary>
+		ReportReady = 6
 	}
 }

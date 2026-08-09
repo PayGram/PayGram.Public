@@ -34,5 +34,7 @@
 		ResponseGetInvoices = 31,
 		ResponseSetRate = 32,
 		ResponseWhitelistAddresses = 33,
+		ResponseReportInfo = 34,
+		ResponseCancelPendingCallbacks = 35,
 	}
 }
