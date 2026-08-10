@@ -1,15 +1,23 @@
-﻿using CurrenciesLib;
+using CurrenciesLib;
 using CurrenciesLib.ConversionProviders;
+using log4net;
+using Microsoft.Extensions.Hosting;
 using PayGram.Public.Client;
 
 namespace PayGram.Public
 {
-	public class CurrenciesManager
+	/// <summary>
+	/// Hosted service that periodically pulls exchange rates from the PayGram bot and feeds them into
+	/// the conversion cache. Register it with <c>services.AddHostedService&lt;CurrenciesManager&gt;()</c>:
+	/// the host owns its lifetime and passes the application-shutdown token to <see cref="ExecuteAsync"/>.
+	/// </summary>
+	public class CurrenciesManager : BackgroundService
 	{
-		public bool IsRunning { get; private set; }
+		private static readonly ILog log = LogManager.GetLogger(typeof(CurrenciesManager));
 
 		readonly ulong updateRatesEveryMillis;
 		readonly PayGramBotClient pClient;
+
 		public CurrenciesManager(PayGramBotClient pClient, ulong updateRatesEveryMillis = 0)
 		{
 			this.pClient = pClient;
@@ -22,35 +30,38 @@ namespace PayGram.Public
 			else
 			{
 				this.updateRatesEveryMillis = ConversionProviderFactory.QuotesValidForMillis;
-				ConversionProviderFactory.QuotesValidForMillis *= 2; // we don't know how ofter paygram updates the rates, let's choose a large value
+				ConversionProviderFactory.QuotesValidForMillis *= 2; // we don't know how often paygram updates the rates, let's choose a large value
 			}
 			// RateGraph handles multi-hop conversion via BFS — no need for ToDefaultCurrencyConversionProvider
 		}
 
-		public void Start(CancellationToken token = default)
+		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			if (IsRunning) return;
-			IsRunning = true;
-			//ct = new CancellationTokenSource();
-			Task.Run(mainLoop, token).ConfigureAwait(false);
-		}
-
-		public void Stop()
-		{
-			//ct.Cancel();
-			IsRunning = false;
-		}
-
-		private async Task mainLoop()
-		{
-			//PayGramBotClient pClient = new PayGramBotClient(new System.Guid("64cf8a6f-2f50-44da-900e-e3a958841b3a"));
-
-			while (IsRunning)
+			log.Info($"CurrenciesManager started; refreshing rates every {updateRatesEveryMillis} ms");
+			try
 			{
-				await doJob(pClient);
+				while (!stoppingToken.IsCancellationRequested)
+				{
+					try
+					{
+						await doJob(pClient);
+					}
+					catch (Exception ex)
+					{
+						// never let a single failed refresh stop the loop: log it and retry next interval.
+						log.Error("CurrenciesManager rate-update cycle failed; retrying next interval", ex);
+					}
 
-				await Task.Delay((int)updateRatesEveryMillis);
+					// honour the shutdown token so the delay is interrupted immediately on stop,
+					// instead of blocking the host for up to a full interval.
+					await Task.Delay(TimeSpan.FromMilliseconds(updateRatesEveryMillis), stoppingToken);
+				}
 			}
+			catch (OperationCanceledException)
+			{
+				// expected: the host requested shutdown while we were delaying.
+			}
+			log.Info("CurrenciesManager stopped");
 		}
 
 		private static async Task doJob(PayGramBotClient pClient)
