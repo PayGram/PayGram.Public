@@ -8,9 +8,19 @@ namespace PayGram.Public
 {
 	/// <summary>
 	/// Hosted service that periodically pulls exchange rates from the PayGram bot and feeds them into
-	/// the conversion cache. Register it with <c>services.AddHostedService&lt;CurrenciesManager&gt;()</c>:
-	/// the host owns its lifetime and passes the application-shutdown token to <see cref="ExecuteAsync"/>.
+	/// the conversion cache. The host owns its lifetime and passes the application-shutdown token to
+	/// <see cref="ExecuteAsync"/>.
 	/// </summary>
+	/// <remarks>
+	/// Register it as a hosted service so the host starts and stops it automatically:
+	/// <code>
+	/// services.AddSingleton(new PayGramBotClient(botToken));
+	/// services.AddHostedService&lt;CurrenciesManager&gt;();
+	/// </code>
+	/// Without a host, it can still be driven manually via the inherited
+	/// <see cref="Microsoft.Extensions.Hosting.BackgroundService.StartAsync"/> /
+	/// <see cref="Microsoft.Extensions.Hosting.BackgroundService.StopAsync"/> methods.
+	/// </remarks>
 	public class CurrenciesManager : BackgroundService
 	{
 		private static readonly ILog log = LogManager.GetLogger(typeof(CurrenciesManager));
