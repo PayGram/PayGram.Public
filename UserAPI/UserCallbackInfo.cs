@@ -24,6 +24,15 @@ namespace PayGram.Public.UserAPI
 		public UserCallbackWithdraw WithdrawInfo { get; set; }
 		public UserCallbackInvoiceInfo InvoiceInfo { get; set; }
 		public UserCallbackReportInfo ReportInfo { get; set; }
+		/// <summary>
+		/// DEPRECATED, verify the callback through the hmac headers instead (see <see cref="CallbackSignature"/>):
+		/// they cover the whole body ("{timestamp}.{raw json body}", key = your SignSeed), while this legacy field
+		/// is only sha256(SignSeed + Timestamp) - it does not authenticate the payload and is replayable.
+		/// It is still populated for backward compatibility and will be removed in a future release.
+		/// Note that it is computed when the notification is created: if the SignSeed is rotated while a
+		/// notification is still being retried, this field carries the old seed while the headers use the new one.
+		/// </summary>
+		[Obsolete("Verify callbacks through the CallbackSignature hmac headers instead. This field does not authenticate the payload and will be removed in a future release.")]
 		public string Hash { get; set; }
 		public UserCallbackTypes CallbackType => BalanceInfo != null ? UserCallbackTypes.BalanceInfo
 			: WithdrawInfo != null ? UserCallbackTypes.WithdrawInfo
