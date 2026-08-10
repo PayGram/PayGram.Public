@@ -2,6 +2,7 @@ using CurrenciesLib;
 using CurrenciesLib.Cryptos;
 using log4net;
 using Newtonsoft.Json;
+using PayGram.Public.Requests;
 using PayGram.Public.Responses;
 using System.Globalization;
 using System.Text;
@@ -129,6 +130,25 @@ namespace PayGram.Public.Client
 
 			return JsonConvert.DeserializeObject<ResponseGetUpdates>(response);
 		}
+		/// <summary>
+		/// Cancels all the pending callbacks of this client's user by marking them as Failed on the
+		/// PayGram server: they will not be pushed again, so they are not picked up on the next pass.
+		/// They remain retrievable through <see cref="GetUpdatesAsync"/> until they age out of the
+		/// retention window.
+		/// WARNING: use this only while debugging a callback endpoint (e.g. a misconfigured endpoint that
+		/// PayGram cannot reach, which left updates piling up). It must NOT be used in production, because
+		/// cancelled callbacks may carry transaction events (payments, deposits, withdrawals) that would
+		/// otherwise be lost; any notification lost this way can still be recovered with a GetUpdatesAsync call.
+		/// </summary>
+		/// <returns>A <see cref="ResponseCancelPendingCallbacks"/> with the number of cancelled callbacks. Does not return null.</returns>
+		public async Task<ResponseCancelPendingCallbacks?> CancelPendingCallbacksAsync()
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.CANCEL_PENDING_CALLBACKS_METHOD, null, null);
+			if (response == null)
+				return new ResponseCancelPendingCallbacks() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseCancelPendingCallbacks>(response);
+		}
 		public async Task<ResponseGetExchangeRates?> GetExchangeRatesAsync()
 		{
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.EXCHANGE_RATES_METHOD, null, null);
@@ -162,12 +182,75 @@ namespace PayGram.Public.Client
 				return resp;
 		}
 		/// <summary>
+		/// Swaps an amount from one currency to another for the authenticated user. Set
+		/// <see cref="SwapRequest.Simulate"/> to true to only get a quote without executing.
+		/// Requires a unique idempotency key to prevent duplicate swaps.
+		/// </summary>
+		/// <returns>A <see cref="ResponseSwap"/>. Does not return null.</returns>
+		public async Task<ResponseSwap?> SwapAsync(SwapRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.SWAP_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseSwap() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseSwap>(response);
+		}
+		/// <summary>
+		/// Requests a cryptocurrency withdrawal for the authenticated user to an external address.
+		/// Requires a unique idempotency key to prevent duplicate withdrawals.
+		/// </summary>
+		/// <returns>A <see cref="ResponseWithdrawAccepted"/>. Does not return null.</returns>
+		public async Task<ResponseWithdrawAccepted?> WithdrawAsync(WithdrawRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.WITHDRAW_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseWithdrawAccepted() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseWithdrawAccepted>(response);
+		}
+		/// <summary>
+		/// Redeems a voucher into the authenticated user's balance.
+		/// </summary>
+		/// <returns>A <see cref="ResponseTopUpReceived"/>. Does not return null.</returns>
+		public async Task<ResponseTopUpReceived?> RedeemVoucherAsync(RedeemVoucherRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.REDEEM_VOUCHER_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseTopUpReceived() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseTopUpReceived>(response);
+		}
+		/// <summary>
+		/// Pays (funds) a voucher from the authenticated user's balance.
+		/// </summary>
+		/// <returns>A <see cref="ResponseInvoiceInfo"/>. Does not return null.</returns>
+		public async Task<ResponseInvoiceInfo?> PayVoucherAsync(PayVoucherRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.PAY_VOUCHER_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseInvoiceInfo() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseInvoiceInfo>(response);
+		}
+		/// <summary>
+		/// Retrieves the authenticated user's account statement (transaction history) for a time range, paged.
+		/// </summary>
+		/// <returns>A <see cref="ResponseStatement"/>. Does not return null.</returns>
+		public async Task<ResponseStatement?> GetStatementAsync(GetStatementRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.GET_STATEMENT_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseStatement() { ResponseCode = ResponseCodes.ResponseGenericError };
+
+			return JsonConvert.DeserializeObject<ResponseStatement>(response);
+		}
+		/// <summary>
 		/// Sends a request to the PayGram bot server. Returns null in case of errors with the communication with the server.
 		/// </summary>
 		/// <param name="rq">the query string</param>
 		/// <param name="method">the body request if any</param>
 		/// <returns></returns>
-		async static Task<string?> ExecuteMethodAsync(string token, string method, string otherParams, PayGramClientRequest? request)
+		async static Task<string?> ExecuteMethodAsync(string token, string method, string otherParams, object? request)
 		{
 			if (otherParams == null)
 				otherParams = "";

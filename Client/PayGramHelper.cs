@@ -15,11 +15,17 @@ namespace PayGram.Public.Client
 		public const string TRANSFER_METHOD = "TransferCredit";
 		public const string DEPOSIT_METHOD = "DepositCredit";
 		public const string UPDATES_METHOD = "GetUpdates";
+		public const string CANCEL_PENDING_CALLBACKS_METHOD = "CancelPendingCallbacks";
 		public const string INVOICE_INFO_METHOD = "InvoiceInfo";
 		public const string EXCHANGE_RATES_METHOD = "GetExchangeRates";
 		public const string CONVERT_METHOD = "Convert";
 		public const string SWAP_METHOD = "Swap";
 		public const string ISSUEINVOICE_METHOD = "IssueInvoice";
+		public const string SWAP_V2_METHOD = "SwapV2";
+		public const string WITHDRAW_V2_METHOD = "WithdrawV2";
+		public const string REDEEM_VOUCHER_V2_METHOD = "RedeemVoucherV2";
+		public const string PAY_VOUCHER_V2_METHOD = "PayVoucherV2";
+		public const string GET_STATEMENT_V2_METHOD = "GetStatementV2";
 
 		// tokens are used in the PayGramUsersController as query string parameters
 		public const string INVOICEID_TOKEN_NAME = "invguid";
