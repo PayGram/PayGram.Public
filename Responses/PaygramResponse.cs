@@ -21,6 +21,15 @@ namespace PayGram.Public
 		public bool Success => (int)ResponseCode < 400;//{ get; set; }
 
 		/// <summary>
+		/// True when this response was not produced by executing the request, but replayed from the stored
+		/// outcome of the original request that carried the same ClientUnique (idempotent replay).
+		/// Retrying a request with the same ClientUnique after losing the response is therefore safe:
+		/// the operation is never executed twice and the original response is returned again.
+		/// </summary>
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public bool ReplayedResponse { get; set; }
+
+		/// <summary>
 		/// Success = false
 		/// Type = Unknown
 		/// </summary>
