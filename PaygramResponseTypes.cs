@@ -39,5 +39,8 @@
 		ResponseBlockUser = 36,
 		ResponseFundFlow = 37,
 		ResponseTransactionDetail = 38,
+		ResponseUserProfile = 39,
+		ResponseOpenVouchers = 40,
+		ResponseReturnVoucher = 41,
 	}
 }
