@@ -42,5 +42,6 @@
 		ResponseUserProfile = 39,
 		ResponseOpenVouchers = 40,
 		ResponseReturnVoucher = 41,
+		ResponseCheckUnique = 42,
 	}
 }
