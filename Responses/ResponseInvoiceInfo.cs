@@ -63,6 +63,15 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public string? OriginatingUser { get; set; }
 		/// <summary>
+		/// True when <see cref="FromUser"/> is a user of the requesting client, so the id can be resolved in the client's own user base.
+		/// False when the id belongs to another client (for business invoices the payer is always shown, whoever they are) or is not set.
+		/// </summary>
+		public bool FromUserBelongsToClient { get; set; }
+		/// <summary>True when <see cref="ToUser"/> is a user of the requesting client. See <see cref="FromUserBelongsToClient"/>.</summary>
+		public bool ToUserBelongsToClient { get; set; }
+		/// <summary>True when <see cref="OriginatingUser"/> is a user of the requesting client. See <see cref="FromUserBelongsToClient"/>.</summary>
+		public bool OriginatingUserBelongsToClient { get; set; }
+		/// <summary>
 		/// True if the invoice has been paid (funds debited from the payer).
 		/// Determined by whether a MoneySentInternalTran exists for this invoice.
 		/// </summary>

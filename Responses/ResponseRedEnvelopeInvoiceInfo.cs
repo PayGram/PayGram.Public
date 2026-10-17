@@ -7,7 +7,10 @@ namespace PayGram.Public.Responses
 	/// <param name="Fees">The fees deducted from this redemption.</param>
 	/// <param name="UserIdInClient">The client-side user ID of the redeemer.</param>
 	/// <param name="RedeemedAtUtc">The UTC timestamp when the redemption occurred.</param>
-	public record InvoiceRedeemer(decimal Amount, decimal Fees, string UserIdInClient, DateTime RedeemedAtUtc);
+	/// <param name="BelongsToClient">True when the redeemer is a user of the requesting client, so <paramref name="UserIdInClient"/> can be resolved
+	/// in the client's own user base. Redeemers of other clients are listed too (they count towards the envelope) but their id lives in another namespace.
+	/// Defaults to true for the records a client builds about its own users.</param>
+	public record InvoiceRedeemer(decimal Amount, decimal Fees, string UserIdInClient, DateTime RedeemedAtUtc, bool BelongsToClient = true);
 
 	/// <summary>
 	/// Returned by <c>InvoiceInfo</c> / <c>InvoiceInfoV2</c> when the invoice is a red envelope.

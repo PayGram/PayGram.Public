@@ -14,5 +14,11 @@
 		/// then tell its own recalls apart; who else redeemed it is never disclosed.
 		/// </summary>
 		public string? UserIdInClientFrom { get; set; }
+		/// <summary>
+		/// True when <see cref="UserIdInClientFrom"/> is a user of the client receiving this callback. For a business payment the payer
+		/// may be a user of another client: the id is still given but must not be looked up as a local user. Defaults to true for
+		/// callbacks produced before this field existed.
+		/// </summary>
+		public bool UserIdInClientFromBelongsToClient { get; set; } = true;
 	}
 }

@@ -24,6 +24,11 @@ namespace PayGram.Public.UserAPI
 		public decimal MinBuy { get; set; }
 		public string OwnerIdInClient { get; set; }
 		/// <summary>
+		/// True when the owner is a user of the requesting client: ads are listed across clients, so <see cref="OwnerIdInClient"/> of a
+		/// foreign ad lives in another namespace and must not be matched against local users. Defaults to true for ads a client creates.
+		/// </summary>
+		public bool OwnerBelongsToClient { get; set; } = true;
+		/// <summary>
 		/// The currency owned by the owner of this group
 		/// </summary>
 		public Currencies OwnerCurrency { get; set; }
