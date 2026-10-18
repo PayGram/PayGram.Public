@@ -8,7 +8,7 @@ The .NET library for the **PayGram users API**, the HTTP API behind the PayGram 
 
 It also has deposits, withdrawals, swaps, statements and exchange rates.
 
-The library targets `net6.0` and `net10.0`. You don't need .NET to use the API: everything below is plain HTTPS + JSON. The [Node.js sample](samples/nodejs) shows how to call it with no library at all.
+The library targets `net10.0`. You don't need .NET to use the API: everything below is plain HTTPS + JSON. The [Node.js sample](samples/nodejs) shows how to call it with no library at all.
 
 - [1. Get your keys](#1-get-your-keys)
 - [2. Install](#2-install)

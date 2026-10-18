@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,18 +9,10 @@
 		<!-- the sample apps live in this folder but are separate projects -->
 		<DefaultItemExcludes>$(DefaultItemExcludes);samples/**</DefaultItemExcludes>
 	</PropertyGroup>
-  <!-- The SDK given to the integrators: net8.0 (the oldest supported LTS) besides net10.0, each with its own Microsoft
-       packages, so an application on .NET 8 can reference it too. -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <MsExtHostingVersion>8.0.1</MsExtHostingVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <MsExtHostingVersion>10.0.12</MsExtHostingVersion>
-  </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="log4net" Version="3.3.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MsExtHostingVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.12" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
