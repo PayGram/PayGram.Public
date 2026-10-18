@@ -36,6 +36,10 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public decimal Fees { get; set; }
 		/// <summary>
+		/// The balance of the wallet in <see cref="Currency"/> right after this entry was executed.
+		/// </summary>
+		public decimal BalanceAfter { get; set; }
+		/// <summary>
 		/// The type of ledger entry (Deposit, Withdrawal, Transfer, Swap, Fee, etc.).
 		/// </summary>
 		public StatementEntryType EntryType { get; set; }
