@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+using Newtonsoft.Json;
 using System.Web;
 
 namespace PayGram.Public.UserAPI
@@ -14,6 +15,8 @@ namespace PayGram.Public.UserAPI
 		/// True when the owner is a user of the requesting client: businesses are listed across clients, so <see cref="OwnerIdInClient"/>
 		/// of a foreign business lives in another namespace and must not be matched against local users. Defaults to true for businesses a client creates.
 		/// </summary>
+		// the default is true: IgnoreAndPopulate must drop true (not false) when storing, and a missing field reads back as true
+		[DefaultValue(true)]
 		public bool OwnerBelongsToClient { get; set; } = true;
 		public bool IsOnline { get; set; }
 		public string? LocationUrl { get; set; }

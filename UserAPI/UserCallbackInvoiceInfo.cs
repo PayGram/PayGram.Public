@@ -1,4 +1,6 @@
-﻿namespace PayGram.Public.UserAPI
+﻿using System.ComponentModel;
+
+namespace PayGram.Public.UserAPI
 {
 	public class UserCallbackInvoiceInfo : UserCallbackBalanceInfo
 	{
@@ -19,6 +21,8 @@
 		/// may be a user of another client: the id is still given but must not be looked up as a local user. Defaults to true for
 		/// callbacks produced before this field existed.
 		/// </summary>
+		// the default is true: IgnoreAndPopulate must drop true (not false) when storing, and a missing field reads back as true
+		[DefaultValue(true)]
 		public bool UserIdInClientFromBelongsToClient { get; set; } = true;
 	}
 }
