@@ -73,12 +73,10 @@ namespace PayGram.Public.Responses
 		public bool OriginatingUserBelongsToClient { get; set; }
 		/// <summary>
 		/// True if the invoice has been paid (funds debited from the payer).
-		/// Determined by whether a MoneySentInternalTran exists for this invoice.
 		/// </summary>
 		public bool IsPaid { get; set; }
 		/// <summary>
 		/// True if the invoice has been redeemed (funds credited to the receiver).
-		/// Determined by whether a MoneyReceivedInternalTran exists for this invoice.
 		/// </summary>
 		public bool IsRedeemed { get; set; }
 		/// <summary>

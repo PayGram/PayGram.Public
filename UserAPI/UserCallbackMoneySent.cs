@@ -2,7 +2,7 @@
 {
 	/// <summary>
 	/// This is received only when direct transfer is used
-	/// <see cref="Telegram.PayGramBotClient.TransferMoneyAsync(long, double, string)"/>
+	/// <see cref="PayGram.Public.Client.PayGramBotClient.TransferMoneyAsync"/>
 	/// </summary>
 	public class UserCallbackMoneySent : UserCallbackBalanceInfo
 	{

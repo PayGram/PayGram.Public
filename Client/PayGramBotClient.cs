@@ -114,13 +114,12 @@ namespace PayGram.Public.Client
 		/// <returns>The converted amount or decimal.MinValue in case of error</returns>
 		public async Task<decimal> Convert(string srcCurr, string destCurr, decimal amount)
 		{
-			string response = await ExecuteMethodAsync(Token, PayGramHelper.CONVERT_METHOD, $"{PayGramHelper.TAG_AMOUNT}={amount}&{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={srcCurr}&{PayGramHelper.CURRENCY_SYMBOL_DEST_TOKEN_NAME}={destCurr}", null);
+			string response = await ExecuteMethodAsync(Token, PayGramHelper.CONVERT_METHOD, $"{PayGramHelper.AMT_TOKEN_NAME}={amount.ToString(CultureInfo.InvariantCulture)}&{PayGramHelper.CURRENCY_SYMBOL_TOKEN_NAME}={srcCurr}&{PayGramHelper.CURRENCY_SYMBOL_DEST_TOKEN_NAME}={destCurr}", null);
 			if (response == null)
 				return decimal.MinValue;
-			decimal result;
-			if (decimal.TryParse(response, out result))
-				return result;
-			return decimal.MinValue;
+			// the server answers with a ResponseConvert, not with a bare number
+			var res = JsonConvert.DeserializeObject<ResponseConvert>(response);
+			return res?.Success == true ? res.Result : decimal.MinValue;
 		}
 		public async Task<ResponseGetUpdates?> GetUpdatesAsync()
 		{

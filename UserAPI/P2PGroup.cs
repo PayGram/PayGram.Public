@@ -1,7 +1,6 @@
 ﻿using CurrenciesLib;
 using Newtonsoft.Json;
 using System.Web;
-using Utilities.String.Extentions;
 
 namespace PayGram.Public.UserAPI
 {
@@ -16,7 +15,7 @@ namespace PayGram.Public.UserAPI
 		public bool Status { get; set; }
 		public string? Notes { get; set; }
 		[JsonIgnore]
-		public string? NotesHtmlEncoded => Notes.HtmlEncode();
+		public string? NotesHtmlEncoded => HttpUtility.HtmlEncode(Notes);
 		public decimal FixedFee { get; set; }
 		public double PercFee { get; set; }
 		public double ChangeRate { get; set; }

@@ -5,7 +5,7 @@ namespace PayGram.Public.UserAPI
 	public class WithdrawAdminResponse
 	{
 		/// <summary>
-		/// Can be set by an admin, can be read by admins
+		/// Internal note of the operator: always null in the callbacks sent to clients
 		/// </summary>
 		public string? AdminComment { get; set; }
 		/// <summary>
