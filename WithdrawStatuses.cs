@@ -10,6 +10,6 @@
 		Accepted = 100,
 		/// <summary> This the status once the first admin accepted the transfer</summary>
 		AcceptedPendingTransfer = 8,
-		Denied = 7,
+		// 7 was Denied: removed on 2026-10-19 (never used, no invoice ever had it). Do not reuse the value.
 	}
 }

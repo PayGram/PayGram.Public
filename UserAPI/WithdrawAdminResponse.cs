@@ -14,14 +14,9 @@ namespace PayGram.Public.UserAPI
 		public string? AdminResponse { get; set; }
 		/// <summary>
 		/// The status of the WithdrawInvoice. Setting this to InvoiceStatuses.Cancelled will not refund the user. 
-		/// To Cancel and refund the user, set CancelWithdraw to true on RequestUpdateWithdraw
-		/// Requested = 1,
-		/// Completed = 2,
-		/// Cancelled = 3,
-		/// OnGoing = 4,
-		/// Error = 5,
-		/// Denied = 7,
-		/// AcceptedPendingTransfer = 8
+		/// To Cancel and refund the user, set CancelWithdraw to true on RequestUpdateWithdraw.
+		/// An admin can only move a withdraw forward: Requested -> AcceptedPendingTransfer = 8, AcceptedPendingTransfer -> Completed = 2.
+		/// Refusing it, or a failed transfer, is a cancel, which refunds the user.
 		/// </summary>
 		public int InvoiceStatus { get; set; }
 		/// <summary>
