@@ -1,0 +1,10 @@
+{
+  "name": "paygram-sample",
+  "version": "1.0.0",
+  "description": "PayGram sample: invoices, vouchers (cashout) and signed payment callbacks",
+  "type": "module",
+  "main": "index.js",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node index.js" }
+}

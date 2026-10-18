@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- PayGram.Public needs CurrenciesLib cloned next to it, see the README -->
+    <ProjectReference Include="..\..\..\PayGram.Public.csproj" />
+  </ItemGroup>
+
+</Project>

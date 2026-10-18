@@ -1,0 +1,6 @@
+{
+  "apiToken": "",
+  "signSeed": "",
+  "apiUrl": "https://pubapi.paygr.am/PayGramUsers/",
+  "port": 5081
+}

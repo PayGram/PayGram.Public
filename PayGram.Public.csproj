@@ -6,6 +6,8 @@
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		<!-- the sample apps live in this folder but are separate projects -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);samples/**</DefaultItemExcludes>
 	</PropertyGroup>
   <!-- Both frameworks are built until every consumer runs on .NET 10: the net6.0 build keeps exactly the package
        versions it had, the net10.0 build takes the matching 10.x packages. -->

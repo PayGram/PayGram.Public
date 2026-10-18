@@ -8,7 +8,7 @@ namespace PayGram.Public.Requests
 	/// </summary>
 	public class TransferCreditRequest
 	{
-		/// <summary>Telegram ID of the recipient. Null to transfer to the user's own linked account.</summary>
+		/// <summary>Telegram ID of the recipient. Null to create a voucher instead: the response carries its RedeemUrl.</summary>
 		public long? To { get; set; }
 		/// <summary>Amount to transfer (must be &gt; 0).</summary>
 		public decimal Amt { get; set; }

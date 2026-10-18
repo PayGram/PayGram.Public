@@ -15,10 +15,15 @@ namespace PayGram.Public.Client
 		static readonly HttpClient _httpClient = new();
 
 		public string Token { get; set; }
+		/// <summary>The base url of the users api, ending with a slash. Defaults to <see cref="PayGramHelper.PAYGRAM_BOT_API_URL"/>.</summary>
+		public string ApiUrl { get; }
 
-		public PayGramBotClient(string token)
+		/// <param name="token">The api token generated in the bot (Settings, Generate API Token)</param>
+		/// <param name="apiUrl">The base url of the users api, null for the production server</param>
+		public PayGramBotClient(string token, string? apiUrl = null)
 		{
 			Token = token;
+			ApiUrl = string.IsNullOrWhiteSpace(apiUrl) ? PayGramHelper.PAYGRAM_BOT_API_URL : apiUrl.TrimEnd('/') + "/";
 		}
 
 		/// <summary>
@@ -76,6 +81,34 @@ namespace PayGram.Public.Client
 			}
 			return Guid.Empty;
 
+		}
+		/// <summary>
+		/// Creates an invoice that other users pay to the authenticated user. Share <see cref="ResponseIssueInvoice.PayUrl"/>
+		/// with the payer; when the invoice is paid a callback carrying <see cref="IssueInvoiceRequest.Cd"/> is sent.
+		/// </summary>
+		/// <returns>A <see cref="ResponseIssueInvoice"/>. Does not return null.</returns>
+		public async Task<ResponseIssueInvoice> IssueInvoiceAsync(IssueInvoiceRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.ISSUEINVOICE_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseIssueInvoice(ResponseCodes.ResponseGenericError);
+
+			return JsonConvert.DeserializeObject<ResponseIssueInvoice>(response) ?? new ResponseIssueInvoice(ResponseCodes.ResponseGenericError);
+		}
+		/// <summary>
+		/// Moves funds out of the authenticated user's balance. With <see cref="TransferCreditRequest.To"/> set the funds go
+		/// straight to that user; left null, a voucher is created and <see cref="ResponseTransferCredit.RedeemUrl"/> is the
+		/// link whoever receives it opens to redeem it (a cashout).
+		/// Requires a unique idempotency key: retrying with the same key never transfers twice.
+		/// </summary>
+		/// <returns>A <see cref="ResponseTransferCredit"/>. Does not return null.</returns>
+		public async Task<ResponseTransferCredit> TransferCreditAsync(TransferCreditRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.TRANSFER_V2_METHOD, null, req);
+			if (response == null)
+				return new ResponseTransferCredit(ResponseCodes.ResponseGenericError);
+
+			return JsonConvert.DeserializeObject<ResponseTransferCredit>(response) ?? new ResponseTransferCredit(ResponseCodes.ResponseGenericError);
 		}
 		/// <summary>
 		/// Asks PayGram to generate a crypto currency address where to send funds. when funds arrive, it will be sent to paygram
@@ -249,14 +282,14 @@ namespace PayGram.Public.Client
 		/// <param name="rq">the query string</param>
 		/// <param name="method">the body request if any</param>
 		/// <returns></returns>
-		async static Task<string?> ExecuteMethodAsync(string token, string method, string otherParams, object? request)
+		async Task<string?> ExecuteMethodAsync(string token, string method, string? otherParams, object? request)
 		{
 			if (otherParams == null)
 				otherParams = "";
 			if (otherParams != "" && otherParams.StartsWith("?") == false)
 				otherParams = $"?{otherParams}";
 
-			string url = string.Format(PayGramHelper.PAYGRAM_BOT_ENDPOINT, token, method, otherParams);
+			string url = $"{ApiUrl}{token}/{method}/{otherParams}";
 
 			string reqContent = request != null ? JsonConvert.SerializeObject(request) : "{}";
 

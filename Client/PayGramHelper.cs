@@ -2,13 +2,11 @@
 {
 	public class PayGramHelper
 	{
-#if RELEASE
+		/// <summary>The production endpoint of the PayGram users api. Pass another base url to the PayGramBotClient constructor to use a different server.</summary>
 		public const string PAYGRAM_BOT_API_URL = "https://pubapi.paygr.am/PayGramUsers/";
-#else
-		public const string PAYGRAM_BOT_API_URL = "https://localhost:9443/PayGramUsers/";
-#endif
 		public const string PAYGRAM_BOT_ENDPOINT = PAYGRAM_BOT_API_URL + "{0}/{1}/{2}";
 		public const string TRANSFER_METHOD = "TransferCredit";
+		public const string TRANSFER_V2_METHOD = "TransferCreditV2";
 		public const string DEPOSIT_METHOD = "DepositCredit";
 		public const string UPDATES_METHOD = "GetUpdates";
 		public const string CANCEL_PENDING_CALLBACKS_METHOD = "CancelPendingCallbacks";
@@ -17,6 +15,7 @@
 		public const string CONVERT_METHOD = "Convert";
 		public const string SWAP_METHOD = "Swap";
 		public const string ISSUEINVOICE_METHOD = "IssueInvoice";
+		public const string ISSUEINVOICE_V2_METHOD = "IssueInvoiceV2";
 		public const string SWAP_V2_METHOD = "SwapV2";
 		public const string WITHDRAW_V2_METHOD = "WithdrawV2";
 		public const string REDEEM_VOUCHER_V2_METHOD = "RedeemVoucherV2";
