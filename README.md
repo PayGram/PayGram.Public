@@ -83,7 +83,7 @@ if (voucher.Success)
     Console.WriteLine($"Redeem here: {voucher.RedeemUrl} (code {voucher.FriendlyVoucherCode})");
 ```
 
-- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 60 minutes after its creation**: after that it can no longer be paid, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
+- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 30 minutes after its creation**: after that it can no longer be paid, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
 - **Voucher flow.** The amount leaves your balance as soon as the voucher is created; you receive a `MoneySent` callback. Whoever opens `RedeemUrl` gets the funds on their PayGram account.
 
 ## 4. Responses, errors and idempotency
