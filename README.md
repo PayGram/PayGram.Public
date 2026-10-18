@@ -112,6 +112,11 @@ The library methods never return `null` for a communication error: they return a
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
+**Currencies.** `curSym` is used exactly as you send it: PayGram does not convert it. Balances are held in crypto and stablecoins, so use `PHPT` for Philippine pesos and `USDT` (or `USDC`) for US dollars. The fiat codes `PHP` and `USD` are real, separate currencies: an invoice in `PHP` can be paid only with `PHP`, and a `TransferCredit` in `PHP` needs a `PHP` balance (otherwise `NotEnoughFunds`).
+Compatibility: an API token created before this rule (October 2026) keeps the former behaviour, where `IssueInvoice` and `TransferCredit` treated `PHP` as `PHPT` and `USD` as `USDT` (1:1, no exchange rate applied). Regenerating the token keeps the behaviour of the token it replaces. Other methods (`Swap`, `Convert`, `Withdraw`…) never mapped the codes.
+
+**Your customer pays in the currency you asked for.** When a customer opens `PayUrl` without enough of the invoice currency but with enough of a currency of the same family (`USDT`, `USDC`, `USD` or `PHPT`, `PHP`) that PayGram can swap into it, the bot offers to convert it first, showing the converted amount and the fees, and then pays the invoice. You receive the requested currency and amount and the usual callbacks: nothing changes on your side.
+
 ## 5. Receiving updates: use the webhook, not polling
 
 There are two ways to learn that something happened on your account, for example an invoice was paid, a voucher was redeemed or a deposit arrived:
