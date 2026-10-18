@@ -28,13 +28,13 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public decimal CoinAmountWillReceive { get; set; }
 		/// <summary>
-		/// The effective exchange rate excluding fees (AmountToSendInChosenCurrency / CoinAmountExcFees). Computed property.
+		/// The effective exchange rate excluding fees (AmountToSendInChosenCurrency / CoinAmountExcFees). Computed property, 0 while the amounts are not known (an error response).
 		/// </summary>
-		public decimal ChangeRateExclFees { get { return AmountToSendInChosenCurrency / CoinAmountExcFees; } }
+		public decimal ChangeRateExclFees => CoinAmountExcFees == 0 ? 0 : AmountToSendInChosenCurrency / CoinAmountExcFees;
 		/// <summary>
-		/// The effective exchange rate including fees (AmountToSendInChosenCurrency / CoinAmountWillReceive). Computed property.
+		/// The effective exchange rate including fees (AmountToSendInChosenCurrency / CoinAmountWillReceive). Computed property, 0 while the amounts are not known (an error response).
 		/// </summary>
-		public decimal ChangeRateInclFees { get { return AmountToSendInChosenCurrency / CoinAmountWillReceive; } }
+		public decimal ChangeRateInclFees => CoinAmountWillReceive == 0 ? 0 : AmountToSendInChosenCurrency / CoinAmountWillReceive;
 
 		public ResponseTopUp()
 					: base(PaygramResponseTypes.ResponseTopUp)

@@ -25,7 +25,7 @@ namespace PayGram.Public.Responses
 		/// The net amount the user will receive at the destination address (WithdrawnAmount - ExpectedFee).
 		/// Excludes any intermediary or beneficiary bank fees which may apply additionally.
 		/// </summary>
-		public decimal AmountWillReceive => WithdrawnAmount = ExpectedFee;
+		public decimal AmountWillReceive => WithdrawnAmount - ExpectedFee;
 		/// <summary>
 		/// The GUID of the invoice tracking this withdrawal. Can be used with <c>InvoiceInfo</c> to check withdrawal status.
 		/// </summary>
