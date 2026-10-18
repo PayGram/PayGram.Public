@@ -83,8 +83,7 @@ namespace PayGram.Public
 		/// <param name="responseCode">If this is greater than or equal to 500, success will be set to false, otherwise true</param>
 		public string ToJson()
 		{
-			return JsonConvert.SerializeObject(this, Formatting.Indented,
-													new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
+			return PublicJson.ToStoredJson(this);
 		}
 	}
 }
