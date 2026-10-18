@@ -16,5 +16,7 @@ namespace PayGram.Public.Requests
 		public int Results { get; set; }
 		/// <summary>True to sort oldest-first, false for newest-first.</summary>
 		public bool GoForward { get; set; }
+		/// <summary>True to get only the entries that can still be recalled: unclaimed vouchers, open red envelopes, cancellable withdrawals.</summary>
+		public bool RecallableOnly { get; set; }
 	}
 }
