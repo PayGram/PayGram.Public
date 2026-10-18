@@ -1,7 +1,6 @@
 ﻿using CurrenciesLib;
 using CurrenciesLib.Cryptos;
 using CurrenciesLib.Fiats;
-using Newtonsoft.Json;
 using System.Text;
 
 namespace PayGram.Public.UserAPI
@@ -81,8 +80,7 @@ namespace PayGram.Public.UserAPI
 
 		public string ToJson()
 		{
-			return JsonConvert.SerializeObject(this, Formatting.Indented,
-													new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
+			return PublicJson.ToStoredJson(this);
 		}
 
 		public override string ToString()

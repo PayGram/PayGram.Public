@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace PayGram.Public
+﻿namespace PayGram.Public
 {
 	public class PaygramRequest : IPaygramRequest
 	{
@@ -27,8 +25,7 @@ namespace PayGram.Public
 		}
 		public string ToJson()
 		{
-			return JsonConvert.SerializeObject(this, Formatting.Indented,
-													new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
+			return PublicJson.ToStoredJson(this);
 		}
 	}
 }

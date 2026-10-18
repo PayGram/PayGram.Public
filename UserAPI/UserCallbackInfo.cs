@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace PayGram.Public.UserAPI
+﻿namespace PayGram.Public.UserAPI
 {
 	public class UserCallbackInfo
 	{
@@ -49,8 +47,7 @@ namespace PayGram.Public.UserAPI
 
 		public string ToJson()
 		{
-			return JsonConvert.SerializeObject(this, Formatting.Indented,
-													new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
+			return PublicJson.ToStoredJson(this);
 		}
 	}
 }
