@@ -83,7 +83,7 @@ if (voucher.Success)
     Console.WriteLine($"Redeem here: {voucher.RedeemUrl} (code {voucher.FriendlyVoucherCode})");
 ```
 
-- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
+- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 60 minutes after its creation**: after that it can no longer be paid, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
 - **Voucher flow.** The amount leaves your balance as soon as the voucher is created; you receive a `MoneySent` callback. Whoever opens `RedeemUrl` gets the funds on their PayGram account.
 
 ## 4. Responses, errors and idempotency
@@ -297,7 +297,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address) |
 | `WithdrawAsync(WithdrawRequest)` | `WithdrawV2` | | `ResponseWithdrawAccepted` |
 | `SwapAsync(SwapRequest)` | `SwapV2` | | `ResponseSwap` |
-| `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` |
+| `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` (each entry carries `balanceAfter`) |
 | `GetExchangeRatesAsync()` | `GetExchangeRates` | | `ResponseGetExchangeRates` |
 | `Convert(src, dest, amount)` | `Convert` | | the converted amount (a quote: nothing is moved) |
 | `GetUpdatesAsync()` | `GetUpdates` | | `ResponseGetUpdates` (polling fallback, see [section 5](#5-receiving-updates-use-the-webhook-not-polling)) |
