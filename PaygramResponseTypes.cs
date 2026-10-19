@@ -43,5 +43,6 @@
 		ResponseOpenVouchers = 40,
 		ResponseReturnVoucher = 41,
 		ResponseCheckUnique = 42,
+		ResponseReturnAllVouchers = 43,
 	}
 }
