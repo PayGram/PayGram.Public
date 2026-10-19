@@ -47,30 +47,30 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public Currencies CurrencyCode { get; set; }
 		/// <summary>
-		/// The client-side user ID of the payer (who sent the funds).
-		/// Only populated if the requester is the payer, an admin, or the payer belongs to the requesting client.
-		/// For business invoices, always populated.
+		/// The client-side user ID of the payer (who sent the funds), with its client in <see cref="FromClientId"/>.
+		/// The parties of an invoice are given to whoever is a party of it (the payer, the receiver, the originator, their clients)
+		/// and to admins; a caller that is not involved gets none of them.
 		/// </summary>
 		public string? FromUser { get; set; }
 		/// <summary>
-		/// The client-side user ID of the receiver (who received the funds).
-		/// Only populated if the requester is the receiver, an admin, or the receiver belongs to the requesting client.
+		/// The client-side user ID of the receiver (who received, or will receive, the funds), with its client in <see cref="ToClientId"/>.
+		/// Same visibility as <see cref="FromUser"/>.
 		/// </summary>
 		public string? ToUser { get; set; }
 		/// <summary>
-		/// The client-side user ID that originally created the invoice.
-		/// Only populated if the requester is the originator, an admin, or the originator belongs to the requesting client.
+		/// The client-side user ID that originally created the invoice, with its client in <see cref="OriginatingClientId"/>.
+		/// Same visibility as <see cref="FromUser"/>.
 		/// </summary>
 		public string? OriginatingUser { get; set; }
 		/// <summary>
-		/// True when <see cref="FromUser"/> is a user of the requesting client, so the id can be resolved in the client's own user base.
-		/// False when the id belongs to another client (for business invoices the payer is always shown, whoever they are) or is not set.
+		/// The PayGram client of <see cref="FromUser"/>: compare it with your own client id (<see cref="ResponseUserInfo.ClientId"/>) to
+		/// know whether the id belongs to your user base. Null when <see cref="FromUser"/> is null.
 		/// </summary>
-		public bool FromUserBelongsToClient { get; set; }
-		/// <summary>True when <see cref="ToUser"/> is a user of the requesting client. See <see cref="FromUserBelongsToClient"/>.</summary>
-		public bool ToUserBelongsToClient { get; set; }
-		/// <summary>True when <see cref="OriginatingUser"/> is a user of the requesting client. See <see cref="FromUserBelongsToClient"/>.</summary>
-		public bool OriginatingUserBelongsToClient { get; set; }
+		public int? FromClientId { get; set; }
+		/// <summary>The PayGram client of <see cref="ToUser"/>, see <see cref="FromClientId"/>.</summary>
+		public int? ToClientId { get; set; }
+		/// <summary>The PayGram client of <see cref="OriginatingUser"/>, see <see cref="FromClientId"/>.</summary>
+		public int? OriginatingClientId { get; set; }
 		/// <summary>
 		/// True if the invoice has been paid (funds debited from the payer).
 		/// </summary>

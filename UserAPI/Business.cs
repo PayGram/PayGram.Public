@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Web;
 
 namespace PayGram.Public.UserAPI
@@ -12,12 +11,11 @@ namespace PayGram.Public.UserAPI
 		public string? NameHtmlEncoded => HttpUtility.HtmlEncode(Name);
 		public string OwnerIdInClient { get; set; }
 		/// <summary>
-		/// True when the owner is a user of the requesting client: businesses are listed across clients, so <see cref="OwnerIdInClient"/>
-		/// of a foreign business lives in another namespace and must not be matched against local users. Defaults to true for businesses a client creates.
+		/// The PayGram client of the owner. Businesses are listed across clients: compare it with your own client id
+		/// (<c>ResponseUserInfo.ClientId</c>) before matching <see cref="OwnerIdInClient"/> against your users. Null for the records a
+		/// client builds about its own users.
 		/// </summary>
-		// the default is true: IgnoreAndPopulate must drop true (not false) when storing, and a missing field reads back as true
-		[DefaultValue(true)]
-		public bool OwnerBelongsToClient { get; set; } = true;
+		public int? OwnerClientId { get; set; }
 		public bool IsOnline { get; set; }
 		public string? LocationUrl { get; set; }
 		public string? ImageUrl { get; set; }

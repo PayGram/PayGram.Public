@@ -34,6 +34,11 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public string UserIdInClient { get; set; }
 		/// <summary>
+		/// The PayGram client the user belongs to (your integration). The counterpart of a movement is reported with its own
+		/// client id (<c>FromClientId</c>, <c>ToClientId</c>, ...): when it equals this one, its user id is in your user base.
+		/// </summary>
+		public int ClientId { get; set; }
+		/// <summary>
 		/// The user's globally unique identifier within the PayGram system.
 		/// </summary>
 		public Guid UID { get; set; }

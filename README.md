@@ -147,10 +147,10 @@ The body carries the type in `callbackType` (a number; `UserCallbackInfo.Callbac
 
 | Type | Object | When |
 |---|---|---|
-| `InvoiceInfoCredited` (2) | `invoiceInfo`, with `transactionAmount > 0` | Money came in on an invoice: one of your invoices was paid. `callbackData` is the `Cd` of your invoice. |
-| `InvoiceInfoDebited` (5) | `invoiceInfo`, with `transactionAmount ≤ 0` | Money left on an invoice, for example you paid an invoice. |
-| `MoneySent` (4) | `moneySentInfo` | You sent a transfer or funded a voucher. Includes `voucherCode` and `redeemUrl`. |
-| `BalanceInfo` (0) | `balanceInfo` | Your balance changed for another reason. |
+| `InvoiceInfoCredited` (2) | `invoiceInfo`, with `transactionAmount > 0` | Money came in on an invoice: one of your invoices was paid, or a voucher you redeemed was credited. `callbackData` is the `Cd` of your invoice. `userIdInClientFrom` + `fromClientId`: who paid (or who sent the voucher). |
+| `InvoiceInfoDebited` (5) | `invoiceInfo`, with `transactionAmount ≤ 0` | Money left on an invoice: you paid an invoice, or a voucher you sent was redeemed. `userIdInClientFrom` + `fromClientId`: whom you paid, or who redeemed. |
+| `MoneySent` (4) | `moneySentInfo` | You sent a transfer or funded a voucher. Includes `voucherCode` and `redeemUrl`; for a direct transfer `userCliToId` + `toClientId`: who received it. |
+| `BalanceInfo` (0) | `balanceInfo` | Your balance changed for another reason, for example you received a direct transfer: `userIdInClientFrom` + `fromClientId` say who sent it. |
 | `WithdrawInfo` (1) | `withdrawInfo` | A withdrawal changed status. |
 | `ReportReady` (6) | `reportInfo` | A statement export you booked is ready. |
 
@@ -169,7 +169,9 @@ Example body:
     "transactionAmount": 9.9,
     "fees": 0.1,
     "currency": 5,
-    "balance": 152.4
+    "balance": 152.4,
+    "userIdInClientFrom": "987654321",
+    "fromClientId": 2
   },
   "balanceInfo": null,
   "moneySentInfo": null,
@@ -181,6 +183,19 @@ Example body:
 ```
 
 `currency` is the `Currencies` enum number: 1 BTC, 2 ETH, 5 USDT, 11 PHPT, 16 BNB, 17 TRX, 18 USDC… (see `CurrenciesLib`).
+
+### Who is on the other side
+
+Every callback about a movement names the **counterpart**, as the integration that owns that user knows it, together with the PayGram client it belongs to:
+
+| Callback | Counterpart fields | Meaning |
+|---|---|---|
+| credited invoice | `userIdInClientFrom`, `fromClientId` | who paid your invoice; for a voucher you redeemed, who sent it |
+| debited invoice | `userIdInClientFrom`, `fromClientId` | who redeemed your voucher (yourself on a recall); for an invoice you paid, whom you paid |
+| money sent | `userCliToId`, `toClientId` | who received your direct transfer (null for a voucher) |
+| balance | `userIdInClientFrom`, `fromClientId` | who sent you a direct transfer |
+
+The client id tells you whose user base the id comes from: when it equals your own client id (`clientId` in `GetUserInfo`), the user id is one of your users, for example a Telegram id for users of the PayGram bot; otherwise the user belongs to another PayGram integration and the id lives in that integration's namespace. Use the pair to match payments and cashouts to your own records and to spot anomalies, for example the same payer across many accounts. The counterpart is disclosed only to the two sides of a movement, never to someone who merely holds an invoice code: `InvoiceInfo` returns the parties (`fromUser`, `toUser`, `originatingUser`, each with its `...ClientId`) only to a caller involved in the invoice.
 
 ## 6. Verifying the callback signature
 

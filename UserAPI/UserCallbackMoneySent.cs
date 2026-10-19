@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace PayGram.Public.UserAPI
+﻿namespace PayGram.Public.UserAPI
 {
 	/// <summary>
 	/// This is received only when direct transfer is used
@@ -13,12 +11,10 @@ namespace PayGram.Public.UserAPI
 		/// </summary>
 		public string? UserCliToId { get; set; }
 		/// <summary>
-		/// True when <see cref="UserCliToId"/> is a user of the client receiving this callback. Defaults to true for callbacks produced
-		/// before this field existed.
+		/// The PayGram client of <see cref="UserCliToId"/>: compare it with your own client id (<c>ResponseUserInfo.ClientId</c>) to
+		/// know whether the id belongs to your user base. Null for a voucher (no receiver yet).
 		/// </summary>
-		// the default is true: IgnoreAndPopulate must drop true (not false) when storing, and a missing field reads back as true
-		[DefaultValue(true)]
-		public bool UserCliToBelongsToClient { get; set; } = true;
+		public int? ToClientId { get; set; }
 		public Guid VoucherCode { get; set; }
 		public string? FriendlyVoucherCode { get; set; }
 		public string? RedeemUrl { get; set; }
