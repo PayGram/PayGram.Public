@@ -22,6 +22,8 @@
 		public UserCallbackWithdraw WithdrawInfo { get; set; }
 		public UserCallbackInvoiceInfo InvoiceInfo { get; set; }
 		public UserCallbackReportInfo ReportInfo { get; set; }
+		/// <summary>Set when a payment request of yours expired unpaid (<see cref="UserCallbackTypes.InvoiceExpired"/>)</summary>
+		public UserCallbackInvoiceExpired? ExpiredInfo { get; set; }
 		/// <summary>
 		/// DEPRECATED, verify the callback through the hmac headers instead (see <see cref="CallbackSignature"/>):
 		/// they cover the whole body ("{timestamp}.{raw json body}", key = your SignSeed), while this legacy field
@@ -37,6 +39,7 @@
 			: InvoiceInfo != null ? (InvoiceInfo.TransactionAmount > 0 ? UserCallbackTypes.InvoiceInfoCredited : UserCallbackTypes.InvoiceInfoDebited)
 			: MoneySentInfo != null ? UserCallbackTypes.MoneySent
 			: ReportInfo != null ? UserCallbackTypes.ReportReady
+			: ExpiredInfo != null ? UserCallbackTypes.InvoiceExpired
 			: UserCallbackTypes.CallbackInfo;
 
 

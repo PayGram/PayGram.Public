@@ -26,6 +26,11 @@
 		/// <summary>
 		/// Received when a booked statement-export report is ready to be downloaded (or failed)
 		/// </summary>
-		ReportReady = 6
+		ReportReady = 6,
+		/// <summary>
+		/// Received by the issuer of a payment request nobody paid within its validity: the invoice is Expired and
+		/// cannot be paid any more. The details are in ExpiredInfo.
+		/// </summary>
+		InvoiceExpired = 7
 	}
 }

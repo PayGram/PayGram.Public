@@ -83,7 +83,7 @@ if (voucher.Success)
     Console.WriteLine($"Redeem here: {voucher.RedeemUrl} (code {voucher.FriendlyVoucherCode})");
 ```
 
-- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 30 minutes after its creation**: after that it can no longer be paid, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
+- **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 30 minutes after its creation** (`ExpiresUtc` in the response): after that it is `Expired`, a payment is refused with `ResponseCodes.InvoiceExpired` (555) and you receive an `InvoiceExpired` callback, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
 - **Voucher flow.** The amount leaves your balance as soon as the voucher is created; you receive a `MoneySent` callback. Whoever opens `RedeemUrl` gets the funds on their PayGram account.
 
 ## 4. Responses, errors and idempotency
@@ -153,6 +153,7 @@ The body carries the type in `callbackType` (a number; `UserCallbackInfo.Callbac
 | `BalanceInfo` (0) | `balanceInfo` | Your balance changed for another reason, for example you received a direct transfer: `userIdInClientFrom` + `fromClientId` say who sent it. |
 | `WithdrawInfo` (1) | `withdrawInfo` | A withdrawal changed status. |
 | `ReportReady` (6) | `reportInfo` | A statement export you booked is ready. |
+| `InvoiceExpired` (7) | `expiredInfo` | A payment request you issued expired unpaid (30 minutes after its creation): status `Expired` (10), it cannot be paid any more, no money moved. `callbackData` is the `Cd` of your invoice; issue a new one if the customer still wants to pay. |
 
 Example body:
 

@@ -30,6 +30,12 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public DateTime CreatedUtc { get; set; }
 		/// <summary>
+		/// Until when a payment request can be paid (30 minutes from its creation): after that it is <see cref="InvoiceStatuses.Expired"/>
+		/// and a payment is refused with <see cref="ResponseCodes.InvoiceExpired"/>. Null for the invoices that do not expire
+		/// (vouchers, red envelopes, deposits, withdrawals).
+		/// </summary>
+		public DateTime? ExpiresUtc { get; set; }
+		/// <summary>
 		/// The total invoice amount inclusive of fees, in <see cref="CurrencyCode"/>.
 		/// </summary>
 		public decimal Amount { get; set; }
