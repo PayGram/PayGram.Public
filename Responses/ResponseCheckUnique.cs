@@ -25,14 +25,33 @@ namespace PayGram.Public.Responses
 	}
 
 	/// <summary>
-	/// Returned by <c>CheckUnique</c>: the invoices matching the query. Requires the CanSeeTransactionInfo permission.
-	/// Success with an empty list means nothing matched.
+	/// The state of the operation you created with the <c>unique</c> key that was queried (TransferCredit, Swap, Withdraw...),
+	/// found by <c>CheckUnique</c>. Tells you whether a call whose answer you lost (a timeout, a 551) ran, and what it produced.
+	/// </summary>
+	public class CheckedUniqueRequest
+	{
+		/// <summary>NotFound: no operation with that key. Processing: still running, retry CheckUnique in a few seconds. Succeeded: done, see InvoiceCode. Failed: it did not run, see Message.</summary>
+		public string Status { get; set; } = "NotFound";
+		public DateTime? CreatedUtc { get; set; }
+		public DateTime? LastUpdateUtc { get; set; }
+		/// <summary>The voucher or invoice the operation produced, when it succeeded (also listed in Invoices)</summary>
+		public Guid? InvoiceCode { get; set; }
+		/// <summary>The message the operation answered with, when it failed</summary>
+		public string? Message { get; set; }
+	}
+
+	/// <summary>
+	/// Returned by <c>CheckUnique</c>: the invoices matching the query, and the state of the operation created with that
+	/// unique key, when the query is one. An integrator sees its own invoices and operations; an account with the
+	/// CanSeeTransactionInfo permission (support) sees every one of the client. Success with an empty list means nothing matched.
 	/// </summary>
 	public class ResponseCheckUnique : PaygramResponse
 	{
-		/// <summary>The query as it was interpreted (spaces removed)</summary>
+		/// <summary>The query as it was looked up (trimmed; an invoice id or a voucher code also with its spaces removed)</summary>
 		public string Query { get; set; } = string.Empty;
 		public List<CheckedInvoice> Invoices { get; set; } = new();
+		/// <summary>The operation created with the query as its unique key, when the query is not an invoice id. Status NotFound when there is none.</summary>
+		public CheckedUniqueRequest? UniqueRequest { get; set; }
 
 		public ResponseCheckUnique() : base(PaygramResponseTypes.ResponseCheckUnique)
 		{

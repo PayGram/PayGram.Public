@@ -44,5 +44,7 @@
 		ResponseReturnVoucher = 41,
 		ResponseCheckUnique = 42,
 		ResponseReturnAllVouchers = 43,
+		ResponseUniqueRequest = 44,
+		ResponseCheckReference = 45,
 	}
 }
