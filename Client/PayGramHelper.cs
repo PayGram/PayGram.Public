@@ -20,6 +20,7 @@
 		public const string WITHDRAW_V2_METHOD = "WithdrawV2";
 		public const string REDEEM_VOUCHER_V2_METHOD = "RedeemVoucherV2";
 		public const string PAY_VOUCHER_V2_METHOD = "PayVoucherV2";
+		public const string CHECK_UNIQUE_METHOD = "CheckUnique";
 		public const string GET_STATEMENT_V2_METHOD = "GetStatementV2";
 
 		// tokens are used in the PayGramUsersController as query string parameters

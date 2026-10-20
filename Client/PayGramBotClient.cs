@@ -253,6 +253,20 @@ namespace PayGram.Public.Client
 			return JsonConvert.DeserializeObject<ResponseTopUpReceived>(response);
 		}
 		/// <summary>
+		/// Looks up a reference: an invoice id, a voucher code, your callback data or your unique key. Tells you what happened to
+		/// an operation whose answer you lost (see <see cref="CheckedUniqueRequest.Status"/>): resend it with the same key, never
+		/// with a new one, unless it is NotFound.
+		/// </summary>
+		/// <returns>A <see cref="ResponseCheckUnique"/>. Does not return null.</returns>
+		public async Task<ResponseCheckUnique> CheckUniqueAsync(CheckUniqueRequest req)
+		{
+			var response = await ExecuteMethodAsync(Token, PayGramHelper.CHECK_UNIQUE_METHOD, null, req);
+			if (response == null)
+				return new ResponseCheckUnique("PayGram did not answer: retry", ResponseCodes.ResponseGenericError);
+
+			return JsonConvert.DeserializeObject<ResponseCheckUnique>(response) ?? new ResponseCheckUnique("Unreadable answer", ResponseCodes.ResponseGenericError);
+		}
+		/// <summary>
 		/// Pays (funds) a voucher from the authenticated user's balance.
 		/// </summary>
 		/// <returns>A <see cref="ResponseInvoiceInfo"/>. Does not return null.</returns>

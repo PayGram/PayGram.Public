@@ -30,27 +30,35 @@ namespace PayGram.Public.Responses
 	/// </summary>
 	public class CheckedUniqueRequest
 	{
-		/// <summary>NotFound: no operation with that key. Processing: still running, retry CheckUnique in a few seconds. Succeeded: done, see InvoiceCode. Failed: it did not run, see Message.</summary>
+		/// <summary>
+		/// NotFound: no operation with that key. Succeeded: done, see InvoiceCode. Failed: it moved no money, see Message; resending
+		/// it with the same key executes it again. Processing: not final yet, either still running or it produced something (see
+		/// InvoiceCode) whose answer was not recorded: resend the very same request with the same key to get its final answer,
+		/// never a new key, which would execute it a second time.
+		/// </summary>
 		public string Status { get; set; } = "NotFound";
 		public DateTime? CreatedUtc { get; set; }
 		public DateTime? LastUpdateUtc { get; set; }
-		/// <summary>The voucher or invoice the operation produced, when it succeeded (also listed in Invoices)</summary>
+		/// <summary>The voucher or invoice the operation produced, also listed in Invoices: when it succeeded, or when it is Processing with its money moved</summary>
 		public Guid? InvoiceCode { get; set; }
-		/// <summary>The message the operation answered with, when it failed</summary>
+		/// <summary>What to know about the state: the message the operation answered with when it failed, what is pending when it is Processing</summary>
 		public string? Message { get; set; }
 	}
 
 	/// <summary>
 	/// Returned by <c>CheckUnique</c>: the invoices matching the query, and the state of the operation created with that
-	/// unique key, when the query is one. An integrator sees its own invoices and operations; an account with the
-	/// CanSeeTransactionInfo permission (support) sees every one of the client. Success with an empty list means nothing matched.
+	/// unique key, when the query is one. An integrator sees the invoices it is a party of (by callback data only the ones it
+	/// created, the callback data being its own) and its own operations; an account with the CanSeeTransactionInfo permission
+	/// (support) sees every one of the client. Success with an empty list means nothing matched.
 	/// </summary>
 	public class ResponseCheckUnique : PaygramResponse
 	{
 		/// <summary>The query as it was looked up (trimmed; an invoice id or a voucher code also with its spaces removed)</summary>
 		public string Query { get; set; } = string.Empty;
 		public List<CheckedInvoice> Invoices { get; set; } = new();
-		/// <summary>The operation created with the query as its unique key, when the query is not an invoice id. Status NotFound when there is none.</summary>
+		/// <summary>True when more invoices carry that callback data than the ones listed (the newest): narrow the reference</summary>
+		public bool MoreInvoices { get; set; }
+		/// <summary>The operation created with the query as its unique key, when the query did not match an invoice id. Status NotFound when there is none.</summary>
 		public CheckedUniqueRequest? UniqueRequest { get; set; }
 
 		public ResponseCheckUnique() : base(PaygramResponseTypes.ResponseCheckUnique)

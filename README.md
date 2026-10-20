@@ -101,14 +101,14 @@ Every response has the same envelope:
 | 200 | `ResponseOK` | Done. |
 | 500 | `ResponseGenericError` | Read `Message` (invalid token, invalid parameters…). |
 | 550 | `ResponseServerUpdating` | The server is being updated. Retry in a minute. |
-| 551 | `ResponseUniqueRequestViolation` | That idempotency key was already used, or is still being processed. |
+| 551 | `ResponseUniqueRequestViolation` | The request with that idempotency key is still running (resend the same request a few seconds later), or the key was already used for a different request (a new request needs a new key). |
 | 552 | `AuthError` | Your token isn't allowed to do this. |
 | 553 | `NotFound` | The user or invoice doesn't exist. |
 | 554 | `NotEnoughFunds` | Your balance is too low. |
 
 The library methods never return `null` for a communication error: they return a response with `ResponseGenericError`. Always check `Success`.
 
-**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key (keep it under 50 ASCII characters). Generate the key **before** the call and store it with your operation. If the call times out or you lose the response, retry with the **same** key: the operation runs at most once.
+**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. If the call times out or you lose the response, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. To find out what happened to a key, call `CheckUniqueAsync` (see the API reference, section 3.4). Keys stay valid when you regenerate your API token.
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
@@ -308,6 +308,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `IssueInvoiceAsync(IssueInvoiceRequest)` | `IssueInvoiceV2` | `amt`, `curSym`, `cd` | `ResponseIssueInvoice`, with `payUrl` |
 | `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd` | `ResponseTransferCredit`, with `redeemUrl` |
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
+| `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |
 | `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived` |
 | `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address) |
