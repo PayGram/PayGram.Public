@@ -57,7 +57,7 @@ namespace PayGram.Public.Responses
 	/// </summary>
 	public class ResponseCheckUnique : PaygramResponse
 	{
-		/// <summary>The query as it was looked up (trimmed; an invoice id or a voucher code also with its spaces removed)</summary>
+		/// <summary>The query as it was looked up: as it was sent, an invoice id without its spaces</summary>
 		public string Query { get; set; } = string.Empty;
 		public List<CheckedInvoice> Invoices { get; set; } = new();
 		/// <summary>True when more invoices carry that callback data than the ones listed (the newest): narrow the reference</summary>
