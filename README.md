@@ -103,7 +103,7 @@ Every response has the same envelope:
 | 550 | `ResponseServerUpdating` | The server is being updated. Retry in a minute. |
 | 551 | `ResponseUniqueRequestViolation` | The request with that idempotency key is still running (resend the same request a few seconds later), or the key was already used for a different request (a new request needs a new key). |
 | 552 | `AuthError` | Your token isn't allowed to do this. |
-| 553 | `NotFound` | The user or invoice doesn't exist. |
+| 553 | `NotFound` | The user or invoice doesn't exist. Codes that don't exist are limited: after 10 within an hour, every lookup by code (`InvoiceInfo`, `PayVoucher`, `RedeemVoucher`) is refused with 500 for an hour, for all the tokens of the account. Don't retry a code answered 553. |
 | 554 | `NotEnoughFunds` | Your balance is too low. |
 
 The library methods never return `null` for a communication error: they return a response with `ResponseGenericError`. Always check `Success`.
