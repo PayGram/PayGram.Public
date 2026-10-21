@@ -18,7 +18,12 @@ namespace PayGram.Public.Responses
 		public override ResponseInvoiceInfo? ReadJson(JsonReader reader, Type objectType, ResponseInvoiceInfo? existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
 			if (reader.TokenType == JsonToken.Null) return null;
-			var obj = JObject.Load(reader);
+			// the amounts as decimals: read as doubles they would lose digits (12345678.12345678 -> 12345678.1234568)
+			var floats = reader.FloatParseHandling;
+			reader.FloatParseHandling = FloatParseHandling.Decimal;
+			JObject obj;
+			try { obj = JObject.Load(reader); }
+			finally { reader.FloatParseHandling = floats; }
 			// the discriminator as a number, or as the name of the type
 			var typeToken = obj.GetValue("type", StringComparison.OrdinalIgnoreCase);
 			var type = PaygramResponseTypes.ResponseInvoiceInfo;
