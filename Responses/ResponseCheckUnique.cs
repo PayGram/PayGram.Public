@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace PayGram.Public.Responses
 {
 	/// <summary>
@@ -11,12 +13,14 @@ namespace PayGram.Public.Responses
 	}
 
 	/// <summary>
-	/// An invoice found by <c>CheckUnique</c>: the full invoice info as seen by the client (not filtered on the requesting user)
+	/// An invoice found by <c>CheckUnique</c>: the invoice info as the requesting user may see it
 	/// plus the sender and the receiver resolved to telegram accounts when the bot knows them.
 	/// </summary>
 	public class CheckedInvoice
 	{
-		/// <summary>The invoice. A <see cref="ResponseRedEnvelopeInvoiceInfo"/> when the invoice is a red envelope: it then carries the redeemers.</summary>
+		/// <summary>The invoice. A <see cref="ResponseRedEnvelopeInvoiceInfo"/> when the invoice is a red envelope: it then carries the redeemers;
+		/// a <see cref="ResponseInvoiceWithdrawInfo"/> when it is a withdrawal (read by its Type, see <see cref="InvoiceInfoConverter"/>).</summary>
+		[JsonConverter(typeof(InvoiceInfoConverter))]
 		public ResponseInvoiceInfo Info { get; set; } = new();
 		/// <summary>Who paid the invoice. Null when nobody did yet or the payer is not a bot user.</summary>
 		public CheckedParty? From { get; set; }

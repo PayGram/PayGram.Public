@@ -193,14 +193,15 @@ namespace PayGram.Public.Client
 		/// Gets the information about the passed invoice
 		/// </summary>
 		/// <param name="invoiceId">The invoice id whose info is needed</param>
-		/// <returns>A ResponseInvoiceInfo or ResponseInvoiceWithdrawInfo depending on the type of the invoice. Does not return null.</returns>
+		/// <returns>A ResponseInvoiceInfo, a ResponseInvoiceWithdrawInfo or a ResponseRedEnvelopeInvoiceInfo depending on the type of the invoice. Does not return null.</returns>
 		public async Task<ResponseInvoiceInfo?> GetInvoiceInfo(Guid invoiceId)
 		{
 			var response = await ExecuteMethodAsync(Token, PayGramHelper.INVOICE_INFO_METHOD, $"{PayGramHelper.INVOICEID_TOKEN_NAME}={invoiceId}", null);
 			if (string.IsNullOrWhiteSpace(response))
 				return new ResponseInvoiceInfo() { ResponseCode = ResponseCodes.ResponseGenericError };
 
-			var resp = JsonConvert.DeserializeObject<ResponseInvoiceInfo>(response);
+			// read into its real type: a withdrawal keeps its method, a red envelope its redeemers
+			var resp = JsonConvert.DeserializeObject<ResponseInvoiceInfo>(response, new InvoiceInfoConverter());
 
 			if (resp == null)
 			{
@@ -208,10 +209,7 @@ namespace PayGram.Public.Client
 				return new ResponseInvoiceInfo() { ResponseCode = ResponseCodes.ResponseGenericError, Message = "Unexpected error" };
 			}
 
-			if (resp.Type == PaygramResponseTypes.ResponseInvoiceWithdrawInfo)
-				return JsonConvert.DeserializeObject<ResponseInvoiceWithdrawInfo>(response);
-			else
-				return resp;
+			return resp;
 		}
 		/// <summary>
 		/// Swaps an amount from one currency to another for the authenticated user. Set
