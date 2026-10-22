@@ -44,11 +44,19 @@ async function createInvoice({ amount, currency = "USDT" }) {
 }
 
 // 2. Cashout: a voucher is funded from your balance; whoever opens redeemUrl receives the money.
-async function createCashout({ amount, currency = "USDT" }) {
-  const cashoutId = `cashout-${crypto.randomUUID()}`;
+async function createCashout({ amount, currency = "USDT", id }) {
+  // your id of this cashout, created once and stored with it (here sent by the caller): the same id is the same key on every
+  // retry of this cashout, a new one is a new cashout. Required: made up here, a retry would be a second cashout
+  if (!id) return [400, { error: "id is required: your id of this cashout, the same on every retry of it" }];
+  const cashoutId = String(id);
   // unique is the idempotency key: if the response is lost, retry with the SAME value and the voucher is never funded twice
   const r = await paygram.transferCredit({ to: null, amount, currency, unique: cashoutId, cd: cashoutId });
-  if (!r.success) return [502, { error: `${r.responseCode}: ${r.message}` }];
+  // 551: not final, mostly not confirmed (it may have gone through): retry with the same id. The one final 551: this id was
+  // already used for a different cashout (another amount or currency)
+  if (r.responseCode === 551 && r.message?.includes("already registered for a different request")) return [409, { cashoutId, error: r.message }];
+  if (r.responseCode === 551) return [202, { cashoutId, status: "not final (551): retry with the same id; if it keeps coming for minutes, check it with CheckUnique or contact support, never a new id", message: r.message }];
+  // any other failure: check this id with CheckUnique before using a new one (a 500 replayed is final, its money may have moved)
+  if (!r.success) return [502, { error: `${r.responseCode}: ${r.message} (check this id with CheckUnique before using a new one)` }];
   console.log(`Voucher ${r.friendlyVoucherCode} issued: ${r.amount} ${currency}, balance left ${r.fromCredit}`);
   return [200, { cashoutId, voucherCode: r.voucherCode, friendlyVoucherCode: r.friendlyVoucherCode, redeemUrl: r.redeemUrl }];
 }
@@ -91,7 +99,7 @@ function handleCallback(headers, rawBody) {
 
 const help = `PayGram sample is running.
   POST /invoices          {"amount": 1.5, "currency": "USDT"}   create an invoice, returns the link to pay it
-  POST /cashouts          {"amount": 1.5, "currency": "USDT"}   issue a voucher, returns the link to redeem it
+  POST /cashouts          {"amount": 1.5, "currency": "USDT", "id": "your-cashout-id"}   issue a voucher, returns the link to redeem it
   POST /paygram/callback  the url to set in the bot (Settings > Set Callback URL), through a public https tunnel
 `;
 

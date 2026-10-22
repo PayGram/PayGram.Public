@@ -35,7 +35,8 @@ namespace PayGram.Public.Responses
 			else if (typeToken?.Type == JTokenType.String && Enum.TryParse<PaygramResponseTypes>(typeToken.Value<string>(), true, out var named)) type = named;
 			// the type asked for when it is a subtype (among the serializer's converters this one reads every subtype too)
 			ResponseInvoiceInfo info = objectType != typeof(ResponseInvoiceInfo)
-				? (ResponseInvoiceInfo)serializer.ContractResolver.ResolveContract(objectType).DefaultCreator!()
+				? (ResponseInvoiceInfo)(serializer.ContractResolver.ResolveContract(objectType).DefaultCreator?.Invoke()
+					?? throw new JsonSerializationException($"{objectType} cannot be created: it has no parameterless constructor"))
 				: type switch
 				{
 					PaygramResponseTypes.ResponseRedEnvelopeInvoiceInfo => new ResponseRedEnvelopeInvoiceInfo(),

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CurrenciesLib;
 using Newtonsoft.Json;
+using PayGram.Public;
 using PayGram.Public.Client;
 using PayGram.Public.Requests;
 using PayGram.Public.UserAPI;
@@ -29,7 +30,7 @@ var log = app.Logger;
 app.MapGet("/", () => Results.Text("""
 	PayGram sample is running.
 	  POST /invoices          {"amount": 1.5, "currency": "USDT"}   create an invoice, returns the link to pay it
-	  POST /cashouts          {"amount": 1.5, "currency": "USDT"}   issue a voucher, returns the link to redeem it
+	  POST /cashouts          {"amount": 1.5, "currency": "USDT", "id": "your-cashout-id"}   issue a voucher, returns the link to redeem it
 	  POST /paygram/callback  the url to set in the bot (Settings > Set Callback URL), through a public https tunnel
 	"""));
 
@@ -55,7 +56,11 @@ app.MapPost("/cashouts", async (CreateRequest req) =>
 	if (Enum.TryParse(req.Currency, true, out Currencies currency) == false)
 		return Results.BadRequest($"Unknown currency {req.Currency}");
 
-	string cashoutId = $"cashout-{Guid.NewGuid():N}";
+	// your id of this cashout, created once and stored with it (here sent by the caller): the same id is the same key on every
+	// retry of this cashout, a new one is a new cashout. Required: made up here, a retry would be a second cashout
+	if (string.IsNullOrWhiteSpace(req.Id))
+		return Results.BadRequest("id is required: your id of this cashout, the same on every retry of it");
+	string cashoutId = req.Id;
 	var res = await paygram.TransferCreditAsync(new TransferCreditRequest
 	{
 		To = null,          // no recipient: a voucher is created
@@ -65,8 +70,15 @@ app.MapPost("/cashouts", async (CreateRequest req) =>
 		Unique = cashoutId,
 		Cd = cashoutId,
 	});
+	// 551: not final. Mostly not confirmed (the answer was lost, or it is still running): it may have gone through, retry with the
+	// same id, never a new one. The one final 551: this id was already used for a different cashout (another amount or currency)
+	if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
+		return res.Message?.Contains("already registered for a different request") == true
+			? Results.Conflict(new { cashoutId, error = res.Message })
+			: Results.Accepted(value: new { cashoutId, status = "not final (551): retry with the same id; if it keeps coming for minutes, check it with CheckUnique or contact support, never a new id", res.Message });
+	// any other failure: check this id with CheckUnique before using a new one (a 500 replayed is final, its money may have moved)
 	if (res.Success == false)
-		return Results.Problem($"{res.ResponseCode}: {res.Message}", statusCode: StatusCodes.Status502BadGateway);
+		return Results.Problem($"{res.ResponseCode}: {res.Message} (check this id with CheckUnique before using a new one)", statusCode: StatusCodes.Status502BadGateway);
 
 	log.LogInformation("Voucher {Voucher} issued: {Amount} {Currency}, balance left {Balance}", res.FriendlyVoucherCode, res.Amount, currency, res.FromCredit);
 	return Results.Ok(new { cashoutId, res.VoucherCode, res.FriendlyVoucherCode, res.RedeemUrl });
@@ -120,7 +132,7 @@ app.MapPost("/paygram/callback", async (HttpRequest http) =>
 app.Run();
 return 0;
 
-record CreateRequest(decimal Amount, string Currency = "USDT");
+record CreateRequest(decimal Amount, string Currency = "USDT", string? Id = null);
 
 class PayGramSettings
 {

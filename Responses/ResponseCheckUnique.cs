@@ -36,9 +36,12 @@ namespace PayGram.Public.Responses
 	{
 		/// <summary>
 		/// NotFound: no operation with that key. Succeeded: done, see InvoiceCode. Failed: it moved no money, see Message; resending
-		/// it with the same key executes it again. Processing: not final yet, either still running or it produced something (see
-		/// InvoiceCode) whose answer was not recorded: resend the very same request with the same key to get its final answer,
-		/// never a new key, which would execute it a second time.
+		/// it with the same key executes it again; a transfer whose voucher went back to its sender is Failed too, and final (nothing
+		/// moved in the end, the same key only answers it again: a new transfer needs a new key).
+		/// Processing: not final yet, either still running or it produced something (see InvoiceCode) whose answer was not
+		/// recorded: resend the very same request with the same key to get its final answer, never a new key, which would execute
+		/// it a second time. Unsettled: final, its money moved and it cannot be completed: not executed again, contact support.
+		/// NotFound and Failed do not prove that no call is still on its way: resending with the same key is always safe.
 		/// </summary>
 		public string Status { get; set; } = "NotFound";
 		public DateTime? CreatedUtc { get; set; }

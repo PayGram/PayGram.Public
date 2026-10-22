@@ -21,21 +21,51 @@ export function callbackType(cb) {
   return "CallbackInfo";
 }
 
+// The answer of a call that moves money when PayGram's answer is lost or unreadable: it may have gone through. Resend the same
+// request with the same unique key (it runs at most once), or check it with checkUnique: never a new key, which could run it twice.
+export const NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), or check it with CheckUnique (by its key, or by the voucher code for PayVoucher), before doing it again. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
+const notConfirmed = () => ({ responseCode: 551, success: false, message: NOT_CONFIRMED });
+
 export class PayGramClient {
   constructor(apiToken, apiUrl = "https://pubapi.paygr.am/PayGramUsers/") {
     this.apiToken = apiToken;
     this.apiUrl = apiUrl.replace(/\/+$/, "") + "/";
   }
 
-  async #call(method, body) {
-    const res = await fetch(`${this.apiUrl}${this.apiToken}/${method}`, {
+  #post(method, body) {
+    return fetch(`${this.apiUrl}${this.apiToken}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body ?? {}),
     });
-    if (!res.ok) throw new Error(`PayGram ${method}: HTTP ${res.status}`);
-    const json = await res.json();
-    // every response carries responseCode: below 400 means success
+  }
+
+  // a call that moves no money: never throws, a lost or unreadable answer is a plain failure (500)
+  async #call(method, body) {
+    const failed = (why) => ({ responseCode: 500, success: false, message: `PayGram ${method}: ${why}` });
+    let res;
+    try { res = await this.#post(method, body); } catch { return failed("no answer"); }
+    const json = res.ok ? await res.json().catch(() => null) : null;
+    // every response carries responseCode: without it, it is not PayGram's answer; below 400 means success
+    if (json == null || typeof json.responseCode !== "number") return failed(`no answer that could be read (HTTP ${res.status})`);
+    json.success = json.responseCode < 400;
+    return json;
+  }
+
+  // a call that moves money: never throws. PayGram refused it before it ran (400, 404, 405, 413, 415): this attempt was not
+  // executed (a resend: check it with checkUnique before using a new key). Anything else (no answer, a 5xx, any other 4xx,
+  // which may come from a proxy on the resend of a call that ran, an answer that is not PayGram's) is 551 NOT_CONFIRMED
+  async #money(method, body) {
+    let res;
+    try { res = await this.#post(method, body); } catch { return notConfirmed(); }
+    if (!res.ok) {
+      if ([400, 404, 405, 413, 415].includes(res.status))
+        return { responseCode: 500, success: false, message: `PayGram refused this call (HTTP ${res.status}): this attempt was not executed. If it was a resend, check it with CheckUnique before using a new key.` };
+      return notConfirmed();
+    }
+    let json;
+    try { json = await res.json(); } catch { return notConfirmed(); }
+    if (json == null || typeof json.responseCode !== "number") return notConfirmed();
     json.success = json.responseCode < 400;
     return json;
   }
@@ -48,9 +78,16 @@ export class PayGramClient {
   /**
    * Without `to` creates a voucher (cashout): the response carries redeemUrl.
    * `unique` is the idempotency key: retry with the same value and the transfer never happens twice.
+   * Never throws: responseCode 551 means not final (resend with the same key; its message says when the key is already used
+   * for a different request).
    */
   transferCredit({ to = null, amount, currency, unique, cd }) {
-    return this.#call("TransferCreditV2", { to, amt: amount, curSym: currency, unique, cd });
+    return this.#money("TransferCreditV2", { to, amt: amount, curSym: currency, unique, cd });
+  }
+
+  /** What happened to an operation: by its unique key, an invoice id, a voucher code or your callback data. */
+  checkUnique(query) {
+    return this.#call("CheckUnique", { query });
   }
 
   invoiceInfo(invoiceCode) {

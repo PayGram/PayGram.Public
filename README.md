@@ -54,6 +54,7 @@ Then reference the project from yours:
 
 ```csharp
 using CurrenciesLib;
+using PayGram.Public;
 using PayGram.Public.Client;
 using PayGram.Public.Requests;
 using PayGram.Public.UserAPI;
@@ -81,6 +82,9 @@ var voucher = await paygram.TransferCreditAsync(new TransferCreditRequest
 });
 if (voucher.Success)
     Console.WriteLine($"Redeem here: {voucher.RedeemUrl} (code {voucher.FriendlyVoucherCode})");
+else if (voucher.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
+    // not final: resend it with the same Unique; only "already registered for a different request" needs a new key
+    Console.WriteLine($"Not final (551): {voucher.Message}");
 ```
 
 - **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 30 minutes after its creation** (`ExpiresUtc` in the response): after that it is `Expired`, a payment is refused with `ResponseCodes.InvoiceExpired` (555) and you receive an `InvoiceExpired` callback, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
@@ -94,21 +98,29 @@ Every response has the same envelope:
 |---|---|
 | `ResponseCode` | `200` means OK. Any value **≥ 400** is an error (`Success` is `false`). |
 | `Message` | A human-readable explanation of the error. |
-| `ReplayedResponse` | `true` when the response is the stored result of an earlier request with the same idempotency key. |
+| `ReplayedResponse` | `true` when the response is the stored result of an earlier request with the same idempotency key, or a final failure closed by the server (see below). |
 
 | Code | Name | What to do |
 |---|---|---|
 | 200 | `ResponseOK` | Done. |
-| 500 | `ResponseGenericError` | Read `Message` (invalid token, invalid parameters…). |
+| 500 | `ResponseGenericError` | Read `Message` (invalid token, invalid parameters…). For an operation with an idempotency key, after any 500 check it with `CheckUniqueAsync` before sending it with a new key (Failed: nothing moved; Unsettled: its money moved, contact support); with `ReplayedResponse` true it is final. |
 | 550 | `ResponseServerUpdating` | The server is being updated. Retry in a minute. |
-| 551 | `ResponseUniqueRequestViolation` | The request with that idempotency key is still running (resend the same request a few seconds later), or the key was already used for a different request (a new request needs a new key). |
+| 551 | `ResponseUniqueRequestViolation` | The request with that idempotency key is still running, or its outcome could not be confirmed (it may have gone through): resend the same request with the same key a few seconds later, or check it with `CheckUniqueAsync`, never with a new key. Also: the key was already used for a different request (a new request needs a new key). |
 | 552 | `AuthError` | Your token isn't allowed to do this. |
 | 553 | `NotFound` | The user or invoice doesn't exist. Codes that don't exist are limited: after 10 within an hour, every lookup by code (`InvoiceInfo`, `PayVoucher`, `RedeemVoucher`) is refused with 500 for an hour, for all the tokens of the account. Don't retry a code answered 553. |
 | 554 | `NotEnoughFunds` | Your balance is too low. |
 
-The library methods never return `null` for a communication error: they return a response with `ResponseGenericError`. Always check `Success`.
+The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed, but if it was a resend, check it with `CheckUniqueAsync` before using a new key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
 
-**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. If the call times out or you lose the response, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. To find out what happened to a key, call `CheckUniqueAsync` (see the API reference, section 3.4). Keys stay valid when you regenerate your API token.
+**Every 551 is not final**, whatever its message: resend the same request with the same key (`RedeemVoucherAsync`: see below). The only exception is a 551 whose message says the key is *already registered for a different request*: that one needs a new key. If the same 551 keeps coming for more than a few minutes, stop resending: check it with `CheckUniqueAsync` or contact support, never use a new key.
+
+`RedeemVoucherAsync` has no key, but a resend never redeems twice. Before redeeming a code for a customer, look it up with `CheckUniqueAsync`: accept only a voucher not yet redeemed (`Info.IsRedeemed` false), or a red envelope you did not create and have no entry in. After a 551 or no answer, resend it. If the resend fails (any 500), look the code up again. A voucher was redeemed into your account when `Info.IsRedeemed` is true, `Info.ToUser` is your Telegram id and `Info.ToClientId` your client id, and its sender (`Info.FromUser` with `Info.FromClientId`) is there and is not you (that would be a recall). A red envelope (`ResponseRedEnvelopeInvoiceInfo`) when its `Redeemers` have an entry with your Telegram id and client id and you are not its creator (`Info.FromUser`). Right after a 551 it may still be running: if it is not redeemed yet, check again a minute later. Credit a voucher code at most once on your side.
+
+**Upgrading to 3.3.**
+- A lost answer of a call that moves money is now 551, not `ResponseGenericError`: resend with the same key, never a new one.
+- `TransferMoneyAsync` is obsolete (its `bool` cannot say "not confirmed"): use `TransferCreditAsync`. It now sends the key and the callback data in the body, so a value containing `+`, `&`, `#` or `%` reaches PayGram whole, unlike before. A transfer whose answer was lost before 3.3: check it with `CheckUniqueAsync` (or the statement) first, never resend it with a new key. If its key or callback data contained `+`, `&`, `#` or `%`, 3.2 sent them altered: neither a `NotFound` nor a 551 "different request" proves it did not run, and for such a key a resend through 3.3 is a new request too: resend it only if the statement shows it did not go through.
+
+**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. If the call times out or you lose the response, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The exception is a transfer whose voucher went back to its sender before it reached the receiver: final, the same key only answers it again, a new transfer needs a new key. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. To find out what happened to a key, call `CheckUniqueAsync` (see the API reference, section 3.4): resending with the same key stays safe whatever it says, since the first call may still be on its way. Keys stay valid when you regenerate your API token.
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
@@ -279,8 +291,11 @@ This keeps them out of git. **Don't commit real keys.**
 # create an invoice of 1 USDT, open the returned payUrl in Telegram and pay it
 curl -X POST http://localhost:5080/invoices -H "Content-Type: application/json" -d '{"amount": 1, "currency": "USDT"}'
 
-# issue a 1 USDT voucher, open redeemUrl from another Telegram account to redeem it
-curl -X POST http://localhost:5080/cashouts -H "Content-Type: application/json" -d '{"amount": 1, "currency": "USDT"}'
+# issue a 1 USDT voucher, open redeemUrl from another Telegram account to redeem it. "id" is your id of the cashout: a retry
+# with the same id never pays twice. A 202 means not final: retry with the same id, and if it keeps coming for minutes check
+# it with CheckUnique or contact support, never a new id. A 409: that id was already used for a different cashout. A 502:
+# check that id with CheckUnique before using a new one
+curl -X POST http://localhost:5080/cashouts -H "Content-Type: application/json" -d '{"amount": 1, "currency": "USDT", "id": "cashout-1"}'
 ```
 
 (Use port 5081 for the Node sample. In PowerShell, call `curl.exe` and escape the inner quotes, or use `Invoke-RestMethod`.)
