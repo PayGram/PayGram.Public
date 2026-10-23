@@ -299,7 +299,8 @@ namespace PayGram.Public.Client
 
 			string url = $"{ApiUrl}{token}/{method}/{otherParams}";
 			// the API token moves funds: never written in a log
-			string logUrl = $"{ApiUrl}{(string.IsNullOrEmpty(token) || token.Length <= 8 ? "***" : token[..4] + "…")}/{method}/{otherParams}";
+			// the token is masked like in the PayGram logs: its last 4 characters
+			string logUrl = $"{ApiUrl}{(string.IsNullOrEmpty(token) ? "-" : token.Length < 12 ? "…" : "…" + token[^4..])}/{method}/{otherParams}";
 
 			string reqContent = request != null ? JsonConvert.SerializeObject(request) : "{}";
 
