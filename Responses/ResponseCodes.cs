@@ -11,5 +11,7 @@
 		NotEnoughFunds = 554,
 		/// <summary>The payment request expired (see InvoiceStatuses.Expired): it cannot be paid, ask the merchant for a new one</summary>
 		InvoiceExpired = 555,
+		/// <summary>The object is not in a state that allows the action (e.g. a withdrawal already being sent): the answer carries the current state</summary>
+		Conflict = 556,
 	}
 }
