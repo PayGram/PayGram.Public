@@ -13,10 +13,9 @@ namespace PayGram.Public.UserAPI
 		/// </summary>
 		public string? AdminResponse { get; set; }
 		/// <summary>
-		/// The status of the WithdrawInvoice. Setting this to InvoiceStatuses.Cancelled will not refund the user. 
-		/// To Cancel and refund the user, set CancelWithdraw to true on RequestUpdateWithdraw.
-		/// An admin can only move a withdraw forward: Requested -> AcceptedPendingTransfer = 8, AcceptedPendingTransfer -> Completed = 2.
-		/// Refusing it, or a failed transfer, is a cancel, which refunds the user.
+		/// The status of the withdraw this reply comes with: AcceptedPendingTransfer (8) approved, Completed (2) sent (the tx hash
+		/// in AdminResponse), Cancelled (3) rejected and refunded (the reason in AdminResponse). A withdraw cannot be cancelled
+		/// or changed once submitted: only an admin rejects it, and the reject always refunds.
 		/// </summary>
 		public int InvoiceStatus { get; set; }
 		/// <summary>
@@ -29,6 +28,7 @@ namespace PayGram.Public.UserAPI
 		/// It is the string representing one of the <see cref="Currencies"/>.
 		/// </summary>
 		public Currencies Currency { get; set; }
+		/// <summary>Not used any more (the destination of a withdraw never changes): always null. Kept for the shape of the callback</summary>
 		public WithdrawMethod UpdatedWithdrawMethod { get; set; }
 		/// <summary>
 		/// The network fee charged by the crypto sender, when known. Used to record the
