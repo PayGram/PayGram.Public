@@ -46,5 +46,13 @@
 		ResponseReturnAllVouchers = 43,
 		ResponseUniqueRequest = 44,
 		ResponseCheckReference = 45,
+		/// <summary>Admin: a page of withdrawals with the queue summary (AdminListWithdrawals)</summary>
+		ResponseAdminWithdrawals = 46,
+		/// <summary>Admin: one withdrawal with its events, rule checks and context (AdminGetWithdrawal)</summary>
+		ResponseAdminWithdrawal = 47,
+		/// <summary>Admin: the outcome of an action on a withdrawal (approve, reject, mark sent, release)</summary>
+		ResponseWithdrawAction = 48,
+		/// <summary>Admin: the rules of the withdrawal gate (AdminGetWithdrawRules / AdminSetWithdrawRules)</summary>
+		ResponseWithdrawRules = 49,
 	}
 }
