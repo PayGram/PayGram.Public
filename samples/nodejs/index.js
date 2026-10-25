@@ -54,9 +54,10 @@ async function createCashout({ amount, currency = "USDT", id }) {
   // 551: not final, mostly not confirmed (it may have gone through): retry with the same id. The one final 551: this id was
   // already used for a different cashout (another amount or currency)
   if (r.responseCode === 551 && r.message?.includes("already registered for a different request")) return [409, { cashoutId, error: r.message }];
-  if (r.responseCode === 551) return [202, { cashoutId, status: "not final (551): retry with the same id; if it keeps coming for minutes, check it with CheckUnique or contact support, never a new id", message: r.message }];
-  // any other failure: check this id with CheckUnique before using a new one (a 500 replayed is final, its money may have moved)
-  if (!r.success) return [502, { error: `${r.responseCode}: ${r.message} (check this id with CheckUnique before using a new one)` }];
+  if (r.responseCode === 551) return [202, { cashoutId, status: "not final (551): retry with the same id; if it keeps coming for minutes, contact support, never a new id", message: r.message }];
+  // any other failure: retry with the same id once the cause is fixed, never a new one; a 500 replayed (replayedResponse true)
+  // is final: do not resend it, contact support
+  if (!r.success) return [502, { error: `${r.responseCode}: ${r.message} (retry with the same id, never a new one; if replayedResponse is true it is final: contact support)` }];
   console.log(`Voucher ${r.friendlyVoucherCode} issued: ${r.amount} ${currency}, balance left ${r.fromCredit}`);
   return [200, { cashoutId, voucherCode: r.voucherCode, friendlyVoucherCode: r.friendlyVoucherCode, redeemUrl: r.redeemUrl }];
 }

@@ -1,4 +1,4 @@
-﻿namespace PayGram.Public
+namespace PayGram.Public
 {
 	public enum PaygramResponseTypes
 	{
@@ -56,7 +56,8 @@
 		ResponseWithdrawRules = 49,
 		/// <summary>Admin: what a code, hash, address or key is (AdminSearch, the global search of the admin panel)</summary>
 		ResponseAdminSearch = 50,
-		// 51: ResponseAdminSetUserBanned (PayGram.Public#6)
+		/// <summary>Admin: the outcome of a ban or unban of a user (AdminSetUserBanned, the admin panel only)</summary>
+		ResponseAdminSetUserBanned = 51,
 		/// <summary>Admin: the compliance alerts of the deposit watch (AdminListComplianceAlerts, the admin panel)</summary>
 		ResponseAdminComplianceAlerts = 52,
 		/// <summary>Admin: the outcome of an acknowledgement of a compliance alert (AdminAcknowledgeComplianceAlert, the admin panel only)</summary>
