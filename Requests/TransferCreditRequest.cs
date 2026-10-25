@@ -18,5 +18,13 @@ namespace PayGram.Public.Requests
 		public string Unique { get; set; } = string.Empty;
 		/// <summary>Optional callback data returned in notifications related to this transfer.</summary>
 		public string? Cd { get; set; }
+		/// <summary>
+		/// Optional: your own id of the end user on whose behalf you send this transfer (the payer on your side), at most
+		/// <see cref="Constraints.PAYER_REF_MAX"/> characters. An opaque reference, never a name, an e-mail or a phone number: PayGram
+		/// stores it with the transfer, shows it to you (InvoiceInfo of the transfer) and to PayGram's admins only, and uses it to
+		/// detect structuring (many of your payers sending to the same PayGram user). It is never an identity nor an authorization.
+		/// Leave it null if you have none.
+		/// </summary>
+		public string? PayerRef { get; set; }
 	}
 }

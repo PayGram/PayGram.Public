@@ -122,6 +122,8 @@ The library methods never return `null` for a communication error, nor throw on 
 
 **Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. If the call times out or you lose the response, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The exception is a transfer whose voucher went back to its sender before it reached the receiver: final, the same key only answers it again, a new transfer needs a new key. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. To find out what happened to a key, call `CheckUniqueAsync` (see the API reference, section 3.4): resending with the same key stays safe whatever it says, since the first call may still be on its way. Keys stay valid when you regenerate your API token.
 
+**Payer reference (optional, 3.4).** When you send a transfer on behalf of one of your own users, put your id of that user in `PayerRef` (`payerRef` in JSON), at most 64 characters: an opaque reference such as your internal user number, never a name, an e-mail or a phone number. PayGram stores it with the transfer, returns it to you in `InvoiceInfo` of that transfer, shows it to its admins, and uses it to detect structuring (many of your users sending to the same PayGram user). It is never used as an identity or an authorization, and a request without it works as before. It is part of the request: a resend with the same `Unique` must carry the same `PayerRef`.
+
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
 ## 5. Receiving updates: use the webhook, not polling
@@ -321,7 +323,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `PayGramBotClient` method | API method | Body | Returns |
 |---|---|---|---|
 | `IssueInvoiceAsync(IssueInvoiceRequest)` | `IssueInvoiceV2` | `amt`, `curSym`, `cd` | `ResponseIssueInvoice`, with `payUrl` |
-| `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd` | `ResponseTransferCredit`, with `redeemUrl` |
+| `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd`, optional `payerRef` | `ResponseTransferCredit`, with `redeemUrl` |
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |

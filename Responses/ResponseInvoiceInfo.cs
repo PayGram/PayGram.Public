@@ -49,6 +49,12 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public string? CallbackData { get; set; }
 		/// <summary>
+		/// The payer reference the sender's integrator gave with the transfer (<c>TransferCreditRequest.PayerRef</c>): its own id of
+		/// its end user who paid. Same visibility as <see cref="CallbackData"/>: the side that created the invoice, and admins.
+		/// Null when none was given.
+		/// </summary>
+		public string? PayerRef { get; set; }
+		/// <summary>
 		/// The currency of the invoice.
 		/// </summary>
 		public Currencies CurrencyCode { get; set; }

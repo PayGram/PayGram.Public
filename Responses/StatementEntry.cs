@@ -51,5 +51,10 @@ namespace PayGram.Public.Responses
 		/// The invoice associated with this entry, containing its GUID and optional friendly voucher code.
 		/// </summary>
 		public Invoice Invoice { get; set; }
+		/// <summary>
+		/// The payer reference of the entry's invoice (<c>TransferCreditRequest.PayerRef</c>). Filled only in the statements PayGram's
+		/// admins read; null in your own statement.
+		/// </summary>
+		public string? PayerRef { get; set; }
 	}
 }
