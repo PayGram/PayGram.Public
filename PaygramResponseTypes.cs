@@ -56,5 +56,7 @@
 		ResponseWithdrawRules = 49,
 		/// <summary>Admin: what a code, hash, address or key is (AdminSearch, the global search of the admin panel)</summary>
 		ResponseAdminSearch = 50,
+		/// <summary>Admin: the outcome of a ban or unban of a user (AdminSetUserBanned, the admin panel only)</summary>
+		ResponseAdminSetUserBanned = 51,
 	}
 }
