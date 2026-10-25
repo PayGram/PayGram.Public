@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using CurrenciesLib;
 
 namespace PayGram.Public.Requests
@@ -25,6 +26,7 @@ namespace PayGram.Public.Requests
 		/// detect structuring (many of your payers sending to the same PayGram user). It is never an identity nor an authorization.
 		/// Leave it null if you have none.
 		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of a call without it is unchanged
 		public string? PayerRef { get; set; }
 	}
 }

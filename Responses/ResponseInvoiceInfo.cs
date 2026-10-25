@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using CurrenciesLib;
 
 namespace PayGram.Public.Responses
@@ -53,6 +54,7 @@ namespace PayGram.Public.Responses
 		/// its end user who paid. Same visibility as <see cref="CallbackData"/>: the side that created the invoice, and admins.
 		/// Null when none was given.
 		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of a call without it is unchanged
 		public string? PayerRef { get; set; }
 		/// <summary>
 		/// The currency of the invoice.

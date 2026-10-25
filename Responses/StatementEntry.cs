@@ -1,4 +1,5 @@
-﻿using CurrenciesLib;
+﻿using Newtonsoft.Json;
+using CurrenciesLib;
 
 namespace PayGram.Public.Responses
 {
@@ -55,6 +56,7 @@ namespace PayGram.Public.Responses
 		/// The payer reference of the entry's invoice (<c>TransferCreditRequest.PayerRef</c>). Filled only in the statements PayGram's
 		/// admins read; null in your own statement.
 		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of a call without it is unchanged
 		public string? PayerRef { get; set; }
 	}
 }
