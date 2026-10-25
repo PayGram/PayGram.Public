@@ -44,7 +44,7 @@ namespace PayGram.Public.Client
 			// version is the same request
 			var res = await TransferCreditAsync(new TransferCreditRequest { To = toTid, Amt = amount, CurSym = curSym, Unique = unique, Cd = string.IsNullOrWhiteSpace(callbackData) ? null : callbackData });
 			if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
-				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not final (551), check it with CheckUniqueAsync: {res.Message}");
+				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not final (551), resend it with the same key, never a new one: {res.Message}");
 			return res.Success;
 		}
 		public async Task<Guid> IssueInvoiceAsync(decimal amount, Currencies curSym, string callBackdata)
@@ -98,22 +98,21 @@ namespace PayGram.Public.Client
 		/// The message of an operation that moves money (TransferCredit, Swap, Withdraw, PayVoucher, RedeemVoucher) when PayGram's answer did not
 		/// arrive (a timeout, a connection error, a server or proxy error) or could not be read. It may have run, so it is not a
 		/// failure: the answer is <see cref="ResponseCodes.ResponseUniqueRequestViolation"/> (551), as for a request still in
-		/// progress. Resend the same request (with the same unique key), or check it with <see cref="CheckUniqueAsync"/>; a new key
-		/// could run it a second time.
+		/// progress. Resend the same request with the same unique key, never a new key, which could run it a second time.
 		/// </summary>
-		public const string NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), or check it with CheckUnique (by its key, or by the voucher code for PayVoucher), before doing it again. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
+		public const string NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
 
 		/// <summary>
 		/// The answer of an operation that moves money: what PayGram answered (a JSON with its responseCode); a failure of this attempt
-		/// when PayGram refused the call before it ran (<see cref="REFUSED_BEFORE_RUNNING"/>: if it was a resend, check it with
-		/// CheckUnique before using a new key); otherwise (no answer, a 5xx, any other
+		/// when PayGram refused the call before it ran (<see cref="REFUSED_BEFORE_RUNNING"/>: fix the call and send it again with
+		/// the same key); otherwise (no answer, a 5xx, any other
 		/// 4xx, which may come from a proxy on the resend of a call that ran, an answer that is not PayGram's) 551
 		/// <see cref="NOT_CONFIRMED"/>
 		/// </summary>
 		static T MoneyAnswer<T>((string? Body, int? Status) answer) where T : PaygramResponse, new()
 		{
 			if (answer.Status is int status && REFUSED_BEFORE_RUNNING.Contains(status))
-				return new T { ResponseCode = ResponseCodes.ResponseGenericError, Message = $"PayGram refused this call (HTTP {status}): this attempt was not executed. If it was a resend, check it with CheckUnique before using a new key." };
+				return new T { ResponseCode = ResponseCodes.ResponseGenericError, Message = $"PayGram refused this call (HTTP {status}): this attempt was not executed: fix the call and send it again with the same key." };
 			if (answer.Status is >= 200 and < 300 && string.IsNullOrWhiteSpace(answer.Body) == false)
 			{
 				try
@@ -250,11 +249,13 @@ namespace PayGram.Public.Client
 			return MoneyAnswer<ResponseTopUpReceived>(await ExecuteAsync(Token, PayGramHelper.REDEEM_VOUCHER_V2_METHOD, null, req));
 		}
 		/// <summary>
-		/// Looks up a reference: an invoice id, a voucher code, your callback data or your unique key. Tells you what happened to
-		/// an operation whose answer you lost (see <see cref="CheckedUniqueRequest.Status"/>). Whatever it says, resending the same
-		/// request with the same key is safe: it runs at most once (NotFound and Failed included: the first call may still be on its
-		/// way). A new key only for a new operation, or after a Failed the same key keeps answering. Unsettled: its money moved and
-		/// it cannot be completed, never send it again, contact support.
+		/// Looks a reference up without executing anything: an invoice id, a voucher code, your callback data or your unique key
+		/// (see <see cref="CheckedUniqueRequest.Status"/>). It is not a step of a retry: after a 500, a 551 or no answer, resend the
+		/// same request with the same key, never a new key. Use it when you no longer want the operation (an order cancelled) and
+		/// only want to know whether it went through, when you lost the request data and cannot resend it identically, or for an
+		/// operation sent before version 2.6 (look it up by invoice id or callback data: its key is not recognised) or whose answer
+		/// was lost with an SDK before 3.3. Whatever it says, resending the same request with the same key stays safe: it runs at
+		/// most once. Unsettled: its money moved and it cannot be completed, never send it again, contact support.
 		/// </summary>
 		/// <returns>A <see cref="ResponseCheckUnique"/>. Does not return null.</returns>
 		public async Task<ResponseCheckUnique> CheckUniqueAsync(CheckUniqueRequest req)
