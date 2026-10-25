@@ -54,5 +54,7 @@
 		ResponseWithdrawAction = 48,
 		/// <summary>Admin: the rules of the withdrawal gate (AdminGetWithdrawRules / AdminSetWithdrawRules)</summary>
 		ResponseWithdrawRules = 49,
+		/// <summary>Admin: what a code, hash, address or key is (AdminSearch, the global search of the admin panel)</summary>
+		ResponseAdminSearch = 50,
 	}
 }
