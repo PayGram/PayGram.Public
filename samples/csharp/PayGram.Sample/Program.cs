@@ -75,10 +75,11 @@ app.MapPost("/cashouts", async (CreateRequest req) =>
 	if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
 		return res.Message?.Contains("already registered for a different request") == true
 			? Results.Conflict(new { cashoutId, error = res.Message })
-			: Results.Accepted(value: new { cashoutId, status = "not final (551): retry with the same id; if it keeps coming for minutes, check it with CheckUnique or contact support, never a new id", res.Message });
-	// any other failure: check this id with CheckUnique before using a new one (a 500 replayed is final, its money may have moved)
+			: Results.Accepted(value: new { cashoutId, status = "not final (551): retry with the same id; if it keeps coming for minutes, contact support, never a new id", res.Message });
+	// any other failure: retry with the same id once the cause is fixed, never a new one; a 500 replayed (ReplayedResponse true)
+	// is final: do not resend it, contact support
 	if (res.Success == false)
-		return Results.Problem($"{res.ResponseCode}: {res.Message} (check this id with CheckUnique before using a new one)", statusCode: StatusCodes.Status502BadGateway);
+		return Results.Problem($"{res.ResponseCode}: {res.Message} (retry with the same id, never a new one; if replayedResponse is true it is final: contact support)", statusCode: StatusCodes.Status502BadGateway);
 
 	log.LogInformation("Voucher {Voucher} issued: {Amount} {Currency}, balance left {Balance}", res.FriendlyVoucherCode, res.Amount, currency, res.FromCredit);
 	return Results.Ok(new { cashoutId, res.VoucherCode, res.FriendlyVoucherCode, res.RedeemUrl });

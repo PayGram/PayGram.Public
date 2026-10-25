@@ -30,7 +30,8 @@ namespace PayGram.Public.Responses
 
 	/// <summary>
 	/// The state of the operation you created with the <c>unique</c> key that was queried (TransferCredit, Swap, Withdraw...),
-	/// found by <c>CheckUnique</c>. Tells you whether a call whose answer you lost (a timeout, a 551) ran, and what it produced.
+	/// found by <c>CheckUnique</c>: whether it ran, and what it produced. The lookup executes nothing and is not a step of a retry:
+	/// after a 500, a 551 or no answer, resend the same request with the same key, never a new key.
 	/// </summary>
 	public class CheckedUniqueRequest
 	{

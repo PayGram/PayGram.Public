@@ -22,8 +22,8 @@ export function callbackType(cb) {
 }
 
 // The answer of a call that moves money when PayGram's answer is lost or unreadable: it may have gone through. Resend the same
-// request with the same unique key (it runs at most once), or check it with checkUnique: never a new key, which could run it twice.
-export const NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), or check it with CheckUnique (by its key, or by the voucher code for PayVoucher), before doing it again. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
+// request with the same unique key (it runs at most once): never a new key, which could run it twice.
+export const NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
 const notConfirmed = () => ({ responseCode: 551, success: false, message: NOT_CONFIRMED });
 
 export class PayGramClient {
@@ -53,14 +53,14 @@ export class PayGramClient {
   }
 
   // a call that moves money: never throws. PayGram refused it before it ran (400, 404, 405, 413, 415): this attempt was not
-  // executed (a resend: check it with checkUnique before using a new key). Anything else (no answer, a 5xx, any other 4xx,
+  // executed (fix the call and send it again with the same key). Anything else (no answer, a 5xx, any other 4xx,
   // which may come from a proxy on the resend of a call that ran, an answer that is not PayGram's) is 551 NOT_CONFIRMED
   async #money(method, body) {
     let res;
     try { res = await this.#post(method, body); } catch { return notConfirmed(); }
     if (!res.ok) {
       if ([400, 404, 405, 413, 415].includes(res.status))
-        return { responseCode: 500, success: false, message: `PayGram refused this call (HTTP ${res.status}): this attempt was not executed. If it was a resend, check it with CheckUnique before using a new key.` };
+        return { responseCode: 500, success: false, message: `PayGram refused this call (HTTP ${res.status}): this attempt was not executed: fix the call and send it again with the same key.` };
       return notConfirmed();
     }
     let json;
@@ -85,7 +85,10 @@ export class PayGramClient {
     return this.#money("TransferCreditV2", { to, amt: amount, curSym: currency, unique, cd });
   }
 
-  /** What happened to an operation: by its unique key, an invoice id, a voucher code or your callback data. */
+  /**
+   * What happened to an operation: by its unique key, an invoice id, a voucher code or your callback data. A lookup that
+   * executes nothing, not a step of a retry (after a 500, a 551 or no answer, resend the same request with the same key).
+   */
   checkUnique(query) {
     return this.#call("CheckUnique", { query });
   }

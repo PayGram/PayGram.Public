@@ -24,8 +24,8 @@ namespace PayGram.Public
 		/// True when this response was not produced by executing the request, but replayed from the stored
 		/// outcome of the original request that carried the same ClientUnique (idempotent replay), or when it is a
 		/// final failure the server closed (its money moved, or a transfer went back to its sender): the same key
-		/// only answers it again. Retrying a request with the same ClientUnique after losing the response is safe:
-		/// the operation is never executed twice.
+		/// only answers it again (a 500 with this true is final: do not resend it, contact support). Retrying a request
+		/// with the same ClientUnique after a 500, a 551 or a lost response is safe: the operation is never executed twice.
 		/// </summary>
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public bool ReplayedResponse { get; set; }
