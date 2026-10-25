@@ -61,5 +61,7 @@
 		ResponseAdminComplianceAlerts = 52,
 		/// <summary>Admin: the outcome of an acknowledgement of a compliance alert (AdminAcknowledgeComplianceAlert, the admin panel only)</summary>
 		ResponseAdminComplianceAlertAction = 53,
+		/// <summary>Admin: the outgoing freeze of a user after a change (AdminSetOutgoingFreeze, the admin panel only)</summary>
+		ResponseAdminOutgoingFreeze = 54,
 	}
 }

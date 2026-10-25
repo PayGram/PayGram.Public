@@ -22,8 +22,8 @@ namespace PayGram.Public.Requests
 		/// <summary>
 		/// Optional: your own id of the end user on whose behalf you send this transfer (the payer on your side), at most
 		/// <see cref="Constraints.PAYER_REF_MAX"/> characters. An opaque reference, never a name, an e-mail or a phone number: PayGram
-		/// stores it with the transfer, shows it to you (InvoiceInfo of the transfer) and to PayGram's admins only, and uses it to
-		/// detect structuring (many of your payers sending to the same PayGram user). It is never an identity nor an authorization.
+		/// stores it with the transfer, for its compliance only: it is write-only, never returned in any response or callback (to you
+		/// included), seen only by PayGram's admins, and used to detect structuring (many of your payers sending to the same PayGram user). It is never an identity nor an authorization.
 		/// Leave it null if you have none.
 		/// </summary>
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of a call without it is unchanged
