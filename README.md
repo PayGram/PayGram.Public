@@ -109,6 +109,7 @@ Every response has the same envelope:
 | 552 | `AuthError` | Your token isn't allowed to do this. |
 | 553 | `NotFound` | The user or invoice doesn't exist. Codes that don't exist are limited: after 10 within an hour, every lookup by code (`InvoiceInfo`, `PayVoucher`, `RedeemVoucher`) is refused with 500 for an hour, for all the tokens of the account. Don't retry a code answered 553. |
 | 554 | `NotEnoughFunds` | Your balance is too low. |
+| 557 | `OutgoingSuspended` | The account is under review: its outgoing operations (withdrawals, transfers and vouchers, payments, red envelopes) are suspended. Final: nothing moved, do not resend. Contact support. |
 
 The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed: fix the call and send it again with the same key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
 
@@ -123,6 +124,10 @@ The library methods never return `null` for a communication error, nor throw on 
 - `TransferMoneyAsync` is obsolete (its `bool` cannot say "not confirmed"): use `TransferCreditAsync`. It now sends the key and the callback data in the body, so a value containing `+`, `&`, `#` or `%` reaches PayGram whole, unlike before. A transfer whose answer was lost before 3.3: check it with `CheckUniqueAsync` (or the statement) first, never resend it with a new key. If its key or callback data contained `+`, `&`, `#` or `%`, 3.2 sent them altered: neither a `NotFound` nor a 551 "different request" proves it did not run, and for such a key a resend through 3.3 is a new request too: resend it only if the statement shows it did not go through.
 
 **Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. After a 500, a 551 or no answer at all, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The exception is a transfer whose voucher went back to its sender before it reached the receiver: final, the same key only answers it again, a new transfer needs a new key. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. The only 551 that needs a new key is the one whose message says the key is already registered for a different request; a 500 with `ReplayedResponse` true is final: do not resend it, contact support. `CheckUniqueAsync` only looks a key up (see above and the API reference, section 3.4). Keys stay valid when you regenerate your API token.
+
+**Payer reference (optional, 3.4).** When you send a transfer on behalf of one of your own users, put your id of that user in `PayerRef` (`payerRef` in JSON), at most 64 characters: an opaque reference such as your internal user number, never a name, an e-mail or a phone number. It is **write-only**: PayGram stores it with the transfer for its compliance checks (many of your users sending to the same PayGram user), only PayGram's admins see it, and it is never returned in any response or callback, to you included. It is never used as an identity or an authorization, and a request without it works as before. It is part of the request: a resend with the same `Unique` must carry the same `PayerRef`.
+
+**Account under review (557, 3.4).** When PayGram's compliance suspends a user's outgoing operations, Withdraw, TransferCredit (and vouchers), PayVoucher and red envelopes answer `OutgoingSuspended` (557): final, nothing moved; do not resend it, with the same key or a new one. The user contacts support. Receiving, deposits, swaps and the balance keep working.
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
@@ -323,7 +328,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `PayGramBotClient` method | API method | Body | Returns |
 |---|---|---|---|
 | `IssueInvoiceAsync(IssueInvoiceRequest)` | `IssueInvoiceV2` | `amt`, `curSym`, `cd` | `ResponseIssueInvoice`, with `payUrl` |
-| `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd` | `ResponseTransferCredit`, with `redeemUrl` |
+| `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd`, optional `payerRef` | `ResponseTransferCredit`, with `redeemUrl` |
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |

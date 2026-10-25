@@ -13,5 +13,11 @@
 		InvoiceExpired = 555,
 		/// <summary>The object is not in a state that allows the action (e.g. a withdrawal already being sent): the answer carries the current state</summary>
 		Conflict = 556,
+		/// <summary>
+		/// The account is under review: its outgoing operations (withdrawals, transfers and vouchers, payments, red envelopes) are
+		/// suspended. Final: nothing was moved, do not resend (neither with the same key nor a new one); the user contacts support.
+		/// Receiving, deposits, swaps between the user's own currencies and the balance keep working
+		/// </summary>
+		OutgoingSuspended = 557,
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace PayGram.Public
+namespace PayGram.Public
 {
 	public enum PaygramResponseTypes
 	{
@@ -58,5 +58,11 @@
 		ResponseAdminSearch = 50,
 		/// <summary>Admin: the outcome of a ban or unban of a user (AdminSetUserBanned, the admin panel only)</summary>
 		ResponseAdminSetUserBanned = 51,
+		/// <summary>Admin: the compliance alerts of the deposit watch (AdminListComplianceAlerts, the admin panel)</summary>
+		ResponseAdminComplianceAlerts = 52,
+		/// <summary>Admin: the outcome of an acknowledgement of a compliance alert (AdminAcknowledgeComplianceAlert, the admin panel only)</summary>
+		ResponseAdminComplianceAlertAction = 53,
+		/// <summary>Admin: the outgoing freeze of a user after a change (AdminSetOutgoingFreeze, the admin panel only)</summary>
+		ResponseAdminOutgoingFreeze = 54,
 	}
 }
