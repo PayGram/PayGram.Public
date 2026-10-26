@@ -127,6 +127,8 @@ The library methods never return `null` for a communication error, nor throw on 
 
 **Payer reference (optional, 3.4).** When you send a transfer on behalf of one of your own users, put your id of that user in `PayerRef` (`payerRef` in JSON), at most 64 characters: an opaque reference such as your internal user number, never a name, an e-mail or a phone number. It is **write-only**: PayGram stores it with the transfer for its compliance checks (many of your users sending to the same PayGram user), only PayGram's admins see it, and it is never returned in any response or callback, to you included. It is never used as an identity or an authorization, and a request without it works as before. It is part of the request: a resend with the same `Unique` must carry the same `PayerRef`.
 
+**Payer reference on an invoice (optional).** `IssueInvoiceRequest` takes the same optional `PayerRef`: your id of the end user the invoice is for (the customer whose order or account the payment goes to), with the same rules: at most 64 characters, an opaque reference, write-only (never returned in any response or callback, `InvoiceInfo` and `CheckUnique` included), seen only by PayGram's admins, never an identity nor an authorization. An invoice without it works as before.
+
 **Account under review (557, 3.4).** When PayGram's compliance suspends a user's outgoing operations, Withdraw, TransferCredit (and vouchers), PayVoucher and red envelopes answer `OutgoingSuspended` (557): final, nothing moved; do not resend it, with the same key or a new one. The user contacts support. The suspension is a state of the account that lasts until a PayGram admin releases it: retrying never lifts it. Receiving, deposits, swaps and the balance keep working.
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
@@ -327,7 +329,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 
 | `PayGramBotClient` method | API method | Body | Returns |
 |---|---|---|---|
-| `IssueInvoiceAsync(IssueInvoiceRequest)` | `IssueInvoiceV2` | `amt`, `curSym`, `cd` | `ResponseIssueInvoice`, with `payUrl` |
+| `IssueInvoiceAsync(IssueInvoiceRequest)` | `IssueInvoiceV2` | `amt`, `curSym`, `cd`, optional `payerRef` | `ResponseIssueInvoice`, with `payUrl` |
 | `TransferCreditAsync(TransferCreditRequest)` | `TransferCreditV2` | `to` (Telegram id, or null for a voucher), `amt`, `curSym`, `unique`, `cd`, optional `payerRef` | `ResponseTransferCredit`, with `redeemUrl` |
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
