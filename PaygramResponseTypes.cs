@@ -69,5 +69,7 @@ namespace PayGram.Public
 		ResponseAdminFrozenUsers = 55,
 		/// <summary>Admin: one compliance alert by its id (AdminGetComplianceAlert, the admin panel only)</summary>
 		ResponseAdminComplianceAlert = 56,
+		/// <summary>The currencies a payer can pay a payment request with, through an automatic swap (QuotePayInvoice)</summary>
+		ResponsePayQuote = 57,
 	}
 }

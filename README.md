@@ -110,6 +110,7 @@ Every response has the same envelope:
 | 553 | `NotFound` | The user or invoice doesn't exist. Codes that don't exist are limited: after 10 within an hour, every lookup by code (`InvoiceInfo`, `PayVoucher`, `RedeemVoucher`) is refused with 500 for an hour, for all the tokens of the account. Don't retry a code answered 553. |
 | 554 | `NotEnoughFunds` | Your balance is too low. |
 | 557 | `OutgoingSuspended` | The account is under review: its outgoing operations (withdrawals, transfers and vouchers, payments, red envelopes) are suspended. Final: nothing moved, do not resend. Contact support. |
+| 558 | `QuoteChanged` | The rate moved against you between the simulation and the execution: a swap sent with `MinRcv` would give less than that. Nothing moved. Simulate again and, if the new amount is fine, send it with a **new** key. |
 
 The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed: fix the call and send it again with the same key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
 

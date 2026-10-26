@@ -20,5 +20,11 @@
 		/// currencies and the balance keep working
 		/// </summary>
 		OutgoingSuspended = 557,
+		/// <summary>
+		/// The price moved against the caller between the quote and the execution: a payment with an automatic swap would cost
+		/// more than its MaxSourceAmount, or a swap would receive less than its MinReceivedAmount. Nothing was moved. Ask for a new
+		/// quote and, if the user confirms the new amount, send it with a NEW unique key (the parameters changed)
+		/// </summary>
+		QuoteChanged = 558,
 	}
 }

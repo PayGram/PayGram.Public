@@ -1,4 +1,5 @@
 using CurrenciesLib;
+using Newtonsoft.Json;
 
 namespace PayGram.Public.Requests
 {
@@ -20,5 +21,12 @@ namespace PayGram.Public.Requests
 		public string? Cd { get; set; }
 		/// <summary>True to see the preview of the conversion, false to execute it.</summary>
 		public bool Simulate { get; set; }
+		/// <summary>
+		/// Optional, to execute: the least the swap must give in <see cref="CurSymDest"/>, e.g. the amount the simulation showed.
+		/// If the rate got worse and the swap would give less, it is refused with 558 (QuoteChanged) and nothing moves; simulate
+		/// again and send the new amount with a new unique key. Absent: the swap runs at the rate of its moment
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of a call without it is unchanged
+		public decimal? MinRcv { get; set; }
 	}
 }
