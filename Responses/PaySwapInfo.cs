@@ -18,7 +18,11 @@ namespace PayGram.Public.Responses
 		public decimal ReceivedAmount { get; set; }
 		/// <summary>The payer's balance in <see cref="SourceCurrency"/> after the swap</summary>
 		public decimal BalanceSourceAfter { get; set; }
-		/// <summary>What was left over in the currency of the invoice after the payment (the swap rounds up): on the payer's balance</summary>
+		/// <summary>
+		/// The payer's balance in the currency of the invoice right after the payment, read from the payment itself (in the same
+		/// transaction as the swap): what the swap left over (it rounds up, and a minimum may make it buy more). The same meaning
+		/// in the answer, in the replay or settle of a lost answer, and in the payer's callback
+		/// </summary>
 		public decimal Change { get; set; }
 	}
 }

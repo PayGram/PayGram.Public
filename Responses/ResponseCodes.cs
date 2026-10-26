@@ -26,5 +26,11 @@
 		/// quote and, if the user confirms the new amount, send it with a NEW unique key (the parameters changed)
 		/// </summary>
 		QuoteChanged = 558,
+		/// <summary>
+		/// The automatic swap from the chosen currency cannot be done now, for a reason that is not the payer's: the pair was
+		/// disabled, the rate is missing, the amount is outside the limits of a swap, or the platform lacks liquidity in the
+		/// requested currency. Nothing was moved. Propose the next option of the quote (QuotePayInvoice) or try again later
+		/// </summary>
+		SwapUnavailable = 559,
 	}
 }
