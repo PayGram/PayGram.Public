@@ -52,9 +52,7 @@ namespace PayGram.Public.Responses
 		/// <summary>
 		/// The secret seed used to compute SHA-256 HMAC signatures on callback payloads,
 		/// so the client can verify that callbacks originate from PayGram.
-		/// <para>Not returned by the public <c>GetUserInfo</c> of the bot any more (issue PayGram#19, 2026-10-26): there it is
-		/// <see cref="Guid.Empty"/> and left out of the JSON; read your Sign Seed in the bot (Settings → API, and next to the
-		/// callback URL). The PayGram API still returns it to the client that owns the user (the bot shows it from there).</para>
+		/// <para>Returned by <c>GetUserInfo</c> to the account's owner (its own API token). Left out of the JSON only when empty.</para>
 		/// </summary>
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public Guid SignSeed { get; set; }
