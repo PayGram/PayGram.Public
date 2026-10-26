@@ -59,11 +59,15 @@ namespace PayGram.Public
 		ResponseAdminSearch = 50,
 		/// <summary>Admin: the outcome of a ban or unban of a user (AdminSetUserBanned, the admin panel only)</summary>
 		ResponseAdminSetUserBanned = 51,
-		/// <summary>Admin: the compliance alerts of the deposit watch (AdminListComplianceAlerts, the admin panel)</summary>
+		/// <summary>Admin: a page of the compliance alerts of the deposit watch (AdminListComplianceAlerts, the admin panel only)</summary>
 		ResponseAdminComplianceAlerts = 52,
-		/// <summary>Admin: the outcome of an acknowledgement of a compliance alert (AdminAcknowledgeComplianceAlert, the admin panel only)</summary>
+		/// <summary>Admin: the outcome of the close of a compliance alert, with or without the unfreeze of its user (AdminCloseComplianceAlert, the admin panel only)</summary>
 		ResponseAdminComplianceAlertAction = 53,
 		/// <summary>Admin: the outgoing freeze of a user after a change (AdminSetOutgoingFreeze, the admin panel only)</summary>
 		ResponseAdminOutgoingFreeze = 54,
+		/// <summary>Admin: the users whose outgoing operations are frozen, a page of them (AdminListFrozenUsers, the admin panel only)</summary>
+		ResponseAdminFrozenUsers = 55,
+		/// <summary>Admin: one compliance alert by its id (AdminGetComplianceAlert, the admin panel only)</summary>
+		ResponseAdminComplianceAlert = 56,
 	}
 }
