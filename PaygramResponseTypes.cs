@@ -10,6 +10,7 @@ namespace PayGram.Public
 		ResponseTopUp = 7,
 		ResponseTopUpReceived = 8,
 		ResponseTransferCredit = 9,
+		/// <summary>The answer of UpdateWithdraw, removed (a withdraw cannot be cancelled or changed): kept so the value is never reused</summary>
 		ResponseWithdrawUpdated = 10,
 		ResponseUserInfo = 11,
 		ResponseWithdrawAccepted = 12,
