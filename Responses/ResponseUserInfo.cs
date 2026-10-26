@@ -39,8 +39,11 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public int ClientId { get; set; }
 		/// <summary>
-		/// The user's globally unique identifier within the PayGram system.
+		/// Not returned any more (issue PayGram#19, 2026-10-26): always <see cref="Guid.Empty"/> and left out of the JSON. A user's
+		/// PayGram id is internal (an admin's is its AdminKey); identify users by <see cref="UserIdInClient"/> and <see cref="ClientId"/>.
+		/// Kept for the binary compatibility of the consumers.
 		/// </summary>
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public Guid UID { get; set; }
 		/// <summary>
 		/// The URL that PayGram will POST callback notifications to for this user's events.
@@ -49,7 +52,11 @@ namespace PayGram.Public.Responses
 		/// <summary>
 		/// The secret seed used to compute SHA-256 HMAC signatures on callback payloads,
 		/// so the client can verify that callbacks originate from PayGram.
+		/// <para>Not returned by the public <c>GetUserInfo</c> of the bot any more (issue PayGram#19, 2026-10-26): there it is
+		/// <see cref="Guid.Empty"/> and left out of the JSON; read your Sign Seed in the bot (Settings → API, and next to the
+		/// callback URL). The PayGram API still returns it to the client that owns the user (the bot shows it from there).</para>
 		/// </summary>
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public Guid SignSeed { get; set; }
 		public ResponseUserInfo()
 								: base(PaygramResponseTypes.ResponseUserInfo)
