@@ -70,12 +70,13 @@ app.MapPost("/cashouts", async (CreateRequest req) =>
 		Unique = cashoutId,
 		Cd = cashoutId,
 	});
-	// 551: not final. Mostly not confirmed (the answer was lost, or it is still running): it may have gone through, retry with the
-	// same id, never a new one. The one final 551: this id was already used for a different cashout (another amount or currency)
+	// 560: this id was already used for a different cashout (another amount or currency). This call did nothing; the first
+	// cashout with this id may have gone through: look it up (CheckUniqueAsync) before using a new id, never resend this one
+	if (res.ResponseCode == ResponseCodes.UniqueKeyReusedForOtherRequest)
+		return Results.Conflict(new { cashoutId, error = res.Message });
+	// 551: not final (the answer was lost, or it is still running): it may have gone through, retry with the same id, never a new one
 	if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
-		return res.Message?.Contains("already registered for a different request") == true
-			? Results.Conflict(new { cashoutId, error = res.Message })
-			: Results.Accepted(value: new { cashoutId, status = "not final (551): retry with the same id; if it keeps coming for minutes, contact support, never a new id", res.Message });
+		return Results.Accepted(value: new { cashoutId, status = "not final (551): retry with the same id; if it keeps coming for minutes, contact support, never a new id", res.Message });
 	// any other failure: retry with the same id once the cause is fixed, never a new one; a 500 replayed (ReplayedResponse true)
 	// is final: do not resend it, contact support
 	if (res.Success == false)
