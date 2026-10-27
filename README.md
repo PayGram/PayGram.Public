@@ -121,7 +121,19 @@ The library methods never return `null` for a communication error, nor throw on 
 
 **`CheckUniqueAsync` is not a step of a retry**: it only looks a key up and executes nothing. Use it when you no longer want the operation (for example the order was cancelled) and only want to know whether it went through, when you lost the request data and cannot resend it identically, or for an operation sent before version 2.6 (its key is not recognised: look it up by invoice id or callback data) or whose answer was lost with an SDK before 3.3 (see below).
 
-`RedeemVoucherAsync` has no key, but a resend never redeems twice. Before redeeming a code for a customer, look it up with `CheckUniqueAsync`: accept only a voucher not yet redeemed (`Info.IsRedeemed` false), or a red envelope you did not create and have no entry in. After a 551 or no answer, resend it. If the resend fails (any 500), look the code up again. A voucher was redeemed into your account when `Info.IsRedeemed` is true, `Info.ToUser` is your Telegram id and `Info.ToClientId` your client id, and its sender (`Info.FromUser` with `Info.FromClientId`) is there and is not you (that would be a recall). A red envelope (`ResponseRedEnvelopeInvoiceInfo`) when its `Redeemers` have an entry with your Telegram id and client id and you are not its creator (`Info.FromUser`). Right after a 551 it may still be running: if it is not redeemed yet, check again a minute later. Credit a voucher code at most once on your side.
+`RedeemVoucherAsync` has no key, but a resend never redeems twice. Before redeeming a code for a customer, look it up with `CheckUniqueAsync`: accept only a voucher not yet redeemed (`Info.IsRedeemed` false), or a red envelope you did not create and have no entry in. After a 551 or no answer, resend it.
+
+**A resend of a redeem that already went through (3.7).** It stays a refusal (500 `ResponseGenericError`, never a second success: crediting on every success would credit twice), and since 3.7 it tells you what the lost answer said. When the code was already redeemed **by this same user** (for a red envelope: it already took its share), the answer carries `RefusalReason` `AlreadyRedeemedByYou` (`refusalReason` in JSON, one of `RedeemRefusalReasons`) and the original redemption:
+
+| Field | On a success | On `AlreadyRedeemedByYou` |
+|---|---|---|
+| `invoiceCode` | the code redeemed | the same |
+| `transactionId` | the transaction that credited the user (the `transactionId` of that credit in the statement) | the **same** value the original success carried |
+| `redeemedAtUtc` | now | when it was redeemed |
+| `received`, `fees`, `credited`, `newBalance` | what was credited now | 0: nothing was credited now |
+| `originalCredited`, `originalFees`, `originalCurrency` | absent | what the original redemption credited |
+
+So: credit on a success, record its `transactionId`; on `AlreadyRedeemedByYou`, credit `originalCredited` only if you have no credit with that `transactionId` yet (the success was lost), otherwise ignore it. Anyone else who sends a code already redeemed gets the plain "already redeemed" refusal, with no reason and no detail of who redeemed it. The fields are absent on every other answer (`transactionId` also on the rare success whose transaction could not be read back) and an older SDK ignores them; the response code and every field the answer had before are unchanged. The sender of a voucher who took it back, or the creator of a red envelope who closed it, gets the same answer for its own take-back. If a resend fails with anything else (any other 500), look the code up again. A voucher was redeemed into your account when `Info.IsRedeemed` is true, `Info.ToUser` is your Telegram id and `Info.ToClientId` your client id, and its sender (`Info.FromUser` with `Info.FromClientId`) is there and is not you (that would be a recall). A red envelope (`ResponseRedEnvelopeInvoiceInfo`) when its `Redeemers` have an entry with your Telegram id and client id and you are not its creator (`Info.FromUser`). Right after a 551 it may still be running: if it is not redeemed yet, check again a minute later. Credit a voucher code at most once on your side.
 
 **Upgrading to 3.3.**
 - A lost answer of a call that moves money is now 551, not `ResponseGenericError`: resend with the same key, never a new one.
@@ -338,7 +350,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |
-| `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived` |
+| `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived`, with `transactionId` (a resend after a lost answer: `refusalReason` `AlreadyRedeemedByYou`, see section 4) |
 | `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address) |
 | `WithdrawAsync(WithdrawRequest)` | `WithdrawV2` | | `ResponseWithdrawAccepted` |
 | `SwapAsync(SwapRequest)` | `SwapV2` | | `ResponseSwap` |
