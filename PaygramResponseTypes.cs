@@ -71,5 +71,9 @@ namespace PayGram.Public
 		ResponseAdminComplianceAlert = 56,
 		/// <summary>The currencies a payer can pay a payment request with, through an automatic swap (QuotePayInvoice)</summary>
 		ResponsePayQuote = 57,
+		/// <summary>Admin: the blocked withdrawal addresses (R9) and the state of the list (AdminListBlockedAddresses, the admin panel only)</summary>
+		ResponseAdminBlockedAddresses = 58,
+		/// <summary>Admin: the outcome of an add or a remove of a blocked withdrawal address (AdminAddBlockedAddress / AdminRemoveBlockedAddress, the admin panel only)</summary>
+		ResponseAdminBlockedAddressAction = 59,
 	}
 }
