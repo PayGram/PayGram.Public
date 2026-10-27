@@ -1,4 +1,5 @@
 using CurrenciesLib;
+using Newtonsoft.Json;
 
 namespace PayGram.Public.Responses
 {
@@ -93,6 +94,12 @@ namespace PayGram.Public.Responses
 		/// The type of invoice (InternalInvoice, WithdrawInvoice, TopUpInvoice, Swap, Voucher, PaymentRequest, RedEnvInvoice, etc.).
 		/// </summary>
 		public InvoiceTypes InvoiceType { get; set; }
+		/// <summary>
+		/// The swap that funded this payment, in the answer to the payer of a PayInvoice with PayWithCurrency. Null (absent) for
+		/// any other answer
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // absent when null: the wire format of the other answers is unchanged
+		public PaySwapInfo? Swap { get; set; }
 		public ResponseInvoiceInfo()
 				: base(PaygramResponseTypes.ResponseInvoiceInfo)
 		{
