@@ -32,7 +32,7 @@ namespace PayGram.Public.Responses
 		public decimal SpreadSell { get; set; }
 
 		/// <summary>
-		/// True when PayGram has no quote of its own for this pair and computed it by chaining fresh quotes along
+		/// True when PayGram has no fresh quote of its own for this pair and computed it by chaining fresh quotes along
 		/// <see cref="Path"/> (since 3.5): the price is the product of the legs, each spread is compounded as
 		/// <c>1 - Π(1 - spread)</c>, <see cref="UpdatedUTC"/> is the oldest leg. It is the rate a Convert of the pair
 		/// uses at that moment. Left out of the json when false, so the direct quotes are written as before.
@@ -42,7 +42,7 @@ namespace PayGram.Public.Responses
 
 		/// <summary>
 		/// Only for a <see cref="Derived"/> quote: the currencies crossed, from the base currency to
-		/// <see cref="QuoteCurrency"/> included (e.g. USD, USDT, PHPT). Null, and left out of the json, for a direct quote.
+		/// <see cref="QuoteCurrency"/> included (e.g. EUR, USD, USDT; the route depends on the quotes available). Null, and left out of the json, for a direct quote.
 		/// </summary>
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public List<Currencies>? Path { get; set; }
