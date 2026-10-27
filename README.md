@@ -31,6 +31,8 @@ You manage everything from the PayGram bot in Telegram, under **Settings**:
 | **Sign Seed** | Shown with the API token, and in *Set Callback URL* | The key that signs the callbacks PayGram sends you. |
 | **Callback URL** | Settings → *Set Callback URL* | Your HTTPS endpoint. PayGram POSTs your account's events to it. |
 
+Since 2026-10-26 `GetUserInfo` no longer returns `uid` (the PayGram id of the account, internal): the field is left out of its JSON and `ResponseUserInfo.UID` stays `Guid.Empty`. It still returns your `signSeed`.
+
 > ⚠️ **The API token can move the funds of your account.** Keep it on your server only. Never put it in a web page, a mobile app or a git repository. If it leaks, generate a new one from the bot.
 
 ## 2. Install
