@@ -1,4 +1,6 @@
-﻿namespace PayGram.Public.UserAPI
+﻿using Newtonsoft.Json;
+
+namespace PayGram.Public.UserAPI
 {
 	public class UserCallbackBalanceInfo : UserCallBackTransaction
 	{
@@ -19,5 +21,14 @@
 		/// to know whether the id belongs to your user base. Null when <see cref="UserIdInClientFrom"/> is null.
 		/// </summary>
 		public int? FromClientId { get; set; }
+		/// <summary>
+		/// The code (guid) of the invoice this movement belongs to: the same code the statement shows for it
+		/// (<c>StatementEntry.Invoice</c>). For a crypto deposit, the deposit account (deposit invoice) that received it: an
+		/// account receives many deposits, so the code alone does not tell one deposit from another. For a direct transfer, its
+		/// voucher (<see cref="UserCallbackMoneySent.VoucherCode"/>); for a withdrawal, the withdrawal (<see cref="WithdrawInfo.WithdrawId"/>).
+		/// Always set on <see cref="UserCallbackInvoiceInfo"/>. Absent (null) in callbacks stored before 3.9.0. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Guid? InvoiceCode { get; set; }
 	}
 }

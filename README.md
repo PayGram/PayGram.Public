@@ -223,6 +223,22 @@ Every callback about a movement names the **counterpart**, as the integration th
 
 The client id tells you whose user base the id comes from: when it equals your own client id (`clientId` in `GetUserInfo`), the user id is one of your users, for example a Telegram id for users of the PayGram bot; otherwise the user belongs to another PayGram integration and the id lives in that integration's namespace. Use the pair to match payments and cashouts to your own records and to spot anomalies, for example the same payer across many accounts. The counterpart is disclosed only to the two sides of a movement, never to someone who merely holds an invoice code: `InvoiceInfo` returns the parties (`fromUser`, `toUser`, `originatingUser`, each with its `...ClientId`) only to a caller involved in the invoice.
 
+### The invoice code of every movement (3.9)
+
+Every callback that reports money moving carries `invoiceCode`: the code (guid) of the invoice the movement belongs to, the same code `GetStatement` shows for that entry (`invoice.guid` of the `StatementEntry`). It is added, never changed: the field is absent from callbacks stored before 3.9 (and from those that move no money: `reportInfo`, `expiredInfo` has its own `invoiceCode`), and every field a callback had before is unchanged. The signature covers the whole body as received, so it verifies as before.
+
+| Callback | Where | Which code |
+|---|---|---|
+| `InvoiceInfoCredited` / `InvoiceInfoDebited` | `invoiceInfo.invoiceCode` (as before) | the payment request, voucher or red envelope |
+| `MoneySent` | `moneySentInfo.invoiceCode` (new; the same as `voucherCode`) | the voucher of the transfer, or the red envelope created |
+| `BalanceInfo`, direct transfer received | `balanceInfo.invoiceCode` (new) | the voucher of the transfer (the sender's `voucherCode`) |
+| `BalanceInfo`, crypto deposit credited | `balanceInfo.invoiceCode` (new) | the **deposit account** (deposit invoice) that received it, as for a deposit from another PayGram user routed internally |
+| `WithdrawInfo` | `withdrawInfo.invoiceCode` (new; the same as `info.withdrawId` and the `InvoiceCode` of the withdraw answer) | the withdrawal |
+
+A deposit account receives every deposit sent to its address, so its code alone does not tell one deposit from another: deduplicate the callbacks by their `id`, and match a deposit by its amount and time with the statement.
+
+Answers: `SwapAsync` now returns the `InvoiceCode` of the swap (the code of its two statement entries) on a success, and the `swap` of a payment with an automatic swap has its own `invoiceCode` (the swap's, not the paid invoice's). The other answers that move money already carried their code: `InvoiceCode` of `PayInvoice`, `WithdrawAsync` and `CreateRedEnvelope`, `VoucherCode` of `TransferCreditAsync`.
+
 ## 6. Verifying the callback signature
 
 **Always** verify the signature before trusting a callback: your callback URL is public, and anyone can POST to it.
