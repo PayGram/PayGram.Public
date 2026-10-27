@@ -135,6 +135,20 @@ The library methods never return `null` for a communication error, nor throw on 
 
 **Account under review (557, 3.4).** When PayGram's compliance suspends a user's outgoing operations, Withdraw, TransferCredit (and vouchers), PayVoucher and red envelopes answer `OutgoingSuspended` (557): final, nothing moved; do not resend it, with the same key or a new one. The user contacts support. The suspension is a state of the account that lasts until a PayGram admin releases it: retrying never lifts it. Receiving, deposits, swaps and the balance keep working.
 
+**Why a withdraw was refused (`refusalReason`, 3.6).** A withdraw PayGram refuses before debiting anything answers as before, 500 `ResponseGenericError` with an English `Message`, and now also carries `RefusalReason` (`refusalReason` in JSON), a machine-readable tag to branch on instead of matching the message text (which may change). It is a string, one of `WithdrawRefusalReasons`:
+
+| `refusalReason` | Meaning | Extra fields |
+|---|---|---|
+| `AmountBelowMinimum` | The amount is below the minimum for this currency and network. | `minAmount`, `maxAmount` |
+| `AmountAboveMaximum` | The amount is above the maximum for this currency and network. | `minAmount`, `maxAmount` |
+| `AddressNotWhitelisted` | The user has an address whitelist and the destination (address, currency, network) is not in it. | |
+| `OwnDepositAddress` | The destination is the user's own PayGram deposit address: the money is already in the balance. | |
+| `NetworkNotSendable` | PayGram does not send this currency on this network (only USDT and PHPT on TRC20 or BEP20). | |
+| `CurrencyNotAccepted` | The request names no currency PayGram knows: a fault in the request. | |
+| `NoProvider` | No withdraw provider handles this currency and network now: try again later. | |
+
+Nothing was debited. Resending the same request gets the same refusal until its cause changes (a different amount or destination is a different request: use a new key). The field is absent on a success and on every other failure, and an older SDK simply ignores it. Treat a value you do not know, or no value, as a generic refusal and show `Message`. The response code stays 500: nothing else in the answer changed.
+
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
 ## 5. Receiving updates: use the webhook, not polling
