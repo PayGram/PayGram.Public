@@ -348,6 +348,8 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `GetUpdatesAsync()` | `GetUpdates` | | `ResponseGetUpdates` (polling fallback, see [section 5](#5-receiving-updates-use-the-webhook-not-polling)) |
 | `CancelPendingCallbacksAsync()` | `CancelPendingCallbacks` | | development only |
 
+**Exchange rates (3.5).** `ResponseGetExchangeRates.Rates[base][quote]` is the price of one `base` in `quote`, with its spreads and `UpdatedUTC`. Besides the pairs PayGram quotes directly, the answer also lists the pairs it can only compute by chaining fresh quotes (for example USD/PHPT through USDT, and its inverse PHPT/USD): those carry `Derived` true (`derived` in JSON) and `Path`, the currencies crossed from the base to the quote included. A derived price is the product of its legs, each spread is compounded as `1 - Π(1 - spread)`, `UpdatedUTC` is the oldest leg, and it is the rate a `Convert` of that pair uses at that moment. A pair whose leg is missing or expired is simply not listed: no rate is ever invented. Direct quotes are written exactly as before (no `derived`, no `path`), so an older SDK reads the answer unchanged and simply ignores the two fields.
+
 `CurrenciesManager` is a hosted service that keeps the `CurrenciesLib` conversion cache fed with PayGram's rates:
 
 ```csharp
