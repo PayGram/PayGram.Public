@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace PayGram.Public.Responses
@@ -61,18 +60,11 @@ namespace PayGram.Public.Responses
 
 		}
 
-		// a refusal is written as it was before RefusalReason (a plain answer: message, type, code, success) plus the reason and the
-		// limits: none of the zero fields of an accepted withdraw (Newtonsoft's ShouldSerialize convention). Any other answer unchanged
-		[EditorBrowsable(EditorBrowsableState.Never)] public bool ShouldSerializeNewBalance() => RefusalReason == null;
-		[EditorBrowsable(EditorBrowsableState.Never)] public bool ShouldSerializeExpectedFee() => RefusalReason == null;
-		[EditorBrowsable(EditorBrowsableState.Never)] public bool ShouldSerializeWithdrawnAmount() => RefusalReason == null;
-		[EditorBrowsable(EditorBrowsableState.Never)] public bool ShouldSerializeAmountWillReceive() => RefusalReason == null;
-		[EditorBrowsable(EditorBrowsableState.Never)] public bool ShouldSerializeInvoiceCode() => RefusalReason == null;
-
 		/// <summary>
-		/// A withdraw refused before anything was debited, with its reason: the same answer as before the reason existed
-		/// (500 ResponseGenericError, Type Unknown, the English <paramref name="message"/>), plus <see cref="RefusalReason"/> and,
-		/// for the amount limits, <see cref="MinAmount"/> and <see cref="MaxAmount"/>
+		/// A withdraw refused before anything was debited, with its reason: 500 ResponseGenericError, Type Unknown, the English
+		/// <paramref name="message"/>, as before the reason existed, plus <see cref="RefusalReason"/> and, for the amount limits,
+		/// <see cref="MinAmount"/> and <see cref="MaxAmount"/>. The fields of an accepted withdraw are written as their zero values,
+		/// as on every other failed withdraw answer (purely additive)
 		/// </summary>
 		/// <param name="reason">one of <see cref="WithdrawRefusalReasons"/></param>
 		public static ResponseWithdrawAccepted Refused(string reason, string message, decimal? minAmount = null, decimal? maxAmount = null) => new()

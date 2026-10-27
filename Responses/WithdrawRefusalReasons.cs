@@ -18,11 +18,15 @@ namespace PayGram.Public.Responses
 		public const string AddressNotWhitelisted = nameof(AddressNotWhitelisted);
 		/// <summary>The destination is the user's own PayGram deposit address: the money is already in the user's balance</summary>
 		public const string OwnDepositAddress = nameof(OwnDepositAddress);
-		/// <summary>PayGram cannot send this currency on this network (only USDT and PHPT on TRC20 or BEP20 are sent)</summary>
+		/// <summary>
+		/// The method cannot be sent: not a crypto on TRC20 or BEP20, which includes an empty crypto address and a bank (fiat)
+		/// method. Only the network is checked here: another crypto on TRC20 or BEP20 passes and may then get <see cref="NoProvider"/>
+		/// (in practice USDT and PHPT are sent)
+		/// </summary>
 		public const string NetworkNotSendable = nameof(NetworkNotSendable);
 		/// <summary>The request names no currency PayGram knows (a fault in the request, not an outage)</summary>
 		public const string CurrencyNotAccepted = nameof(CurrencyNotAccepted);
-		/// <summary>No withdraw provider handles this currency and network now: try again later</summary>
+		/// <summary>No withdraw provider handles this currency and network now (also a crypto on TRC20 or BEP20 PayGram does not send): try again later</summary>
 		public const string NoProvider = nameof(NoProvider);
 	}
 }
