@@ -425,13 +425,15 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address, permanent per user and token, with `invoiceCode` / `friendlyVoucherCode` of its deposit account; `cd` is kept from the first request only: see section 5) |
 | `WithdrawAsync(WithdrawRequest)` | `WithdrawV2` | | `ResponseWithdrawAccepted` |
 | `SwapAsync(SwapRequest)` | `SwapV2` | | `ResponseSwap` |
-| `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` (each entry carries `balanceAfter`) |
+| `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` (each entry carries `balanceAfter`; no `transactionId`, see below) |
 | `GetExchangeRatesAsync()` | `GetExchangeRates` | | `ResponseGetExchangeRates` |
 | `Convert(src, dest, amount)` | `Convert` | | the converted amount (a quote: nothing is moved) |
 | `GetUpdatesAsync()` | `GetUpdates` | | `ResponseGetUpdates` (polling fallback, see [section 5](#5-receiving-updates-use-the-webhook-not-polling)) |
 | `CancelPendingCallbacksAsync()` | `CancelPendingCallbacks` | | development only |
 
 **Exchange rates (3.5).** `ResponseGetExchangeRates.Rates[base][quote]` is the price of one `base` in `quote`, with its spreads and `UpdatedUTC`. Besides the pairs PayGram quotes directly, the answer also lists the pairs it can only compute by chaining fresh quotes (for example USD/PHPT and its inverse PHPT/USD, when there is no fresh direct quote for them): those carry `Derived` true (`derived` in JSON) and `Path`, the currencies crossed from the base to the quote included. The route depends on the quotes available at that moment: read it from `Path`, never assume one. A derived price is the product of its legs, each spread is compounded as `1 - Π(1 - spread)`, `UpdatedUTC` is the oldest leg, and it is the rate a `Convert` of that pair uses at that moment. A pair whose leg is missing or expired is simply not listed: no rate is ever invented. Direct quotes are written exactly as before (no `derived`, no `path`), so an older SDK reads the answer unchanged and simply ignores the two fields.
+
+**Statement entries without `transactionId` (3.10).** `GetStatementV2` no longer returns `transactionId` in its entries: it was the id of PayGram's internal ledger transaction, internal-only, and nothing should rely on it. The field is left out of the JSON; `StatementEntry.TransactionId` is obsolete, never read from or written to the JSON, and stays `Guid.Empty` (kept so that code reading it still compiles). Identify an entry by `Id` and, when it has one, by its `Invoice` (`guid`, `friendlyVoucherCode`). An older SDK reads the new answer unchanged and `TransactionId` stays `Guid.Empty` there too.
 
 `CurrenciesManager` is a hosted service that keeps the `CurrenciesLib` conversion cache fed with PayGram's rates:
 
