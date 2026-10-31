@@ -435,6 +435,8 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 
 **Statement entries without `transactionId` (3.10).** `GetStatementV2` no longer returns `transactionId` in its entries: it was the id of PayGram's internal ledger transaction, internal-only, and nothing should rely on it. The field is left out of the JSON; `StatementEntry.TransactionId` is obsolete, never read from or written to the JSON, and stays `Guid.Empty` (kept so that code reading it still compiles). Identify an entry by `Id` and, when it has one, by its `Invoice` (`guid`, `friendlyVoucherCode`). An older SDK reads the new answer unchanged and `TransactionId` stays `Guid.Empty` there too.
 
+**CheckUnique for support accounts (2026-10-31).** An account sees only the invoices it is a party of and its own operations, with their codes: unchanged. An account with the bot's CanSeeTransactionInfo permission (PayGram support and moderation) sees every invoice of the client, but not the codes that redeem someone else's open voucher or red envelope (either code redeems it): there `Info.InvoiceCode` is `Guid.Empty`, `Info.FriendlyVoucherCode` is null and `UniqueRequest.InvoiceCode` is null. It still gets them for a payment request, an invoice it issued and a voucher already redeemed. No field added or removed: the SDK reads the answer unchanged.
+
 `CurrenciesManager` is a hosted service that keeps the `CurrenciesLib` conversion cache fed with PayGram's rates:
 
 ```csharp
