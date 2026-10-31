@@ -23,7 +23,7 @@ export function callbackType(cb) {
 
 // The answer of a call that moves money when PayGram's answer is lost or unreadable: it may have gone through. Resend the same
 // request with the same unique key (it runs at most once): never a new key, which could run it twice.
-export const NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
+export const NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): a resend refused with refusalReason AlreadyRedeemedByYou went through the first time: credit its originalCredited only if you have not credited that voucher code yet (from the success or a callback); after any other failure check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2). Credit a voucher code at most once.";
 const notConfirmed = () => ({ responseCode: 551, success: false, message: NOT_CONFIRMED });
 
 export class PayGramClient {
@@ -78,8 +78,8 @@ export class PayGramClient {
   /**
    * Without `to` creates a voucher (cashout): the response carries redeemUrl.
    * `unique` is the idempotency key: retry with the same value and the transfer never happens twice.
-   * Never throws: responseCode 551 means not final (resend with the same key; its message says when the key is already used
-   * for a different request).
+   * Never throws: responseCode 551 means not final (resend with the same key); 560 means the key is already used for a
+   * different request (nothing done by this call: check that one with checkUnique before using a new key).
    */
   transferCredit({ to = null, amount, currency, unique, cd }) {
     return this.#money("TransferCreditV2", { to, amt: amount, curSym: currency, unique, cd });

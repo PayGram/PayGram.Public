@@ -56,5 +56,12 @@ namespace PayGram.Public.Responses
 		/// The invoice associated with this entry, containing its GUID and optional friendly voucher code.
 		/// </summary>
 		public Invoice Invoice { get; set; }
+		/// <summary>
+		/// Deposit entries only (<see cref="StatementEntryType.Deposit"/>, on chain or routed internally from another PayGram
+		/// user): the identifier of this one deposit, the same <c>DepositId</c> as its deposit callback. Absent on every other
+		/// entry. Added in 3.9.0
+		/// </summary>
+		[Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+		public Guid? DepositId { get; set; }
 	}
 }

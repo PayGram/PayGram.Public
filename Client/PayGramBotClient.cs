@@ -45,6 +45,8 @@ namespace PayGram.Public.Client
 			var res = await TransferCreditAsync(new TransferCreditRequest { To = toTid, Amt = amount, CurSym = curSym, Unique = unique, Cd = string.IsNullOrWhiteSpace(callbackData) ? null : callbackData });
 			if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
 				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not final (551), resend it with the same key, never a new one: {res.Message}");
+			else if (res.ResponseCode == ResponseCodes.UniqueKeyReusedForOtherRequest)
+				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not executed (560): the key is already registered for a different request. Check that one with CheckUniqueAsync before sending a new key: {res.Message}");
 			return res.Success;
 		}
 		public async Task<Guid> IssueInvoiceAsync(decimal amount, Currencies curSym, string callBackdata)
@@ -100,7 +102,7 @@ namespace PayGram.Public.Client
 		/// failure: the answer is <see cref="ResponseCodes.ResponseUniqueRequestViolation"/> (551), as for a request still in
 		/// progress. Resend the same request with the same unique key, never a new key, which could run it a second time.
 		/// </summary>
-		public const string NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): if the resend fails, check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2), and credit a voucher code at most once.";
+		public const string NOT_CONFIRMED = "PayGram's answer did not arrive: the operation may have gone through. Resend the same request (with the same unique key, where it has one), never with a new key: a resend never runs it twice. A RedeemVoucher is resent too (it never redeems twice): a resend refused with refusalReason AlreadyRedeemedByYou went through the first time: credit its originalCredited only if you have not credited that voucher code yet (from the success or a callback); after any other failure check with CheckUnique by the voucher code whether it was redeemed into your account (API reference 4.2). Credit a voucher code at most once.";
 
 		/// <summary>
 		/// The answer of an operation that moves money: what PayGram answered (a JSON with its responseCode); a failure of this attempt
@@ -239,8 +241,12 @@ namespace PayGram.Public.Client
 			=> MoneyAnswer<ResponseWithdrawAccepted>(await ExecuteAsync(Token, PayGramHelper.WITHDRAW_V2_METHOD, null, req));
 		/// <summary>
 		/// Redeems a voucher into the authenticated user's balance. It has no key, but a resend never redeems twice: after a 551
-		/// resend it; if the resend fails, check with <see cref="CheckUniqueAsync"/> by the voucher code whether it was redeemed
-		/// into your account, and credit a voucher code at most once (see the API reference, 4.2).
+		/// resend it. A resend refused with <see cref="ResponseTopUpReceived.RefusalReason"/>
+		/// <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/> went through the first time: if you have not credited that
+		/// <see cref="ResponseTopUpReceived.InvoiceCode"/> for this user yet (from the success or a callback), credit
+		/// <see cref="ResponseTopUpReceived.OriginalCredited"/> once, otherwise do not credit it again. Any other failure: check
+		/// with <see cref="CheckUniqueAsync"/> by the voucher code whether it was redeemed into your account. Credit a voucher
+		/// code at most once (see the API reference, 4.2).
 		/// </summary>
 		/// <returns>A <see cref="ResponseTopUpReceived"/>. Does not return null.</returns>
 		public async Task<ResponseTopUpReceived?> RedeemVoucherAsync(RedeemVoucherRequest req)

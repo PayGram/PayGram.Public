@@ -51,9 +51,10 @@ async function createCashout({ amount, currency = "USDT", id }) {
   const cashoutId = String(id);
   // unique is the idempotency key: if the response is lost, retry with the SAME value and the voucher is never funded twice
   const r = await paygram.transferCredit({ to: null, amount, currency, unique: cashoutId, cd: cashoutId });
-  // 551: not final, mostly not confirmed (it may have gone through): retry with the same id. The one final 551: this id was
-  // already used for a different cashout (another amount or currency)
-  if (r.responseCode === 551 && r.message?.includes("already registered for a different request")) return [409, { cashoutId, error: r.message }];
+  // 560: this id was already used for a different cashout (another amount or currency). This call did nothing; the first
+  // cashout with this id may have gone through: look it up (checkUnique) before using a new id, never resend this one
+  if (r.responseCode === 560) return [409, { cashoutId, error: r.message }];
+  // 551: not final (the answer was lost, or it is still running): it may have gone through, retry with the same id
   if (r.responseCode === 551) return [202, { cashoutId, status: "not final (551): retry with the same id; if it keeps coming for minutes, contact support, never a new id", message: r.message }];
   // any other failure: retry with the same id once the cause is fixed, never a new one; a 500 replayed (replayedResponse true)
   // is final: do not resend it, contact support

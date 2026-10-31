@@ -85,8 +85,11 @@ var voucher = await paygram.TransferCreditAsync(new TransferCreditRequest
 if (voucher.Success)
     Console.WriteLine($"Redeem here: {voucher.RedeemUrl} (code {voucher.FriendlyVoucherCode})");
 else if (voucher.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
-    // not final: resend it with the same Unique; only "already registered for a different request" needs a new key
+    // not final: resend it with the same Unique, never a new one
     Console.WriteLine($"Not final (551): {voucher.Message}");
+else if (voucher.ResponseCode == ResponseCodes.UniqueKeyReusedForOtherRequest)
+    // this Unique is already used for a different request: nothing done now; check that one before using a new key
+    Console.WriteLine($"Key already used (560): {voucher.Message}");
 ```
 
 - **Invoice flow.** Your customer opens `PayUrl` in Telegram and pays. A payment request **expires 30 minutes after its creation** (`ExpiresUtc` in the response): after that it is `Expired`, a payment is refused with `ResponseCodes.InvoiceExpired` (555) and you receive an `InvoiceExpired` callback, so create a new one for a customer who comes back later. Your callback URL then receives an `InvoiceInfoCredited` callback, whose `callbackData` is your `Cd`. **Fulfil the order on that callback**, not when the customer comes back to your site.
@@ -107,33 +110,65 @@ Every response has the same envelope:
 | 200 | `ResponseOK` | Done. |
 | 500 | `ResponseGenericError` | Read `Message` (invalid token, invalid parameters…). For an operation with an idempotency key, resend the same request with the same key, never a new key (see **Idempotency** below). With `ReplayedResponse` true it is final: do not resend it, contact support. |
 | 550 | `ResponseServerUpdating` | The server is being updated. Retry in a minute. |
-| 551 | `ResponseUniqueRequestViolation` | Not final: the request with that idempotency key is still running, or its outcome could not be confirmed (it may have gone through). Resend the same request with the same key a few seconds later, never a new key. The only exception: a 551 whose message says the key is already registered for a different request needs a new key. |
+| 551 | `ResponseUniqueRequestViolation` | Not final: the request with that idempotency key is still running, or its outcome could not be confirmed (it may have gone through). Resend the same request with the same key a few seconds later, never a new key. |
 | 552 | `AuthError` | Your token isn't allowed to do this. |
 | 553 | `NotFound` | The user or invoice doesn't exist. Codes that don't exist are limited: after 10 within an hour, every lookup by code (`InvoiceInfo`, `PayVoucher`, `RedeemVoucher`) is refused with 500 for an hour, for all the tokens of the account. Don't retry a code answered 553. |
 | 554 | `NotEnoughFunds` | Your balance is too low. Since 2026-10 also `PayVoucherAsync` (PayVoucherV2) answers 554 when the balance does not cover the invoice (it answered 500 `ResponseGenericError`): if you matched that 500 by its message, match 554. |
 | 557 | `OutgoingSuspended` | The account is under review: its outgoing operations (withdrawals, transfers and vouchers, payments, red envelopes) are suspended. Final: nothing moved, do not resend. Contact support. |
 | 558 | `QuoteChanged` | The rate moved against you between the simulation and the execution: a swap sent with `MinRcv` would give less than that. Nothing moved. Simulate again and, if the new amount is fine, send it with a **new** key. |
 | 559 | `SwapUnavailable` | Internal (the PayGram bot's payment with an automatic swap): the swap from the chosen currency cannot be done now (pair, rate, limits, liquidity). Nothing moved. |
+| 560 | `UniqueKeyReusedForOtherRequest` | The idempotency key is already registered for a **different** request (other parameters, or another operation). This call did nothing; the request first sent with that key is untouched and **may have gone through**. Do not resend this call with the same key (it answers 560 again). Look the key up with `CheckUniqueAsync` first; only if that operation is not the one you want, send yours with a **new** key. Before that release it was a 551 with "already registered for a different request" in its message (see **Upgrading to 3.7**). |
 
 The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed: fix the call and send it again with the same key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
 
-**Every 551 is not final**, whatever its message: resend the same request with the same key (`RedeemVoucherAsync`: see below). The only exception is a 551 whose message says the key is *already registered for a different request*: that one needs a new key. If the same 551 keeps coming for more than a few minutes, stop resending and contact support; never use a new key.
+**Every 551 is not final**, whatever its message: resend the same request with the same key (`RedeemVoucherAsync`: see below). If the same 551 keeps coming for more than a few minutes, stop resending and contact support; never use a new key.
 
 **`CheckUniqueAsync` is not a step of a retry**: it only looks a key up and executes nothing. Use it when you no longer want the operation (for example the order was cancelled) and only want to know whether it went through, when you lost the request data and cannot resend it identically, or for an operation sent before version 2.6 (its key is not recognised: look it up by invoice id or callback data) or whose answer was lost with an SDK before 3.3 (see below).
 
-`RedeemVoucherAsync` has no key, but a resend never redeems twice. Before redeeming a code for a customer, look it up with `CheckUniqueAsync`: accept only a voucher not yet redeemed (`Info.IsRedeemed` false), or a red envelope you did not create and have no entry in. After a 551 or no answer, resend it. If the resend fails (any 500), look the code up again. A voucher was redeemed into your account when `Info.IsRedeemed` is true, `Info.ToUser` is your Telegram id and `Info.ToClientId` your client id, and its sender (`Info.FromUser` with `Info.FromClientId`) is there and is not you (that would be a recall). A red envelope (`ResponseRedEnvelopeInvoiceInfo`) when its `Redeemers` have an entry with your Telegram id and client id and you are not its creator (`Info.FromUser`). Right after a 551 it may still be running: if it is not redeemed yet, check again a minute later. Credit a voucher code at most once on your side.
+`RedeemVoucherAsync` has no key, but a resend never redeems twice. Before redeeming a code for a customer, look it up with `CheckUniqueAsync`: accept only a voucher not yet redeemed (`Info.IsRedeemed` false), or a red envelope you did not create and have no entry in. After a 551 or no answer, resend it.
+
+**A resend of a redeem that already went through (3.8).** It stays a refusal (500 `ResponseGenericError`, never a second success: crediting on every success would credit twice), and since 3.8 it tells you what the lost answer said. When the code was already redeemed **by this same user** (for a red envelope: it already took its share), the answer carries `RefusalReason` `AlreadyRedeemedByYou` (`refusalReason` in JSON, one of `RedeemRefusalReasons`) and the original redemption:
+
+| Field | On a success | On `AlreadyRedeemedByYou` |
+|---|---|---|
+| `invoiceCode` | the code redeemed | the same |
+| `redeemedAtUtc` | now | when it was redeemed |
+| `received`, `fees`, `credited`, `newBalance` | what was credited now | 0: nothing was credited now |
+| `originalCredited`, `originalFees`, `originalCurrency` | absent | what the original redemption credited |
+
+**Deduplicate by code.** Credit a voucher or red envelope code at most once per user on your side, whatever told you about it: a RedeemVoucher success, or a callback. Some credits reach you only as a callback, which carries the same `invoiceCode`: the automatic return of an unclaimed voucher to its sender, the remainder of a red envelope given back to its creator, and every credit if you book them from callbacks. So keep the codes you credited, per user. On a success, credit `credited` if that code is not credited yet. On `AlreadyRedeemedByYou`: if you have not credited that `invoiceCode` for this user yet (its success was lost), credit `originalCredited` once; if you have (from the success or from a callback), do not credit it again. Anyone else who sends a code already redeemed gets the plain "already redeemed" refusal, with no reason and no detail of who redeemed it. The fields are absent on every other answer (`redeemedAtUtc` also on the rare success whose credit could not be read back) and an older SDK ignores them; the response code and every field the answer had before are unchanged. The sender of a voucher who took it back, or the creator of a red envelope who closed it, gets the same answer for its own take-back. If a resend fails with anything else (any other 500), look the code up again with `CheckUniqueAsync`. A voucher was redeemed into your account when `Info.IsRedeemed` is true, `Info.ToUser` is your Telegram id and `Info.ToClientId` your client id, and its sender (`Info.FromUser` with `Info.FromClientId`) is there and is not you (that would be a recall). A red envelope (`ResponseRedEnvelopeInvoiceInfo`) when its `Redeemers` have an entry with your Telegram id and client id and you are not its creator (`Info.FromUser`). Right after a 551 it may still be running: if it is not redeemed yet, check again a minute later. Credit a voucher code at most once on your side.
+
+**Upgrading to 3.7: a key reused for a different request is 560, no longer 551 (contract change).** The server answers it so from the release of 3.7, whatever SDK version you use.
+- Until now an idempotency key sent again with other parameters (another amount, receiver, currency, callback data…) or for another operation was answered 551 `ResponseUniqueRequestViolation`, the code of "not final, resend with the same key", with *already registered for a different request* in its message. It is now answered **560 `UniqueKeyReusedForOtherRequest`**, on every call that takes a `Unique`: `TransferCredit`, `Swap` and `Withdraw`. Nothing else changes: the same request resent with the same key is still replayed or completed, and every other 551 is still "not final, resend with the same key".
+- If you matched the 551 message text, match the code 560 instead. The message stays similar, but don't rely on it.
+- **Never turn "not 551" into "send it with a new key".** A 560 does not mean that nothing happened: the request first sent with that key may have gone through. Look it up with `CheckUniqueAsync` before sending a new key. A common cause is a resend that changed a field, such as a timestamp in `Cd`: a resend must be identical.
+- With an SDK before 3.7, the code arrives as the number 560, which `ResponseCodes` does not name (`Success` is false). It is not a 551, so code that resends every 551 no longer loops on it.
 
 **Upgrading to 3.3.**
 - A lost answer of a call that moves money is now 551, not `ResponseGenericError`: resend with the same key, never a new one.
 - `TransferMoneyAsync` is obsolete (its `bool` cannot say "not confirmed"): use `TransferCreditAsync`. It now sends the key and the callback data in the body, so a value containing `+`, `&`, `#` or `%` reaches PayGram whole, unlike before. A transfer whose answer was lost before 3.3: check it with `CheckUniqueAsync` (or the statement) first, never resend it with a new key. If its key or callback data contained `+`, `&`, `#` or `%`, 3.2 sent them altered: neither a `NotFound` nor a 551 "different request" proves it did not run, and for such a key a resend through 3.3 is a new request too: resend it only if the statement shows it did not go through.
 
-**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. After a 500, a 551 or no answer at all, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The exception is a transfer whose voucher went back to its sender before it reached the receiver: final, the same key only answers it again, a new transfer needs a new key. The same key with other parameters is refused with 551. Never retry with a new key: that would be a second operation. The only 551 that needs a new key is the one whose message says the key is already registered for a different request; a 500 with `ReplayedResponse` true is final: do not resend it, contact support. `CheckUniqueAsync` only looks a key up (see above and the API reference, section 3.4). Keys stay valid when you regenerate your API token.
+**Idempotency.** Every call that moves money (`TransferCredit`, `Swap`, `Withdraw`) takes a `Unique` key, at most 64 characters. Generate the key **before** the call and store it with your operation. After a 500, a 551 or no answer at all, resend the **same** request with the **same** key: the operation runs at most once. You get its answer (`ReplayedResponse` true), or, if it failed without moving money, it runs again. The exception is a transfer whose voucher went back to its sender before it reached the receiver: final, the same key only answers it again, a new transfer needs a new key. The same key with other parameters, or for another operation, is refused with 560 `UniqueKeyReusedForOtherRequest` (nothing done by that call: check the key with `CheckUniqueAsync` before using a new one). Never retry with a new key: that would be a second operation. A 500 with `ReplayedResponse` true is final: do not resend it, contact support. `CheckUniqueAsync` only looks a key up (see above and the API reference, section 3.4). Keys stay valid when you regenerate your API token.
 
 **Payer reference (optional, 3.4).** When you send a transfer on behalf of one of your own users, put your id of that user in `PayerRef` (`payerRef` in JSON), at most 64 characters: an opaque reference such as your internal user number, never a name, an e-mail or a phone number. Leading and trailing blanks are trimmed; a reference with a control character or an invisible one (Unicode format characters: zero-width spaces and joiners, bidi controls, soft hyphen) is refused, nothing sent; references are compared case-insensitively. It is **write-only**: PayGram stores it with the transfer for its compliance checks (many of your users sending to the same PayGram user), only PayGram's admins see it, and it is never returned in any response or callback, to you included. It is never used as an identity or an authorization, and a request without it works as before. It is part of the request: a resend with the same `Unique` must carry the same `PayerRef`.
 
 **Payer reference on an invoice (optional).** `IssueInvoiceRequest` takes the same optional `PayerRef`: your id of the end user the invoice is for (the customer whose order or account the payment goes to), with the same rules: at most 64 characters, an opaque reference, no control or invisible characters (refused, nothing created), write-only (never returned in any response or callback, `InvoiceInfo` and `CheckUnique` included), seen only by PayGram's admins, never an identity nor an authorization. An invoice without it works as before.
 
 **Account under review (557, 3.4).** When PayGram's compliance suspends a user's outgoing operations, Withdraw, TransferCredit (and vouchers), PayVoucher and red envelopes answer `OutgoingSuspended` (557): final, nothing moved; do not resend it, with the same key or a new one. The user contacts support. The suspension is a state of the account that lasts until a PayGram admin releases it: retrying never lifts it. Receiving, deposits, swaps and the balance keep working.
+
+**Why a withdraw was refused (`refusalReason`, 3.6).** A withdraw PayGram refuses before debiting anything answers as before, 500 `ResponseGenericError` with an English `Message`, and now also carries `RefusalReason` (`refusalReason` in JSON), a machine-readable tag to branch on instead of matching the message text (which may change). It is a string, one of `WithdrawRefusalReasons`:
+
+| `refusalReason` | Meaning | Extra fields |
+|---|---|---|
+| `AmountBelowMinimum` | The amount is below the minimum for this currency and network. | `minAmount`, `maxAmount` |
+| `AmountAboveMaximum` | The amount is above the maximum for this currency and network. | `minAmount`, `maxAmount` |
+| `AddressNotWhitelisted` | The user has an address whitelist and the destination (address, currency, network) is not in it. | |
+| `OwnDepositAddress` | The destination is the user's own PayGram deposit address: the money is already in the balance. | |
+| `NetworkNotSendable` | The method cannot be sent: not a crypto on TRC20 or BEP20 (also an empty crypto address, or a bank method). Only the network is checked: another crypto on TRC20 or BEP20 passes this check and may get `NoProvider` (in practice PayGram sends USDT and PHPT). | |
+| `CurrencyNotAccepted` | The request names no currency PayGram knows: a fault in the request. | |
+| `NoProvider` | No withdraw provider handles this currency and network now (also a crypto on TRC20 or BEP20 that PayGram does not send): try again later. | |
+
+Nothing was debited. Resending the same request gets the same refusal until its cause changes (a different amount or destination is a different request: use a new key). The fields are absent on a success and on every other failure, and an older SDK simply ignores them. Treat a value you do not know, or no value, as a generic refusal and show `Message`. Purely additive: the response code stays 500, and every field the answer had before is still there with the same value (`message`, `type`, `responseCode`, `success`, and the zero `newBalance`, `expectedFee`, `withdrawnAmount`, `amountWillReceive`, `invoiceCode` of a failed withdraw).
 
 **Amounts** are decimals. In JavaScript, don't use floating-point arithmetic on balances; use integer minor units or a decimal library.
 
@@ -175,7 +210,7 @@ The body carries the type in `callbackType` (a number; `UserCallbackInfo.Callbac
 | `InvoiceInfoCredited` (2) | `invoiceInfo`, with `transactionAmount > 0` | Money came in on an invoice: one of your invoices was paid, or a voucher you redeemed was credited. `callbackData` is the `Cd` of your invoice. `userIdInClientFrom` + `fromClientId`: who paid (or who sent the voucher). |
 | `InvoiceInfoDebited` (5) | `invoiceInfo`, with `transactionAmount ≤ 0` | Money left on an invoice: you paid an invoice, or a voucher you sent was redeemed. `userIdInClientFrom` + `fromClientId`: whom you paid, or who redeemed. |
 | `MoneySent` (4) | `moneySentInfo` | You sent a transfer or funded a voucher. Includes `voucherCode` and `redeemUrl`; for a direct transfer `userCliToId` + `toClientId`: who received it. |
-| `BalanceInfo` (0) | `balanceInfo` | Your balance changed for another reason, for example you received a direct transfer: `userIdInClientFrom` + `fromClientId` say who sent it. |
+| `BalanceInfo` (0) | `balanceInfo` | Your balance changed for another reason, for example a crypto deposit credited, or you received a direct transfer: `userIdInClientFrom` + `fromClientId` say who sent it. |
 | `WithdrawInfo` (1) | `withdrawInfo` | A withdrawal changed status. Once Completed, `adminResponse.adminResponse` is the transaction hash, or, once PayGram enables internal routing, `internal:<withdrawal id>` (the `InvoiceCode` of the withdraw answer) when the destination was another user's PayGram deposit address: completed inside PayGram, nothing on chain: `adminResponse.networkFee` is 0, but the user is still charged the `Fees` quoted at creation (kept by PayGram, not refunded) and the receiver gets `Amount - Fees`. A withdrawal to the user's own PayGram deposit address is refused, nothing debited. |
 | `ReportReady` (6) | `reportInfo` | A statement export you booked is ready. |
 | `InvoiceExpired` (7) | `expiredInfo` | A payment request you issued expired unpaid (30 minutes after its creation): status `Expired` (10), it cannot be paid any more, no money moved. `callbackData` is the `Cd` of your invoice; issue a new one if the customer still wants to pay. |
@@ -223,6 +258,54 @@ Every callback about a movement names the **counterpart**, as the integration th
 
 The client id tells you whose user base the id comes from: when it equals your own client id (`clientId` in `GetUserInfo`), the user id is one of your users, for example a Telegram id for users of the PayGram bot; otherwise the user belongs to another PayGram integration and the id lives in that integration's namespace. Use the pair to match payments and cashouts to your own records and to spot anomalies, for example the same payer across many accounts. The counterpart is disclosed only to the two sides of a movement, never to someone who merely holds an invoice code: `InvoiceInfo` returns the parties (`fromUser`, `toUser`, `originatingUser`, each with its `...ClientId`) only to a caller involved in the invoice.
 
+### The identifiers of every movement (3.9)
+
+Every answer and callback about money moving carries the identifiers of the movement, so you can record it and recognise it later. They are **added, never changed**: a field is absent (not `null`) when it does not apply and in callbacks or replayed answers stored before 3.9, every field a callback or answer had before is unchanged, and the signature covers the whole body as received, so it verifies as before. PayGram's internal transaction ids are never given.
+
+- `invoiceCode`: the code (guid) of the invoice the movement belongs to, the same code `GetStatement` shows for that entry (`invoice.guid` of the `StatementEntry`).
+- `friendlyVoucherCode`: the 12-character friendly code of the same invoice (`invoice.friendlyVoucherCode` in the statement). Absent for an invoice created before 2023-12-20.
+- `depositId` (crypto deposits only): the identifier of one deposit, the same in its callback and in its statement entry. **Use it to deduplicate deposits.**
+- `txHash` (on-chain crypto deposits only): the hash of the blockchain transaction that paid the deposit address, to check it on a block explorer. It is **not unique per deposit** (one transaction can pay more than one deposit): never use it as a key. A deposit from another PayGram user routed internally has no `txHash` (nothing went on chain).
+
+Callbacks:
+
+| Callback | `invoiceCode` / `friendlyVoucherCode` of | Also |
+|---|---|---|
+| `InvoiceInfoCredited` / `InvoiceInfoDebited` | the payment request, voucher or red envelope (both as before) | `invoiceInfo.swap.invoiceCode` / `.friendlyVoucherCode`: the swap of a payment with an automatic swap (payer only) |
+| `MoneySent` | the voucher of the transfer, or the red envelope created (`invoiceCode` new, the same as `voucherCode`) | |
+| `BalanceInfo`, direct transfer received | the voucher of the transfer (new) | |
+| `BalanceInfo`, crypto deposit credited | the **deposit account** that received it (new) | `depositId`, `txHash` (new) |
+| `BalanceInfo`, deposit from another PayGram user routed internally | the receiver's own deposit account (new; never anything of the sender) | `depositId` (new), no `txHash` |
+| `WithdrawInfo` | the withdrawal (new; `invoiceCode` is the same as `info.withdrawId`) | |
+
+**Removed in 3.9:** `withdrawInfo.info.internalId`, an internal database id, is no longer sent (the `WithdrawInfo.InternalId` property stays in the SDK, obsolete, always 0). Identify a withdrawal by `info.withdrawId` / `invoiceCode` or by `friendlyVoucherCode`.
+
+Answers (new in 3.9 unless marked):
+
+| Call | Fields |
+|---|---|
+| `TransferCreditAsync` | `invoiceCode` (= `voucherCode`), `friendlyVoucherCode` (as before) |
+| `WithdrawAsync` | `invoiceCode` (as before), `friendlyVoucherCode` |
+| `SwapAsync` | `invoiceCode`, `friendlyVoucherCode` of the swap (the code of its two statement entries), on a success and its replay; absent on a simulation and on a failure |
+| `PayInvoice` / `PayVoucherAsync` with an automatic swap | `swap.invoiceCode`, `swap.friendlyVoucherCode` (the swap's own, not the paid invoice's, which stays the answer's `invoiceCode`) |
+| `RedeemVoucherAsync` (voucher or red envelope share) | `friendlyVoucherCode` of the voucher or envelope, on a success |
+| `DepositCreditAsync` | `invoiceCode`, `friendlyVoucherCode` of the deposit account bound to the returned address |
+| `GetStatementAsync` | `depositId` on the deposit entries (`entryType` 1) |
+| `IssueInvoice`, `CreateRedEnvelope` | `invoiceCode`, `friendlyVoucherCode` (as before) |
+
+**How to recognise each movement:**
+
+| Movement | Recognise it by |
+|---|---|
+| Voucher, red envelope, payment request | its `invoiceCode` (or `friendlyVoucherCode`): the same in the answer, the callbacks and the statement |
+| Withdrawal | its `invoiceCode` (= `info.withdrawId`) or `friendlyVoucherCode`, on every status callback |
+| Swap | its `invoiceCode` or `friendlyVoucherCode`, on both statement entries |
+| Crypto deposit | its `depositId` (callback and statement). `invoiceCode` / `friendlyVoucherCode` name the deposit **account**, the same for every deposit to its address; `txHash` is the public on-chain check, not a key |
+| A callback delivered twice | its `id` (each callback has its own; the user's and the client's copy of the same movement have different ids) |
+
+> **Note: DepositCredit and `Cd` (callback data).** The deposit address is **permanent per user** (and token): every later `DepositCreditAsync` for the same token returns the same address, bound to the same deposit account. The `Cd` of the **first** request is kept for every deposit to that address and **cannot be changed**: a later request's `Cd` is ignored. Use `Cd` only to identify the user on your side (for example your user id), never for a single order or payment. To recognise each deposit use `depositId` (and `txHash` for an on-chain one); use `invoiceCode` / `friendlyVoucherCode` for the account. A deposit of another token sent to the same address is credited to the user's account for that token, with its own codes.
+
+> **Note: `RedeemUrl`.** The PayGram API does not build a redeem link for its own integrators, on purpose: it does not depend on Telegram, and the page or app a voucher is redeemed from is the integrator's business (redeem the code with `RedeemVoucher`). `RedeemUrl` (TransferCredit answer, `MoneySent` callback, CreateRedEnvelope answer) is filled only by the PayGram **bot** API, the one this library's `PayGramBotClient` calls, with a Telegram link to the PayGram bot; a direct integrator of the PayGram API gets it empty.
 ## 6. Verifying the callback signature
 
 **Always** verify the signature before trusting a callback: your callback URL is public, and anyone can POST to it.
@@ -338,8 +421,8 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `GetInvoiceInfo(Guid)` | `InvoiceInfo` | query `invguid` | `ResponseInvoiceInfo` |
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |
-| `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived` |
-| `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address) |
+| `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived`, with `invoiceCode`, `friendlyVoucherCode` and `redeemedAtUtc` (a resend after it went through: `refusalReason` `AlreadyRedeemedByYou`; credit a code at most once, see section 4) |
+| `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address, permanent per user and token, with `invoiceCode` / `friendlyVoucherCode` of its deposit account; `cd` is kept from the first request only: see section 5) |
 | `WithdrawAsync(WithdrawRequest)` | `WithdrawV2` | | `ResponseWithdrawAccepted` |
 | `SwapAsync(SwapRequest)` | `SwapV2` | | `ResponseSwap` |
 | `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` (each entry carries `balanceAfter`; no `transactionId`, see below) |

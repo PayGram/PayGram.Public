@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace PayGram.Public.Responses
 {
 	/// <summary>
@@ -22,6 +24,18 @@ namespace PayGram.Public.Responses
 		/// The user's balance in the destination currency after the swap.
 		/// </summary>
 		public decimal BalanceDestAfter { get; set; }
+		/// <summary>
+		/// The code (guid) of the swap: the invoice its two statement entries (the sale and the purchase) show. On a success (and its
+		/// replay); absent on a simulation and on a failure. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Guid? InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code (12 characters) of the swap, with <see cref="InvoiceCode"/>: the one its two statement entries show.
+		/// Absent when <see cref="InvoiceCode"/> is. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
 		public ResponseSwap() : base(PaygramResponseTypes.ResponseSwap)
 		{
 

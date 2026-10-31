@@ -36,6 +36,13 @@
 		/// </summary>
 		public Guid VoucherCode { get; set; }
 		/// <summary>
+		/// The same code as <see cref="VoucherCode"/>, under the name every other answer and callback uses for it (the MoneySent
+		/// callback's <c>InvoiceCode</c>, the statement's <c>Invoice</c>). Absent when there is no voucher (a failure). Also in
+		/// the replay of an answer stored before 3.9.0. Added in 3.9.0
+		/// </summary>
+		[Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+		public Guid? InvoiceCode => VoucherCode == Guid.Empty ? null : VoucherCode;
+		/// <summary>
 		/// A human-readable code for the voucher (e.g. "ABC-1234"), easier to share than the GUID.
 		/// </summary>
 		public string FriendlyVoucherCode { get; set; }
@@ -43,6 +50,9 @@
 		/// When the transfer happened directly between two users, this is null.
 		/// If the user has created a voucher (no recipient specified), this is the URL the recipient can visit to redeem it.
 		/// For Telegram clients, this is a t.me deep link.
+		/// Filled only by the PayGram bot API (the one <see cref="PayGram.Public.Client.PayGramBotClient"/> calls), with a link to
+		/// the PayGram Telegram bot. The PayGram API leaves it empty for its own integrators on purpose: it does not depend on
+		/// Telegram, and where a voucher is redeemed from is the integrator's business (redeem the code with RedeemVoucher).
 		/// </summary>
 		public string? RedeemUrl { get; set; }
 		/// <summary>
