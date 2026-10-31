@@ -12,32 +12,25 @@ namespace PayGram.Public.Responses
 	{
 		/// <summary>
 		/// The unique GUID identifying this invoice. Used to look up or reference the invoice across the system.
-		/// Written <c>null</c> in JSON when <see cref="CodesWithheld"/> (CheckUnique to a support account, someone else's open voucher);
-		/// <see cref="Guid.Empty"/> when a <c>null</c> is read.
+		/// Written <c>null</c> in JSON when the codes are withheld (<see cref="CodesWithheld"/>: CheckUnique answering a support account
+		/// about someone else's open voucher); a <c>null</c> read gives <see cref="WithheldInvoiceCode"/>. Any other value is written
+		/// and read exactly as a plain <see cref="Guid"/>.
 		/// </summary>
-		[JsonIgnore]
+		[JsonConverter(typeof(WithheldInvoiceCodeConverter))]
 		public Guid InvoiceCode { get; set; }
 		/// <summary>
-		/// <see cref="InvoiceCode"/> as it is written and read in JSON, under its name: the same guid, or <c>null</c> when the codes are
-		/// withheld. Not public: the property everyone reads stays a <see cref="Guid"/> (a nullable one would not compile in the callers)
+		/// The <see cref="InvoiceCode"/> of an invoice whose codes are withheld from the caller, written <c>null</c> in JSON. No invoice
+		/// has it: it redeems and finds nothing
 		/// </summary>
-		[JsonProperty(nameof(InvoiceCode))]
-		// the default of the Guid it stands for: a format that leaves default values out (PublicJson, the stored json) leaves out
-		// an empty code as before, never a withheld one
-		[System.ComponentModel.DefaultValue(typeof(Guid), "00000000-0000-0000-0000-000000000000")]
-		protected Guid? InvoiceCodeInJson
-		{
-			get => CodesWithheld ? null : InvoiceCode;
-			set { InvoiceCode = value ?? Guid.Empty; CodesWithheld = value == null; }
-		}
+		public static readonly Guid WithheldInvoiceCode = new("ffffffff-ffff-ffff-ffff-ffffffffffff");
 		/// <summary>
 		/// True when the codes that redeem this invoice are withheld from the caller (CheckUnique answering an account with the
 		/// CanSeeTransactionInfo permission about someone else's open voucher or red envelope, TelegramBotServer#66):
-		/// <see cref="InvoiceCode"/> is then written <c>null</c> (and is <see cref="Guid.Empty"/> in memory) and
-		/// <see cref="FriendlyVoucherCode"/> is null. Not written in JSON: a <c>null</c> invoiceCode read back sets it.
+		/// <see cref="InvoiceCode"/> is then <see cref="WithheldInvoiceCode"/>, written <c>null</c>, and <see cref="FriendlyVoucherCode"/>
+		/// is null. Not written in JSON
 		/// </summary>
 		[JsonIgnore]
-		public bool CodesWithheld { get; set; }
+		public bool CodesWithheld => InvoiceCode == WithheldInvoiceCode;
 		/// <summary>
 		/// A human-readable code for the invoice/voucher (e.g. "ABC-1234"), easier to share than the GUID.
 		/// </summary>
@@ -145,5 +138,21 @@ namespace PayGram.Public.Responses
 		{
 
 		}
+	}
+
+	/// <summary>
+	/// <see cref="ResponseInvoiceInfo.InvoiceCode"/> in JSON: <see cref="ResponseInvoiceInfo.WithheldInvoiceCode"/> is written <c>null</c>
+	/// and a <c>null</c> is read as it; every other guid is written and read as the serializer does without a converter
+	/// </summary>
+	public sealed class WithheldInvoiceCodeConverter : JsonConverter<Guid>
+	{
+		public override void WriteJson(JsonWriter writer, Guid value, JsonSerializer serializer)
+		{
+			if (value == ResponseInvoiceInfo.WithheldInvoiceCode) writer.WriteNull();
+			else writer.WriteValue(value);
+		}
+
+		public override Guid ReadJson(JsonReader reader, Type objectType, Guid existingValue, bool hasExistingValue, JsonSerializer serializer)
+			=> reader.TokenType == JsonToken.Null ? ResponseInvoiceInfo.WithheldInvoiceCode : serializer.Deserialize<Guid>(reader);
 	}
 }

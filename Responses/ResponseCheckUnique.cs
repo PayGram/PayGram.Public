@@ -60,7 +60,7 @@ namespace PayGram.Public.Responses
 	/// unique key, when the query is one. An integrator sees the invoices it is a party of (by callback data only the ones it
 	/// created, the callback data being its own) and its own operations; an account with the CanSeeTransactionInfo permission
 	/// (support) sees every one of the client, but not the codes that redeem someone else's open voucher or red envelope: for those,
-	/// <c>invoiceCode</c> is written <c>null</c> (read as <see cref="Guid.Empty"/> with <see cref="ResponseInvoiceInfo.CodesWithheld"/>
+	/// <c>invoiceCode</c> is written <c>null</c> (read as <see cref="ResponseInvoiceInfo.WithheldInvoiceCode"/>, <see cref="ResponseInvoiceInfo.CodesWithheld"/>
 	/// true) and <see cref="ResponseInvoiceInfo.FriendlyVoucherCode"/> is null (since 2026-10-31). The codes are given for a payment request, an invoice the account issued, a voucher already
 	/// redeemed (a red envelope: closed), and a withdrawal, a deposit or a swap. For such an account
 	/// <see cref="CheckedUniqueRequest.InvoiceCode"/> is null whenever the produced invoice is not listed with its codes (e.g. a
