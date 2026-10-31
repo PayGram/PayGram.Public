@@ -48,9 +48,10 @@ namespace PayGram.Public.Responses
 		public DateTime? CreatedUtc { get; set; }
 		public DateTime? LastUpdateUtc { get; set; }
 		/// <summary>The voucher or invoice the operation produced, also listed in Invoices: when it succeeded, or when it is Processing with its money moved.
-		/// Null for a support account when it is someone else's open voucher (see <see cref="ResponseCheckUnique"/>)</summary>
+		/// Null for a support account when it is not listed with its codes: someone else's open voucher, or an invoice not listed (see <see cref="ResponseCheckUnique"/>)</summary>
 		public Guid? InvoiceCode { get; set; }
-		/// <summary>What to know about the state: the message the operation answered with when it failed, what is pending when it is Processing</summary>
+		/// <summary>What to know about the state: the message the operation answered with when it failed, what is pending when it is Processing.
+		/// For a support account, an invoice id in it that is not listed with its codes reads "[withheld]" (see <see cref="ResponseCheckUnique"/>)</summary>
 		public string? Message { get; set; }
 	}
 
@@ -59,9 +60,12 @@ namespace PayGram.Public.Responses
 	/// unique key, when the query is one. An integrator sees the invoices it is a party of (by callback data only the ones it
 	/// created, the callback data being its own) and its own operations; an account with the CanSeeTransactionInfo permission
 	/// (support) sees every one of the client, but not the codes that redeem someone else's open voucher or red envelope: for those,
-	/// <see cref="ResponseInvoiceInfo.InvoiceCode"/> is <see cref="Guid.Empty"/>, <see cref="ResponseInvoiceInfo.FriendlyVoucherCode"/>
-	/// is null and <see cref="CheckedUniqueRequest.InvoiceCode"/> is null (since 2026-10-31). The codes are given for a payment
-	/// request, an invoice the account issued, and a voucher already redeemed. Success with an empty list means nothing matched.
+	/// <see cref="ResponseInvoiceInfo.InvoiceCode"/> is <see cref="Guid.Empty"/> and <see cref="ResponseInvoiceInfo.FriendlyVoucherCode"/>
+	/// is null (since 2026-10-31). The codes are given for a payment request, an invoice the account issued, a voucher already
+	/// redeemed (a red envelope: closed), and a withdrawal, a deposit or a swap. For such an account
+	/// <see cref="CheckedUniqueRequest.InvoiceCode"/> is null whenever the produced invoice is not listed with its codes (e.g. a
+	/// swap, never listed), and every invoice id in <see cref="CheckedUniqueRequest.Message"/> not listed with its codes is replaced
+	/// by "[withheld]". Success with an empty list means nothing matched.
 	/// </summary>
 	public class ResponseCheckUnique : PaygramResponse
 	{
