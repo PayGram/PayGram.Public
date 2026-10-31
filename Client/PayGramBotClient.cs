@@ -143,7 +143,7 @@ namespace PayGram.Public.Client
 		/// <summary>
 		/// The HTTP statuses PayGram's API answers before a call runs (an invalid body, a wrong url or method, a body too large or
 		/// of another type; 401 since 3.12: two different tokens in the Authorization header and the url, or more than one
-		/// Authorization header): this attempt was not executed. Any other status says nothing about it
+		/// Bearer value; a header of another scheme is ignored): this attempt was not executed. Any other status says nothing about it
 		/// </summary>
 		static readonly HashSet<int> REFUSED_BEFORE_RUNNING = new() { 400, 401, 404, 405, 413, 415 };
 
