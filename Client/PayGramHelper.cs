@@ -4,7 +4,10 @@
 	{
 		/// <summary>The production endpoint of the PayGram users api. Pass another base url to the PayGramBotClient constructor to use a different server.</summary>
 		public const string PAYGRAM_BOT_API_URL = "https://pubapi.paygr.am/PayGramUsers/";
+		/// <summary>Deprecated: the token in the url path ({0} token, {1} method, {2} query). Send the token in "Authorization: Bearer" on <see cref="PAYGRAM_BOT_API_URL"/> + method instead</summary>
 		public const string PAYGRAM_BOT_ENDPOINT = PAYGRAM_BOT_API_URL + "{0}/{1}/{2}";
+		/// <summary>The scheme of the Authorization header that carries the API token: "Authorization: Bearer {token}"</summary>
+		public const string AUTHORIZATION_SCHEME = "Bearer";
 		public const string TRANSFER_METHOD = "TransferCredit";
 		public const string TRANSFER_V2_METHOD = "TransferCreditV2";
 		public const string DEPOSIT_METHOD = "DepositCredit";

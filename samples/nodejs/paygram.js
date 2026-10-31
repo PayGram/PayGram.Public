@@ -32,10 +32,11 @@ export class PayGramClient {
     this.apiUrl = apiUrl.replace(/\/+$/, "") + "/";
   }
 
+  // the token goes in the Authorization header, never in the url (the token in the path is deprecated)
   #post(method, body) {
-    return fetch(`${this.apiUrl}${this.apiToken}/${method}`, {
+    return fetch(`${this.apiUrl}${method}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this.apiToken}` },
       body: JSON.stringify(body ?? {}),
     });
   }
@@ -52,14 +53,14 @@ export class PayGramClient {
     return json;
   }
 
-  // a call that moves money: never throws. PayGram refused it before it ran (400, 404, 405, 413, 415): this attempt was not
+  // a call that moves money: never throws. PayGram refused it before it ran (400, 401, 404, 405, 413, 415): this attempt was not
   // executed (fix the call and send it again with the same key). Anything else (no answer, a 5xx, any other 4xx,
   // which may come from a proxy on the resend of a call that ran, an answer that is not PayGram's) is 551 NOT_CONFIRMED
   async #money(method, body) {
     let res;
     try { res = await this.#post(method, body); } catch { return notConfirmed(); }
     if (!res.ok) {
-      if ([400, 404, 405, 413, 415].includes(res.status))
+      if ([400, 401, 404, 405, 413, 415].includes(res.status))
         return { responseCode: 500, success: false, message: `PayGram refused this call (HTTP ${res.status}): this attempt was not executed: fix the call and send it again with the same key.` };
       return notConfirmed();
     }

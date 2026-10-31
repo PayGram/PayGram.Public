@@ -18,7 +18,18 @@ namespace PayGram.Public.Client
 		/// <summary>The base url of the users api, ending with a slash. Defaults to <see cref="PayGramHelper.PAYGRAM_BOT_API_URL"/>.</summary>
 		public string ApiUrl { get; }
 
-		/// <param name="token">The api token generated in the bot (Settings, Generate API Token)</param>
+		/// <summary>
+		/// False (the default since 3.12): the token is sent in the header <c>Authorization: Bearer &lt;token&gt;</c> and the url is
+		/// <c>{ApiUrl}{Method}/</c>, so it never appears in a url (and in the logs of the servers and proxies on the way). True: the
+		/// former form, the token in the url path (<c>{ApiUrl}{token}/{Method}/</c>), deprecated by PayGram (its answers carry a
+		/// <c>Deprecation</c> header) and to be switched off at a date that will be announced: only for a server that does not take
+		/// the header yet.
+		/// </summary>
+		[Obsolete("The token in the url path is deprecated: leave this false (the default), the token goes in the Authorization header.")]
+		public bool SendTokenInPath { get; set; }
+
+		/// <param name="token">The api token generated in the bot (Settings, Generate API Token): sent in the header
+		/// "Authorization: Bearer" of every call, never in the url (see <see cref="SendTokenInPath"/>)</param>
 		/// <param name="apiUrl">The base url of the users api, null for the production server</param>
 		public PayGramBotClient(string token, string? apiUrl = null)
 		{
@@ -131,9 +142,10 @@ namespace PayGram.Public.Client
 
 		/// <summary>
 		/// The HTTP statuses PayGram's API answers before a call runs (an invalid body, a wrong url or method, a body too large or
-		/// of another type): this attempt was not executed. Any other status says nothing about it
+		/// of another type; 401 since 3.12: two different tokens in the Authorization header and the url, or more than one
+		/// Authorization header): this attempt was not executed. Any other status says nothing about it
 		/// </summary>
-		static readonly HashSet<int> REFUSED_BEFORE_RUNNING = new() { 400, 404, 405, 413, 415 };
+		static readonly HashSet<int> REFUSED_BEFORE_RUNNING = new() { 400, 401, 404, 405, 413, 415 };
 
 		/// <summary>
 		/// The answer of a call that moves no money: what PayGram answered (a JSON with its responseCode), or <paramref name="failed"/>
@@ -304,10 +316,14 @@ namespace PayGram.Public.Client
 			if (otherParams != "" && otherParams.StartsWith("?") == false)
 				otherParams = $"?{otherParams}";
 
-			string url = $"{ApiUrl}{token}/{method}/{otherParams}";
+#pragma warning disable CS0618 // the deprecated path form stays available
+			bool inPath = SendTokenInPath;
+#pragma warning restore CS0618
+			// the token in the Authorization header (3.12): the url carries no secret. The path form only when asked for
+			string url = inPath ? $"{ApiUrl}{token}/{method}/{otherParams}" : $"{ApiUrl}{method}/{otherParams}";
 			// the API token moves funds: never written in a log
 			// the token is masked like in the PayGram logs: its last 4 characters
-			string logUrl = $"{ApiUrl}{(string.IsNullOrEmpty(token) ? "-" : token.Length < 12 ? "…" : "…" + token[^4..])}/{method}/{otherParams}";
+			string logUrl = inPath ? $"{ApiUrl}{(string.IsNullOrEmpty(token) ? "-" : token.Length < 12 ? "…" : "…" + token[^4..])}/{method}/{otherParams}" : url;
 
 			string reqContent = request != null ? JsonConvert.SerializeObject(request) : "{}";
 
@@ -315,6 +331,10 @@ namespace PayGram.Public.Client
 
 			using (HttpRequestMessage m = new(HttpMethod.Post, url))
 			{
+				// per request, never on the shared HttpClient: every PayGramBotClient has its own token. Without a token no header:
+				// PayGram answers 552 (AuthError) as for an unknown token
+				if (inPath == false && string.IsNullOrEmpty(token) == false)
+					m.Headers.TryAddWithoutValidation("Authorization", PayGramHelper.AUTHORIZATION_SCHEME + " " + token);
 				using (HttpContent cont = new StringContent(reqContent, Encoding.UTF8, "application/json"))
 				{
 					m.Content = cont;

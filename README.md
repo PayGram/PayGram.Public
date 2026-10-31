@@ -27,13 +27,15 @@ You manage everything from the PayGram bot in Telegram, under **Settings**:
 
 | What | Where | Used for |
 |---|---|---|
-| **API Token** | Settings → *Generate API Token* | Authenticates every API call. It is part of the request URL. |
+| **API Token** | Settings → *Generate API Token* | Authenticates every API call, sent in the header `Authorization: Bearer <token>` (never in the URL). |
 | **Sign Seed** | Shown with the API token, and in *Set Callback URL* | The key that signs the callbacks PayGram sends you. |
 | **Callback URL** | Settings → *Set Callback URL* | Your HTTPS endpoint. PayGram POSTs your account's events to it. |
 
 Since 2026-10-26 `GetUserInfo` no longer returns `uid` (the PayGram id of the account, internal): the field is left out of its JSON and `ResponseUserInfo.UID` stays `Guid.Empty`. It still returns your `signSeed`.
 
 > ⚠️ **The API token can move the funds of your account.** Keep it on your server only. Never put it in a web page, a mobile app or a git repository. If it leaks, generate a new one from the bot.
+
+**The token in the header (3.12, 2026-11).** The SDK sends the token in `Authorization: Bearer <token>` on `{base}{Method}`: the URL carries no secret, so the token no longer ends up in the logs of the web servers and proxies on the way. Nothing to change in your code: upgrade the library. The former form, the token in the URL path (`{base}{token}/{Method}`), is **deprecated** by PayGram: it still works for now (its answers carry a `Deprecation` header) and the date it stops working will be announced. Older SDKs use it: upgrade before that date. `PayGramBotClient.SendTokenInPath = true` (obsolete) keeps the old form for a server that does not take the header yet. A request with two different tokens in the header and in the URL is refused with HTTP 401, nothing executed (the SDK never sends both). New tokens are 43 characters (base64url, 256 random bits); the 256-character tokens generated before keep working: no need to regenerate them. Treat the token as an opaque string.
 
 ## 2. Install
 
@@ -119,7 +121,7 @@ Every response has the same envelope:
 | 559 | `SwapUnavailable` | Internal (the PayGram bot's payment with an automatic swap): the swap from the chosen currency cannot be done now (pair, rate, limits, liquidity). Nothing moved. |
 | 560 | `UniqueKeyReusedForOtherRequest` | The idempotency key is already registered for a **different** request (other parameters, or another operation). This call did nothing; the request first sent with that key is untouched and **may have gone through**. Do not resend this call with the same key (it answers 560 again). Look the key up with `CheckUniqueAsync` first; only if that operation is not the one you want, send yours with a **new** key. Before that release it was a 551 with "already registered for a different request" in its message (see **Upgrading to 3.7**). |
 
-The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed: fix the call and send it again with the same key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
+The library methods never return `null` for a communication error, nor throw on an answer they cannot read. For a call that moves money (`TransferCreditAsync`, `SwapAsync`, `WithdrawAsync`, `PayVoucherAsync`, `RedeemVoucherAsync`) a lost or unreadable answer is 551: the operation may have gone through, resend the same request with the same key (`RedeemVoucherAsync` has no key: resend the same request, see below). Only an HTTP 400, 401, 404, 405, 413 or 415 means PayGram refused the call before it ran (`ResponseGenericError`): that attempt was not executed: fix the call and send it again with the same key. For the other calls a lost or unreadable answer is `ResponseGenericError`. Always check `Success`.
 
 **Every 551 is not final**, whatever its message: resend the same request with the same key (`RedeemVoucherAsync`: see below). If the same 551 keeps coming for more than a few minutes, stop resending and contact support; never use a new key.
 
@@ -198,6 +200,7 @@ Push and polling read **the same queue**: an event delivered by one isn't return
 - **Events arrive in order.** While an event of your account is failing, the later ones wait behind it. A broken endpoint delays all your notifications, so monitor it.
 - **Delivery is at least once.** The same event can arrive twice, for example when your 200 was lost. Every callback has an `id`: store the ids you've processed and ignore duplicates. Still answer them with 200.
 - **Answer quickly.** Verify the signature, store the event, reply 200, then do the slow work, such as emails or fulfilment, in the background.
+- **Source IP.** Callbacks come from `94.23.121.193` (IPv4 only: your callback URL must be reachable over IPv4). If your endpoint is behind an allow-list, allow it. The address can change if the service moves to another server: a change will be announced in advance. An allow-list does not replace the signature check.
 
 `CancelPendingCallbacksAsync()` drops every pending push, for example after a misconfigured URL piled up a backlog. It's meant for development: in production you would lose payment notifications.
 
@@ -412,7 +415,7 @@ In production, use your own HTTPS domain. If the endpoint was unreachable for a 
 
 ## 8. API reference
 
-The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every call is `POST {base}{apiToken}/{Method}` with a JSON body. Request field names are case-insensitive. Enums can be sent as names (`"USDT"`) or numbers. Responses are camelCase, with enums as numbers.
+The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every call is `POST {base}{Method}` with a JSON body and the header `Authorization: Bearer {apiToken}` (the former `POST {base}{apiToken}/{Method}` is deprecated, see section 1). Request field names are case-insensitive. Enums can be sent as names (`"USDT"`) or numbers. Responses are camelCase, with enums as numbers.
 
 | `PayGramBotClient` method | API method | Body | Returns |
 |---|---|---|---|
