@@ -12,8 +12,18 @@ namespace PayGram.Public.Responses
 	{
 		/// <summary>
 		/// The unique GUID identifying this invoice. Used to look up or reference the invoice across the system.
+		/// The all-zero guid (<see cref="Guid.Empty"/>) in a successful answer means the code is withheld (<see cref="CodesWithheld"/>):
+		/// CheckUnique answering a support account about someone else's open voucher. Redeeming it only answers "not found".
 		/// </summary>
 		public Guid InvoiceCode { get; set; }
+		/// <summary>
+		/// True when the codes that redeem this invoice are withheld from the caller (CheckUnique answering an account with the
+		/// CanSeeTransactionInfo permission about someone else's open voucher or red envelope, TelegramBotServer#66): a successful
+		/// answer whose <see cref="InvoiceCode"/> is the all-zero guid (<see cref="FriendlyVoucherCode"/> is then null too). Computed,
+		/// never written in JSON. False on a failed answer, which carries no invoice
+		/// </summary>
+		[JsonIgnore]
+		public bool CodesWithheld => Success && InvoiceCode == Guid.Empty;
 		/// <summary>
 		/// A human-readable code for the invoice/voucher (e.g. "ABC-1234"), easier to share than the GUID.
 		/// </summary>
