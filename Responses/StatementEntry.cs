@@ -1,4 +1,5 @@
 ﻿using CurrenciesLib;
+using Newtonsoft.Json;
 
 namespace PayGram.Public.Responses
 {
@@ -12,8 +13,12 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		public long Id { get; set; }
 		/// <summary>
-		/// The ID of the underlying transaction that produced this entry.
+		/// Not returned any more (3.10.0): always <see cref="Guid.Empty"/> and never written to or read from the JSON. It was the
+		/// id of PayGram's internal ledger transaction, which is internal-only; identify an entry by <see cref="Id"/> and, when it
+		/// has one, by its <see cref="Invoice"/>. Kept so that code reading it still compiles.
 		/// </summary>
+		[Obsolete("Not returned any more (PayGram.Public 3.10.0): always Guid.Empty. Identify an entry by Id and Invoice.")]
+		[JsonIgnore]
 		public Guid TransactionId { get; set; }
 		/// <summary>
 		/// The UTC timestamp when the transaction was executed (settled).
