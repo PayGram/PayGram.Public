@@ -1,10 +1,14 @@
 using CurrenciesLib;
+using Newtonsoft.Json;
 
 namespace PayGram.Public.Responses
 {
 	/// <summary>
 	/// Returned by <c>RedeemVoucher</c> / <c>RedeemVoucherV2</c> when a voucher or red envelope is successfully redeemed.
 	/// Contains the amount credited to the user's balance after fees.
+	/// A resend by the user who already redeemed the code stays a refusal (500), never a second success, and carries
+	/// <see cref="RefusalReason"/> <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/> with the code, date and amounts of
+	/// that original redemption (3.8.0): see <see cref="RedeemRefusalReasons"/>.
 	/// </summary>
 	public class ResponseTopUpReceived : PaygramResponse
 	{
@@ -30,6 +34,41 @@ namespace PayGram.Public.Responses
 		/// The user's balance in <see cref="CurrencyCode"/> after the redemption has been applied.
 		/// </summary>
 		public decimal NewBalance { get; set; }
+
+		/// <summary>
+		/// The code (guid) of the voucher or red envelope that was redeemed: the key to deduplicate credits, the same code the
+		/// callbacks carry. Credit a code at most once per user, whatever told you (an answer or a callback). On a success and
+		/// on a refusal <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/>; absent otherwise. Added in 3.8.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Guid? InvoiceCode { get; set; }
+		/// <summary>
+		/// When the redeemer was credited, UTC: on a success now, on a refusal <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/>
+		/// the time of the original redemption. Absent on every other answer, and (rarely) on a success whose credit could not be
+		/// read back. Added in 3.8.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public DateTime? RedeemedAtUtc { get; set; }
+
+		/// <summary>
+		/// Only on a refusal (Success false): why the redeem was refused, one of <see cref="RedeemRefusalReasons"/>. Absent on a
+		/// success and on every other failure. A string: treat an unknown value like an absent one. Added in 3.8.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? RefusalReason { get; set; }
+		/// <summary>
+		/// With <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/>: the net amount credited by the original redemption (its
+		/// <see cref="Credited"/>). <see cref="Received"/>, <see cref="Fees"/> and <see cref="Credited"/> stay 0 on a refusal:
+		/// nothing was credited now. Added in 3.8.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public decimal? OriginalCredited { get; set; }
+		/// <summary>With <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/>: the fees of the original redemption. Added in 3.8.0</summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public decimal? OriginalFees { get; set; }
+		/// <summary>With <see cref="RedeemRefusalReasons.AlreadyRedeemedByYou"/>: the currency of the original redemption. Added in 3.8.0</summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Currencies? OriginalCurrency { get; set; }
 
 		public ResponseTopUpReceived()
 							: base(PaygramResponseTypes.ResponseTopUpReceived)
