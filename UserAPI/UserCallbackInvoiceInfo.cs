@@ -5,8 +5,24 @@ namespace PayGram.Public.UserAPI
 {
 	public class UserCallbackInvoiceInfo : UserCallbackBalanceInfo
 	{
-		public string? FriendlyVoucherCode { get; set; }
-		public Guid InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code of the invoice. The same value as <see cref="UserCallbackBalanceInfo.FriendlyVoucherCode"/> (it is
+		/// stored there); kept here, written even when null, so that this callback's body does not change
+		/// </summary>
+		public new string? FriendlyVoucherCode
+		{
+			get => base.FriendlyVoucherCode;
+			set => base.FriendlyVoucherCode = value;
+		}
+		/// <summary>
+		/// The code of the invoice (payment request, voucher, red envelope). Always set on this callback. The same value as
+		/// <see cref="UserCallbackBalanceInfo.InvoiceCode"/> (it is stored there), kept as a non-nullable guid for compatibility
+		/// </summary>
+		public new Guid InvoiceCode
+		{
+			get => base.InvoiceCode ?? Guid.Empty;
+			set => base.InvoiceCode = value;
+		}
 		// the counterpart (who paid, who redeemed, who sent) is UserIdInClientFrom / FromClientId of UserCallbackBalanceInfo
 		/// <summary>
 		/// To the payer of a payment funded by an automatic swap only: the swap, with the balance of its source currency after it

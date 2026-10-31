@@ -1,4 +1,5 @@
 using CurrenciesLib;
+using Newtonsoft.Json;
 
 namespace PayGram.Public.Responses
 {
@@ -24,5 +25,18 @@ namespace PayGram.Public.Responses
 		/// in the answer, in the replay or settle of a lost answer, and in the payer's callback
 		/// </summary>
 		public decimal Change { get; set; }
+		/// <summary>
+		/// The code (guid) of the swap itself: the invoice its two statement entries (the sale of <see cref="SourceCurrency"/> and
+		/// the purchase) show, not the paid invoice (that one is the InvoiceCode of the answer or callback). Absent when it could
+		/// not be read. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Guid? InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code (12 characters) of the swap itself, with <see cref="InvoiceCode"/> (not the paid invoice's). Absent
+		/// when <see cref="InvoiceCode"/> is. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
 	}
 }
