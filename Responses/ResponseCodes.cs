@@ -1,4 +1,4 @@
-﻿namespace PayGram.Public
+namespace PayGram.Public
 {
 	public enum ResponseCodes
 	{
@@ -32,5 +32,15 @@
 		/// requested currency. Nothing was moved. Propose the next option of the quote (QuotePayInvoice) or try again later
 		/// </summary>
 		SwapUnavailable = 559,
+		/// <summary>
+		/// The unique key (ClientUnique) is already registered for a different request: the same key was sent with other
+		/// parameters, or for another operation. Final for this call: nothing was executed by it, and the request first
+		/// registered with that key is untouched (it may have gone through). Before sending a new operation with a NEW key,
+		/// check the original one with CheckUnique: never resend this call with the same key (it gets this answer again), and
+		/// never send the same operation again with a new key without knowing whether the first ran.
+		/// Until the release of 3.7 the server answered 551 (ResponseUniqueRequestViolation) with "already registered for a different request" in
+		/// its message
+		/// </summary>
+		UniqueKeyReusedForOtherRequest = 560,
 	}
 }

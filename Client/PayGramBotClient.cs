@@ -45,6 +45,8 @@ namespace PayGram.Public.Client
 			var res = await TransferCreditAsync(new TransferCreditRequest { To = toTid, Amt = amount, CurSym = curSym, Unique = unique, Cd = string.IsNullOrWhiteSpace(callbackData) ? null : callbackData });
 			if (res.ResponseCode == ResponseCodes.ResponseUniqueRequestViolation)
 				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not final (551), resend it with the same key, never a new one: {res.Message}");
+			else if (res.ResponseCode == ResponseCodes.UniqueKeyReusedForOtherRequest)
+				log.Warn($"transfer {unique} of {amount} {curSym} to {toTid} not executed (560): the key is already registered for a different request. Check that one with CheckUniqueAsync before sending a new key: {res.Message}");
 			return res.Success;
 		}
 		public async Task<Guid> IssueInvoiceAsync(decimal amount, Currencies curSym, string callBackdata)

@@ -78,8 +78,8 @@ export class PayGramClient {
   /**
    * Without `to` creates a voucher (cashout): the response carries redeemUrl.
    * `unique` is the idempotency key: retry with the same value and the transfer never happens twice.
-   * Never throws: responseCode 551 means not final (resend with the same key; its message says when the key is already used
-   * for a different request).
+   * Never throws: responseCode 551 means not final (resend with the same key); 560 means the key is already used for a
+   * different request (nothing done by this call: check that one with checkUnique before using a new key).
    */
   transferCredit({ to = null, amount, currency, unique, cd }) {
     return this.#money("TransferCreditV2", { to, amt: amount, curSym: currency, unique, cd });
