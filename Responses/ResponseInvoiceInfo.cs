@@ -12,25 +12,18 @@ namespace PayGram.Public.Responses
 	{
 		/// <summary>
 		/// The unique GUID identifying this invoice. Used to look up or reference the invoice across the system.
-		/// Written <c>null</c> in JSON when the codes are withheld (<see cref="CodesWithheld"/>: CheckUnique answering a support account
-		/// about someone else's open voucher); a <c>null</c> read gives <see cref="WithheldInvoiceCode"/>. Any other value is written
-		/// and read exactly as a plain <see cref="Guid"/>.
+		/// The all-zero guid (<see cref="Guid.Empty"/>) in a successful answer means the code is withheld (<see cref="CodesWithheld"/>):
+		/// CheckUnique answering a support account about someone else's open voucher. Redeeming it only answers "not found".
 		/// </summary>
-		[JsonConverter(typeof(WithheldInvoiceCodeConverter))]
 		public Guid InvoiceCode { get; set; }
 		/// <summary>
-		/// The <see cref="InvoiceCode"/> of an invoice whose codes are withheld from the caller, written <c>null</c> in JSON. No invoice
-		/// has it: it redeems and finds nothing
-		/// </summary>
-		public static readonly Guid WithheldInvoiceCode = new("ffffffff-ffff-ffff-ffff-ffffffffffff");
-		/// <summary>
 		/// True when the codes that redeem this invoice are withheld from the caller (CheckUnique answering an account with the
-		/// CanSeeTransactionInfo permission about someone else's open voucher or red envelope, TelegramBotServer#66):
-		/// <see cref="InvoiceCode"/> is then <see cref="WithheldInvoiceCode"/>, written <c>null</c>, and <see cref="FriendlyVoucherCode"/>
-		/// is null. Not written in JSON
+		/// CanSeeTransactionInfo permission about someone else's open voucher or red envelope, TelegramBotServer#66): a successful
+		/// answer whose <see cref="InvoiceCode"/> is the all-zero guid (<see cref="FriendlyVoucherCode"/> is then null too). Computed,
+		/// never written in JSON. False on a failed answer, which carries no invoice
 		/// </summary>
 		[JsonIgnore]
-		public bool CodesWithheld => InvoiceCode == WithheldInvoiceCode;
+		public bool CodesWithheld => Success && InvoiceCode == Guid.Empty;
 		/// <summary>
 		/// A human-readable code for the invoice/voucher (e.g. "ABC-1234"), easier to share than the GUID.
 		/// </summary>
@@ -138,21 +131,5 @@ namespace PayGram.Public.Responses
 		{
 
 		}
-	}
-
-	/// <summary>
-	/// <see cref="ResponseInvoiceInfo.InvoiceCode"/> in JSON: <see cref="ResponseInvoiceInfo.WithheldInvoiceCode"/> is written <c>null</c>
-	/// and a <c>null</c> is read as it; every other guid is written and read as the serializer does without a converter
-	/// </summary>
-	public sealed class WithheldInvoiceCodeConverter : JsonConverter<Guid>
-	{
-		public override void WriteJson(JsonWriter writer, Guid value, JsonSerializer serializer)
-		{
-			if (value == ResponseInvoiceInfo.WithheldInvoiceCode) writer.WriteNull();
-			else writer.WriteValue(value);
-		}
-
-		public override Guid ReadJson(JsonReader reader, Type objectType, Guid existingValue, bool hasExistingValue, JsonSerializer serializer)
-			=> reader.TokenType == JsonToken.Null ? ResponseInvoiceInfo.WithheldInvoiceCode : serializer.Deserialize<Guid>(reader);
 	}
 }
