@@ -44,5 +44,12 @@ namespace PayGram.Public.Responses
 		{
 
 		}
+
+		/// <summary>
+		/// The friendly code (12 characters) of the voucher or red envelope that was redeemed: the one its callbacks and statement
+		/// entries carry. On a success; absent otherwise and when the invoice has none (created before 2023-12-20). Added in 3.9.0
+		/// </summary>
+		[Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
 	}
 }

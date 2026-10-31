@@ -16,7 +16,20 @@
 		/// </summary>
 		public int? ToClientId { get; set; }
 		public Guid VoucherCode { get; set; }
-		public string? FriendlyVoucherCode { get; set; }
+		/// <summary>
+		/// The friendly code of the voucher. The same value as <see cref="UserCallbackBalanceInfo.FriendlyVoucherCode"/> (it is
+		/// stored there); kept here, written even when null, so that this callback's body does not change
+		/// </summary>
+		public new string? FriendlyVoucherCode
+		{
+			get => base.FriendlyVoucherCode;
+			set => base.FriendlyVoucherCode = value;
+		}
+		/// <summary>
+		/// The link to redeem the voucher or the red envelope. Set only for the PayGram Telegram bot (a link to the bot): the
+		/// PayGram API leaves it null for its own integrators on purpose (it does not depend on Telegram; where a voucher is
+		/// redeemed from is the integrator's business). The PayGram bot API fills it for its integrators
+		/// </summary>
 		public string? RedeemUrl { get; set; }
 	}
 }

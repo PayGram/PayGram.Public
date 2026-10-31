@@ -32,5 +32,11 @@ namespace PayGram.Public.Responses
 		/// </summary>
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public Guid? InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code (12 characters) of the swap itself, with <see cref="InvoiceCode"/> (not the paid invoice's). Absent
+		/// when <see cref="InvoiceCode"/> is. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
 	}
 }

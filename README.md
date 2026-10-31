@@ -223,22 +223,54 @@ Every callback about a movement names the **counterpart**, as the integration th
 
 The client id tells you whose user base the id comes from: when it equals your own client id (`clientId` in `GetUserInfo`), the user id is one of your users, for example a Telegram id for users of the PayGram bot; otherwise the user belongs to another PayGram integration and the id lives in that integration's namespace. Use the pair to match payments and cashouts to your own records and to spot anomalies, for example the same payer across many accounts. The counterpart is disclosed only to the two sides of a movement, never to someone who merely holds an invoice code: `InvoiceInfo` returns the parties (`fromUser`, `toUser`, `originatingUser`, each with its `...ClientId`) only to a caller involved in the invoice.
 
-### The invoice code of every movement (3.9)
+### The identifiers of every movement (3.9)
 
-Every callback that reports money moving carries `invoiceCode`: the code (guid) of the invoice the movement belongs to, the same code `GetStatement` shows for that entry (`invoice.guid` of the `StatementEntry`). It is added, never changed: the field is absent from callbacks stored before 3.9 (and from those that move no money: `reportInfo`, `expiredInfo` has its own `invoiceCode`), and every field a callback had before is unchanged. The signature covers the whole body as received, so it verifies as before.
+Every answer and callback about money moving carries the identifiers of the movement, so you can record it and recognise it later. They are **added, never changed**: a field is absent (not `null`) when it does not apply and in callbacks or replayed answers stored before 3.9, every field a callback or answer had before is unchanged, and the signature covers the whole body as received, so it verifies as before. PayGram's internal transaction ids are never given.
 
-| Callback | Where | Which code |
+- `invoiceCode`: the code (guid) of the invoice the movement belongs to, the same code `GetStatement` shows for that entry (`invoice.guid` of the `StatementEntry`).
+- `friendlyVoucherCode`: the 12-character friendly code of the same invoice (`invoice.friendlyVoucherCode` in the statement). Absent for an invoice created before 2023-12-20.
+- `depositId` (crypto deposits only): the identifier of one deposit, the same in its callback and in its statement entry. **Use it to deduplicate deposits.**
+- `txHash` (on-chain crypto deposits only): the hash of the blockchain transaction that paid the deposit address, to check it on a block explorer. It is **not unique per deposit** (one transaction can pay more than one deposit): never use it as a key. A deposit from another PayGram user routed internally has no `txHash` (nothing went on chain).
+
+Callbacks:
+
+| Callback | `invoiceCode` / `friendlyVoucherCode` of | Also |
 |---|---|---|
-| `InvoiceInfoCredited` / `InvoiceInfoDebited` | `invoiceInfo.invoiceCode` (as before) | the payment request, voucher or red envelope |
-| `MoneySent` | `moneySentInfo.invoiceCode` (new; the same as `voucherCode`) | the voucher of the transfer, or the red envelope created |
-| `BalanceInfo`, direct transfer received | `balanceInfo.invoiceCode` (new) | the voucher of the transfer (the sender's `voucherCode`) |
-| `BalanceInfo`, crypto deposit credited | `balanceInfo.invoiceCode` (new) | the **deposit account** (deposit invoice) that received it, as for a deposit from another PayGram user routed internally |
-| `WithdrawInfo` | `withdrawInfo.invoiceCode` (new; the same as `info.withdrawId` and the `InvoiceCode` of the withdraw answer) | the withdrawal |
+| `InvoiceInfoCredited` / `InvoiceInfoDebited` | the payment request, voucher or red envelope (both as before) | `invoiceInfo.swap.invoiceCode` / `.friendlyVoucherCode`: the swap of a payment with an automatic swap (payer only) |
+| `MoneySent` | the voucher of the transfer, or the red envelope created (`invoiceCode` new, the same as `voucherCode`) | |
+| `BalanceInfo`, direct transfer received | the voucher of the transfer (new) | |
+| `BalanceInfo`, crypto deposit credited | the **deposit account** that received it (new) | `depositId`, `txHash` (new) |
+| `BalanceInfo`, deposit from another PayGram user routed internally | the receiver's own deposit account (new; never anything of the sender) | `depositId` (new), no `txHash` |
+| `WithdrawInfo` | the withdrawal (new; `invoiceCode` is the same as `info.withdrawId`) | |
 
-A deposit account receives every deposit sent to its address, so its code alone does not tell one deposit from another: deduplicate the callbacks by their `id`, and match a deposit by its amount and time with the statement.
+**Removed in 3.9:** `withdrawInfo.info.internalId`, an internal database id, is no longer sent (the `WithdrawInfo.InternalId` property stays in the SDK, obsolete, always 0). Identify a withdrawal by `info.withdrawId` / `invoiceCode` or by `friendlyVoucherCode`.
 
-Answers: `SwapAsync` now returns the `InvoiceCode` of the swap (the code of its two statement entries) on a success, and the `swap` of a payment with an automatic swap has its own `invoiceCode` (the swap's, not the paid invoice's). The other answers that move money already carried their code: `InvoiceCode` of `PayInvoice`, `WithdrawAsync` and `CreateRedEnvelope`, `VoucherCode` of `TransferCreditAsync`.
+Answers (new in 3.9 unless marked):
 
+| Call | Fields |
+|---|---|
+| `TransferCreditAsync` | `invoiceCode` (= `voucherCode`), `friendlyVoucherCode` (as before) |
+| `WithdrawAsync` | `invoiceCode` (as before), `friendlyVoucherCode` |
+| `SwapAsync` | `invoiceCode`, `friendlyVoucherCode` of the swap (the code of its two statement entries), on a success and its replay; absent on a simulation and on a failure |
+| `PayInvoice` / `PayVoucherAsync` with an automatic swap | `swap.invoiceCode`, `swap.friendlyVoucherCode` (the swap's own, not the paid invoice's, which stays the answer's `invoiceCode`) |
+| `RedeemVoucherAsync` (voucher or red envelope share) | `friendlyVoucherCode` of the voucher or envelope, on a success |
+| `DepositCreditAsync` | `invoiceCode`, `friendlyVoucherCode` of the deposit account bound to the returned address |
+| `GetStatementAsync` | `depositId` on the deposit entries (`entryType` 1) |
+| `IssueInvoice`, `CreateRedEnvelope` | `invoiceCode`, `friendlyVoucherCode` (as before) |
+
+**How to recognise each movement:**
+
+| Movement | Recognise it by |
+|---|---|
+| Voucher, red envelope, payment request | its `invoiceCode` (or `friendlyVoucherCode`): the same in the answer, the callbacks and the statement |
+| Withdrawal | its `invoiceCode` (= `info.withdrawId`) or `friendlyVoucherCode`, on every status callback |
+| Swap | its `invoiceCode` or `friendlyVoucherCode`, on both statement entries |
+| Crypto deposit | its `depositId` (callback and statement). `invoiceCode` / `friendlyVoucherCode` name the deposit **account**, the same for every deposit to its address; `txHash` is the public on-chain check, not a key |
+| A callback delivered twice | its `id` (each callback has its own; the user's and the client's copy of the same movement have different ids) |
+
+> **Note: DepositCredit and `Cd` (callback data).** The deposit address is **permanent per user** (and token): every later `DepositCreditAsync` for the same token returns the same address, bound to the same deposit account. The `Cd` of the **first** request is kept for every deposit to that address and **cannot be changed**: a later request's `Cd` is ignored. Use `Cd` only to identify the user on your side (for example your user id), never for a single order or payment. To recognise each deposit use `depositId` (and `txHash` for an on-chain one); use `invoiceCode` / `friendlyVoucherCode` for the account. A deposit of another token sent to the same address is credited to the user's account for that token, with its own codes.
+
+> **Note: `RedeemUrl`.** The PayGram API does not build a redeem link for its own integrators, on purpose: it does not depend on Telegram, and the page or app a voucher is redeemed from is the integrator's business (redeem the code with `RedeemVoucher`). `RedeemUrl` (TransferCredit answer, `MoneySent` callback, CreateRedEnvelope answer) is filled only by the PayGram **bot** API, the one this library's `PayGramBotClient` calls, with a Telegram link to the PayGram bot; a direct integrator of the PayGram API gets it empty.
 ## 6. Verifying the callback signature
 
 **Always** verify the signature before trusting a callback: your callback URL is public, and anyone can POST to it.
@@ -355,7 +387,7 @@ The production base URL is `https://pubapi.paygr.am/PayGramUsers/`, and every ca
 | `CheckUniqueAsync(CheckUniqueRequest)` | `CheckUnique` | `query`: invoice id, voucher code, callback data or unique key | `ResponseCheckUnique` |
 | `PayVoucherAsync(PayVoucherRequest)` | `PayVoucherV2` | | `ResponseInvoiceInfo` |
 | `RedeemVoucherAsync(RedeemVoucherRequest)` | `RedeemVoucherV2` | | `ResponseTopUpReceived` |
-| `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address) |
+| `DepositCreditAsync(...)` | `DepositCredit` | query `amt`, `cursym`, `network`, `cd` | `ResponseTopUp` (crypto deposit address, permanent per user and token, with `invoiceCode` / `friendlyVoucherCode` of its deposit account; `cd` is kept from the first request only: see section 5) |
 | `WithdrawAsync(WithdrawRequest)` | `WithdrawV2` | | `ResponseWithdrawAccepted` |
 | `SwapAsync(SwapRequest)` | `SwapV2` | | `ResponseSwap` |
 | `GetStatementAsync(GetStatementRequest)` | `GetStatementV2` | | `ResponseStatement` (each entry carries `balanceAfter`) |

@@ -30,5 +30,29 @@ namespace PayGram.Public.UserAPI
 		/// </summary>
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public Guid? InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code (12 characters, <c>Invoices.FriendlyUnique</c>) of the same invoice as <see cref="InvoiceCode"/>: the
+		/// one the statement shows as <c>StatementEntry.Invoice.FriendlyVoucherCode</c>. For a crypto deposit, the deposit
+		/// account's; for a direct transfer, its voucher's; for a withdrawal, the withdrawal's. Absent (null) when the invoice has
+		/// none (invoices created before 2023-12-20) and in callbacks stored before 3.9.0. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
+		/// <summary>
+		/// Crypto deposits only (on chain and routed internally from another PayGram user): the identifier of this one deposit,
+		/// the same <c>DepositId</c> its entry carries in the statement. Unique per deposit: the key to deduplicate deposits (the
+		/// deposit account's <see cref="InvoiceCode"/> is the same for every deposit to its address, and one on-chain transaction
+		/// may pay more than one deposit). Absent on every other callback and in callbacks stored before 3.9.0. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public Guid? DepositId { get; set; }
+		/// <summary>
+		/// On-chain crypto deposits only: the hash of the blockchain transaction that paid the deposit address, to check it on a
+		/// block explorer. Not unique per deposit (one transaction may pay more than one deposit): deduplicate by
+		/// <see cref="DepositId"/>. Absent for a deposit routed internally from another PayGram user (nothing went on chain), on
+		/// every other callback and in callbacks stored before 3.9.0. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? TxHash { get; set; }
 	}
 }

@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace PayGram.Public.Responses
 {
 	/// <summary>
@@ -30,6 +32,12 @@ namespace PayGram.Public.Responses
 		/// The GUID of the invoice tracking this withdrawal. Can be used with <c>InvoiceInfo</c> to check withdrawal status.
 		/// </summary>
 		public Guid InvoiceCode { get; set; }
+		/// <summary>
+		/// The friendly code (12 characters) of the withdrawal: the one its callbacks and its statement entry carry. Absent in an
+		/// answer stored before 3.9.0 and replayed. Added in 3.9.0
+		/// </summary>
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public string? FriendlyVoucherCode { get; set; }
 
 		public ResponseWithdrawAccepted()
 									: base(PaygramResponseTypes.ResponseWithdrawAccepted)
