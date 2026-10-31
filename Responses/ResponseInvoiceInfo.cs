@@ -12,8 +12,32 @@ namespace PayGram.Public.Responses
 	{
 		/// <summary>
 		/// The unique GUID identifying this invoice. Used to look up or reference the invoice across the system.
+		/// Written <c>null</c> in JSON when <see cref="CodesWithheld"/> (CheckUnique to a support account, someone else's open voucher);
+		/// <see cref="Guid.Empty"/> when a <c>null</c> is read.
 		/// </summary>
+		[JsonIgnore]
 		public Guid InvoiceCode { get; set; }
+		/// <summary>
+		/// <see cref="InvoiceCode"/> as it is written and read in JSON, under its name: the same guid, or <c>null</c> when the codes are
+		/// withheld. Not public: the property everyone reads stays a <see cref="Guid"/> (a nullable one would not compile in the callers)
+		/// </summary>
+		[JsonProperty(nameof(InvoiceCode))]
+		// the default of the Guid it stands for: a format that leaves default values out (PublicJson, the stored json) leaves out
+		// an empty code as before, never a withheld one
+		[System.ComponentModel.DefaultValue(typeof(Guid), "00000000-0000-0000-0000-000000000000")]
+		protected Guid? InvoiceCodeInJson
+		{
+			get => CodesWithheld ? null : InvoiceCode;
+			set { InvoiceCode = value ?? Guid.Empty; CodesWithheld = value == null; }
+		}
+		/// <summary>
+		/// True when the codes that redeem this invoice are withheld from the caller (CheckUnique answering an account with the
+		/// CanSeeTransactionInfo permission about someone else's open voucher or red envelope, TelegramBotServer#66):
+		/// <see cref="InvoiceCode"/> is then written <c>null</c> (and is <see cref="Guid.Empty"/> in memory) and
+		/// <see cref="FriendlyVoucherCode"/> is null. Not written in JSON: a <c>null</c> invoiceCode read back sets it.
+		/// </summary>
+		[JsonIgnore]
+		public bool CodesWithheld { get; set; }
 		/// <summary>
 		/// A human-readable code for the invoice/voucher (e.g. "ABC-1234"), easier to share than the GUID.
 		/// </summary>
