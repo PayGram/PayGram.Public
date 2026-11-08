@@ -75,5 +75,9 @@ namespace PayGram.Public
 		ResponseAdminBlockedAddresses = 58,
 		/// <summary>Admin: the outcome of an add or a remove of a blocked withdrawal address (AdminAddBlockedAddress / AdminRemoveBlockedAddress, the admin panel only)</summary>
 		ResponseAdminBlockedAddressAction = 59,
+		/// <summary>Admin: the exchange rates and their buy/sell spreads (AdminGetRates, the admin panel only)</summary>
+		ResponseAdminRates = 60,
+		/// <summary>Admin: the outcome of a change of a rate's spreads, before and after (AdminSetRateSpreads, the admin panel only)</summary>
+		ResponseAdminRateSpreadsSet = 61,
 	}
 }
